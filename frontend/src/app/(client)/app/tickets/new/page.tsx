@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
     ArrowLeft, 
@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 
-export default function NewTicketPage() {
+function NewTicketForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const type = searchParams.get("type") || "BUG";
@@ -209,5 +209,13 @@ export default function NewTicketPage() {
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function NewTicketPage() {
+    return (
+        <Suspense fallback={<div className="p-20 text-center font-bold text-zinc-500 animate-pulse italic">Initializing Strategic Communication...</div>}>
+            <NewTicketForm />
+        </Suspense>
     );
 }
