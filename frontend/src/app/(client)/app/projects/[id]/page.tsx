@@ -60,6 +60,8 @@ interface Requirements {
     payment_setup?: {
         has_toyyibpay: boolean;
         ssm_url?: string;
+        secret_key?: string;
+        category_code?: string;
     };
     competitor_ref?: string;
     social_media?: {
