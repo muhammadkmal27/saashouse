@@ -87,6 +87,7 @@ interface Project {
     selected_plan?: string;
     client_edit_allowed: boolean;
     created_at: string;
+    whatsapp_number?: string;
     requirements?: Requirements;
 }
 
