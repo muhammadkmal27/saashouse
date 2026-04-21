@@ -48,8 +48,8 @@ async fn main() {
 
     // Run our app with hyper, listening globally on port 8080
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    println!("API listening on http://127.0.0.1:8080");
-    println!("Swagger UI available at http://127.0.0.1:8080/swagger-ui");
+    println!("API listening on http://0.0.0.0:8080");
+    println!("Swagger UI available at http://0.0.0.0:8080/swagger-ui");
     axum::serve(listener, app).await.unwrap();
 }
 
