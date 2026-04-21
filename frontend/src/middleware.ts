@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decodeJwt } from "jose";
 
+const BACKEND = process.env.BACKEND_URL || "http://localhost:8080";
+
 // Routes that are ALWAYS accessible (even in maintenance mode)
 const MAINTENANCE_BYPASS = [
   "/maintenance",
@@ -30,7 +32,7 @@ export async function middleware(request: NextRequest) {
   // Only check public routes — admin and app routes are handled by auth check below
   if (isPublicRoute(pathname) && !bypassesMaintenance(pathname)) {
     try {
-      const statusRes = await fetch("http://localhost:8080/api/status", {
+      const statusRes = await fetch(`${BACKEND}/api/status`, {
         // Short timeout — if backend is down, don't block users
         signal: AbortSignal.timeout(2000),
       });
@@ -106,7 +108,7 @@ export async function middleware(request: NextRequest) {
     // 6. Also redirect clients in /app away during maintenance
     if (pathname.startsWith("/app")) {
       try {
-        const statusRes = await fetch("http://localhost:8080/api/status", {
+        const statusRes = await fetch(`${BACKEND}/api/status`, {
           signal: AbortSignal.timeout(2000),
         });
         if (statusRes.ok) {

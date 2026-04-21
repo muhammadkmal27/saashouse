@@ -32,6 +32,9 @@ RUN apt-get update && apt-get install -y \
 # Copy the binary from builder
 COPY --from=builder /app/target/release/backend /app/backend
 
+# Copy migrations for auto-migration on startup
+COPY --from=builder /app/migrations /app/migrations
+
 # Create assets and uploads directories
 RUN mkdir -p /app/assets /app/uploads
 

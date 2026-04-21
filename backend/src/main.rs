@@ -1,10 +1,14 @@
 use backend::AppState;
 use backend::router;
 use backend::utils::realtime::RealtimeHub;
-use axum::Router;
 use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
 use std::env;
 use std::sync::Arc;
+use argon2::{
+    password_hash::{PasswordHasher, SaltString},
+    Argon2,
+};
 
 
 #[tokio::main]
@@ -18,6 +22,18 @@ async fn main() {
         .connect(&database_url)
         .await
         .expect("Failed to connect to Postgres!");
+
+    // Run database migrations automatically
+    sqlx::migrate!()
+        .run(&pool)
+        .await
+        .expect("Failed to run database migrations!");
+    println!("✅ Database migrations applied successfully");
+
+    // Seed admin account if it doesn't exist
+    if let Err(e) = seed_admin(&pool).await {
+        eprintln!("⚠️ Admin seed warning: {}", e);
+    }
 
     // Initialize Realtime Hub
     let hub = Arc::new(RealtimeHub::new());
@@ -35,4 +51,59 @@ async fn main() {
     println!("API listening on http://127.0.0.1:8080");
     println!("Swagger UI available at http://127.0.0.1:8080/swagger-ui");
     axum::serve(listener, app).await.unwrap();
+}
+
+/// Seeds the default admin account if no admin user exists in the database.
+/// Uses ON CONFLICT DO NOTHING to ensure idempotency — safe to run on every startup.
+async fn seed_admin(pool: &PgPool) -> Result<(), Box<dyn std::error::Error>> {
+    let admin_email = "akmallmuhammad27@gmail.com";
+    let admin_password = "Admin123!";
+
+    // Check if any admin already exists
+    let existing_admin = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(*) FROM users WHERE role = 'ADMIN'"
+    )
+    .fetch_one(pool)
+    .await?;
+
+    if existing_admin > 0 {
+        println!("✅ Admin account already exists, skipping seed");
+        return Ok(());
+    }
+
+    // Hash the password using Argon2
+    let salt = SaltString::from_b64("c2FsdHNhbHRzYWx0")
+        .map_err(|e| format!("Salt error: {}", e))?;
+    let argon2 = Argon2::default();
+    let password_hash = argon2
+        .hash_password(admin_password.as_bytes(), &salt)
+        .map_err(|e| format!("Hash error: {}", e))?
+        .to_string();
+
+    let user_id = uuid::Uuid::new_v4();
+
+    // Insert admin user
+    sqlx::query(
+        "INSERT INTO users (id, email, password_hash, role) 
+         VALUES ($1, $2, $3, 'ADMIN') 
+         ON CONFLICT (email) DO NOTHING"
+    )
+    .bind(user_id)
+    .bind(admin_email)
+    .bind(&password_hash)
+    .execute(pool)
+    .await?;
+
+    // Insert admin profile
+    sqlx::query(
+        "INSERT INTO user_profiles (user_id, full_name) 
+         VALUES ($1, 'Admin SaaS') 
+         ON CONFLICT (user_id) DO NOTHING"
+    )
+    .bind(user_id)
+    .execute(pool)
+    .await?;
+
+    println!("✅ Admin account seeded: {}", admin_email);
+    Ok(())
 }
