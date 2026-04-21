@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { ArrowRight, ArrowLeft, UploadCloud, CheckCircle2, Shield, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -39,7 +39,7 @@ interface OnboardingData {
   project_vision: string;
 }
 
-export default function CreateProjectPage() {
+function CreateProjectForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlPlan = searchParams.get("plan");
@@ -708,5 +708,13 @@ export default function CreateProjectPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateProjectPage() {
+  return (
+    <Suspense fallback={<div className="p-20 text-center font-bold text-zinc-500 animate-pulse italic">Loading Project Onboarding...</div>}>
+      <CreateProjectForm />
+    </Suspense>
   );
 }
