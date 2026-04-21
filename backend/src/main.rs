@@ -56,7 +56,10 @@ async fn main() {
 /// Seeds the default admin account if no admin user exists in the database.
 /// Uses ON CONFLICT DO NOTHING to ensure idempotency — safe to run on every startup.
 async fn seed_admin(pool: &PgPool) -> Result<(), Box<dyn std::error::Error>> {
-    let admin_email = "akmallmuhammad27@gmail.com";
+    let admins = vec![
+        ("akmallmuhammad27@gmail.com", "Admin SaaS 1"),
+        ("mdsykr8894@gmail.com", "Admin SaaS 2"),
+    ];
     let admin_password = "Admin123!";
 
     // Check if any admin already exists
@@ -67,7 +70,7 @@ async fn seed_admin(pool: &PgPool) -> Result<(), Box<dyn std::error::Error>> {
     .await?;
 
     if existing_admin > 0 {
-        println!("✅ Admin account already exists, skipping seed");
+        println!("✅ Admin accounts already exist, skipping seed");
         return Ok(());
     }
 
@@ -80,30 +83,34 @@ async fn seed_admin(pool: &PgPool) -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|e| format!("Hash error: {}", e))?
         .to_string();
 
-    let user_id = uuid::Uuid::new_v4();
+    for (email, name) in admins {
+        let user_id = uuid::Uuid::new_v4();
 
-    // Insert admin user
-    sqlx::query(
-        "INSERT INTO users (id, email, password_hash, role) 
-         VALUES ($1, $2, $3, 'ADMIN') 
-         ON CONFLICT (email) DO NOTHING"
-    )
-    .bind(user_id)
-    .bind(admin_email)
-    .bind(&password_hash)
-    .execute(pool)
-    .await?;
+        // Insert admin user
+        sqlx::query(
+            "INSERT INTO users (id, email, password_hash, role) 
+             VALUES ($1, $2, $3, 'ADMIN') 
+             ON CONFLICT (email) DO NOTHING"
+        )
+        .bind(user_id)
+        .bind(email)
+        .bind(&password_hash)
+        .execute(pool)
+        .await?;
 
-    // Insert admin profile
-    sqlx::query(
-        "INSERT INTO user_profiles (user_id, full_name) 
-         VALUES ($1, 'Admin SaaS') 
-         ON CONFLICT (user_id) DO NOTHING"
-    )
-    .bind(user_id)
-    .execute(pool)
-    .await?;
+        // Insert admin profile
+        sqlx::query(
+            "INSERT INTO user_profiles (user_id, full_name) 
+             VALUES ($1, $2) 
+             ON CONFLICT (user_id) DO NOTHING"
+        )
+        .bind(user_id)
+        .bind(name)
+        .execute(pool)
+        .await?;
 
-    println!("✅ Admin account seeded: {}", admin_email);
+        println!("✅ Admin account seeded: {}", email);
+    }
+
     Ok(())
 }
