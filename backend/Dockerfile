@@ -32,9 +32,8 @@ RUN apt-get update && apt-get install -y \
 # Copy the binary from builder
 COPY --from=builder /app/target/release/backend /app/backend
 
-# Copy assets and uploads directories if they exist
-COPY --from=builder /app/assets /app/assets
-COPY --from=builder /app/uploads /app/uploads
+# Create assets and uploads directories
+RUN mkdir -p /app/assets /app/uploads
 
 # Expose the API port
 EXPOSE 8080
