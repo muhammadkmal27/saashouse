@@ -1,0 +1,14 @@
+﻿C:\Users\mypc\.cargo\bin\cargo.exe :     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.75s
+At line:1 char:68
++ ... lyContinue; C:\Users\mypc\.cargo\bin\cargo.exe run --bin backend 2>&1 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Finished `d...get(s) in 0.75s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+     Running `target\debug\backend.exe`
+API listening on http://127.0.0.1:8080
+Swagger UI available at http://127.0.0.1:8080/swagger-ui
+Failed to send OTP email: Internal Error: SMTP_PASS not set
+Failed to send OTP email: Internal Error: SMTP_PASS not set
+error: process didn't exit successfully: `target\debug\backend.exe` (exit code: 0xffffffff)
+

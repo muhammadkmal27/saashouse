@@ -1,0 +1,63 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
+axum-extra = { version = "0.9", features = ["cookie"] }
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+futures-util = "0.3"
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "bigdecimal", "json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.10", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenv = "0.15"
+argon2 = "0.5"
+tower-http = { version = "0.5", features = ["cors", "fs", "limit"] }
+tower = { version = "0.5", features = ["util"] }
+jsonwebtoken = "9"
+utoipa = { version = "5", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-swagger-ui = { version = "8", features = ["axum"] }
+reqwest = { version = "0.12", features = ["json"] }
+hmac = "0.13.0"
+sha2 = "0.11.0"
+hex = "0.4.3"
+time = { version = "0.3.47", features = ["macros", "formatting"] }
+rand = "0.10.0"
+base64 = "0.22"
+lettre = { version = "0.11.21", features = ["builder", "hostname", "pool", "smtp-transport", "tokio1-rustls", "tokio1-rustls-tls"], default-features = false }
+async-trait = "0.1.89"
+
+[dev-dependencies]
+mockall = "0.13"
+pretty_assertions = "1"
+tokio-test = "0.4"
+
+[[bin]]
+name = "backend"
+path = "src/main.rs"
+
+[[bin]]
+name = "check_user"
+path = "scratch/check_user.rs"
+
+[[bin]]
+name = "check_table"
+path = "scratch/check_table.rs"
+
+[[bin]]
+name = "reset_admin"
+path = "scratch/reset_admin.rs"
+
+[[bin]]
+name = "create_test_db"
+path = "scratch/create_test_db.rs"
+
+[[bin]]
+name = "test_smtp"
+path = "scratch/test_smtp.rs"
+
+

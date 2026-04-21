@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n                r.id as \"id!\", \n                r.project_id as \"project_id!\", \n                r.created_by as \"created_by!\", \n                u.email as \"creator_email!\",\n                r.type as \"type_!: RequestType\", \n                r.status as \"status!: RequestStatus\", \n                r.title as \"title!\", \n                r.description as \"description!\", \n                r.attachment_urls as \"attachment_urls\", \n                r.created_at as \"created_at!\", \n                r.updated_at as \"updated_at!\" \n            FROM requests r\n            JOIN users u ON r.created_by = u.id\n            ORDER BY r.created_at DESC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "project_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_by!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "creator_email!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "type_!: RequestType",
+        "type_info": {
+          "Custom": {
+            "name": "request_type",
+            "kind": {
+              "Enum": [
+                "BUG",
+                "FIX",
+                "FEATURE"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "status!: RequestStatus",
+        "type_info": {
+          "Custom": {
+            "name": "request_status",
+            "kind": {
+              "Enum": [
+                "OPEN",
+                "IN_PROGRESS",
+                "RESOLVED",
+                "CLOSED"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "title!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "description!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "attachment_urls",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at!",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "de297b68cfa64c3014fa8ed549b7a5e828860a43a18bcea9f485b6e4b203d622"
+}

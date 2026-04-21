@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE otps SET is_used = true WHERE user_id = $1 AND is_used = false",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "35397c1d32063b8afb9d9a5d98a44a85c03d4e4cdefa53167750cbc0209b223a"
+}

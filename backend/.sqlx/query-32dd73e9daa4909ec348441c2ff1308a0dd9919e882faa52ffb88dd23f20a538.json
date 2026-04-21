@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT COALESCE(SUM(amount)::DOUBLE PRECISION, 0.0) as \"total!\" FROM billings WHERE status = 'PAID'",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "total!",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "32dd73e9daa4909ec348441c2ff1308a0dd9919e882faa52ffb88dd23f20a538"
+}

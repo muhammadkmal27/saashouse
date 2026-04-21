@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n            id as \"id!\", \n            request_id as \"request_id!\", \n            user_id as \"user_id!\", \n            message as \"message!\", \n            attachment_urls, \n            is_read as \"is_read!\",\n            created_at as \"created_at!\" \n        FROM request_comments \n        WHERE request_id = $1 \n        ORDER BY created_at ASC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "request_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "message!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "attachment_urls",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_read!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "66717e72642f88394d4df46d1375c38c1e4f224c8e3b9fd0c9f82cae4402b4f7"
+}

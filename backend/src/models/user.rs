@@ -1,0 +1,43 @@
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
+use chrono::{DateTime, Utc};
+use uuid::Uuid;
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, sqlx::Type, Clone, PartialEq)]
+#[sqlx(type_name = "user_role", rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum UserRole {
+    Client,
+    Admin,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, sqlx::FromRow)]
+pub struct User {
+    pub id: Uuid,
+    pub email: String,
+    pub password_hash: Option<String>,
+    pub google_id: Option<String>,
+    pub role: UserRole,
+    pub is_active: bool,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, sqlx::FromRow)]
+pub struct UserProfile {
+    pub user_id: Uuid,
+    pub full_name: String,
+    pub company_name: Option<String>,
+    pub phone_number: Option<String>,
+    pub avatar_url: Option<String>,
+    pub bio: Option<String>,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, sqlx::FromRow)]
+pub struct UserPreferences {
+    pub user_id: Uuid,
+    pub project_updates: bool,
+    pub billing_alerts: bool,
+    pub security_alerts: bool,
+    pub updated_at: Option<DateTime<Utc>>,
+}

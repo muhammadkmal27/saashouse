@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET status = 'DRAFT', updated_at = NOW() \n                 WHERE id = (SELECT project_id FROM subscriptions WHERE stripe_sub_id = $1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3831d2c92df947d822fcc036786d09a3528466362e7f67383ca37efbfbbae028"
+}
