@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET requirements = requirements || '{\"selected_plan\": \"Professional Plan\"}' WHERE title IN ('Project: a.my', 'Project: b.my')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "15c208a52170c518fd599c05d0f0a1c7a4401d6fc962ae384c786302e47a251c"
+}

@@ -1,0 +1,107 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            pr.id as id,\n            pr.title as title,\n            pr.description as description,\n            pr.whatsapp_number as whatsapp_number,\n            COALESCE(p.full_name, u.email) as \"client_name!\",\n            u.email as \"client_email!\",\n            COALESCE(s.plan_name, pr.selected_plan, pr.requirements->>'selected_plan') as \"plan_name?\",\n            pr.status as \"status!: ProjectStatus\",\n            pr.dev_url,\n            pr.prod_url,\n            LOWER(s.status) as \"subscription_status?\",\n            pr.client_edit_allowed as \"client_edit_allowed!\",\n            pr.created_at\n        FROM projects pr\n        JOIN users u ON pr.client_id = u.id\n        LEFT JOIN user_profiles p ON u.id = p.user_id\n        LEFT JOIN LATERAL (\n            SELECT status, plan_name, id\n            FROM subscriptions sub\n            WHERE sub.project_id = pr.id \n               OR (sub.project_id IS NULL AND sub.client_id = pr.client_id)\n            ORDER BY (sub.project_id = pr.id) DESC, sub.updated_at DESC\n            LIMIT 1\n        ) s ON TRUE\n        ORDER BY pr.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "whatsapp_number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "client_name!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "client_email!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "plan_name?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "status!: ProjectStatus",
+        "type_info": {
+          "Custom": {
+            "name": "project_status",
+            "kind": {
+              "Enum": [
+                "DRAFT",
+                "ONBOARDING",
+                "PAYMENT_PENDING",
+                "PAID",
+                "UNDER_DEVELOPMENT",
+                "REVIEW",
+                "LIVE"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "dev_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "prod_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "subscription_status?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "client_edit_allowed!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      null,
+      false,
+      null,
+      true,
+      true,
+      true,
+      null,
+      true,
+      true
+    ]
+  },
+  "hash": "21ad5960cb90f0300b29b0134d36bc3120cfe71e050cf7581e717299860d1646"
+}

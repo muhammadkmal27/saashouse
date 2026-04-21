@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE projects\n        SET selected_plan = requirements->>'selected_plan'\n        WHERE selected_plan IS NULL \n          AND requirements->>'selected_plan' IS NOT NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "92c7410af3862aa8789ad1fb652026fcaa5befc0dba67ba1395a04297ceea86e"
+}

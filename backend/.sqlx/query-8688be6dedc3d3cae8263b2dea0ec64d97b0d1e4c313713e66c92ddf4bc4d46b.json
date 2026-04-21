@@ -1,0 +1,116 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE projects \n        SET \n            selected_plan = COALESCE(NULLIF(selected_plan, ''), $1::jsonb->>'selected_plan', requirements->>'selected_plan'),\n            requirements = $1::jsonb - CAST('selected_plan' AS TEXT), \n            updated_at = NOW() \n        WHERE id = $2\n        RETURNING id, client_id as \"client_id!\", title, description, whatsapp_number, requirements, status as \"status!: _\", \n                  dev_url, prod_url, NULL::TEXT as subscription_status, selected_plan, client_edit_allowed as \"client_edit_allowed!\", created_at, updated_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "client_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "whatsapp_number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "requirements",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "status!: _",
+        "type_info": {
+          "Custom": {
+            "name": "project_status",
+            "kind": {
+              "Enum": [
+                "DRAFT",
+                "ONBOARDING",
+                "PAYMENT_PENDING",
+                "PAID",
+                "UNDER_DEVELOPMENT",
+                "REVIEW",
+                "LIVE"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "dev_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "prod_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "subscription_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "selected_plan",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "client_edit_allowed!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Jsonb",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "8688be6dedc3d3cae8263b2dea0ec64d97b0d1e4c313713e66c92ddf4bc4d46b"
+}

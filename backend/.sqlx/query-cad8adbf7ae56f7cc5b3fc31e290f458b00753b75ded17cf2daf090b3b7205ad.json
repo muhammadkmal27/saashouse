@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET status = 'PAYMENT_PENDING', updated_at = NOW() \n                 WHERE id = (SELECT project_id FROM subscriptions WHERE stripe_sub_id = $1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cad8adbf7ae56f7cc5b3fc31e290f458b00753b75ded17cf2daf090b3b7205ad"
+}

@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            u.id as id,\n            COALESCE(p.full_name, u.email) as \"full_name!\",\n            u.email as \"email!\",\n            pr.id as \"project_id?\",\n            pr.title as \"project_title?\",\n            s.plan_name as \"plan_name?\",\n            pr.status as \"project_status?: ProjectStatus\",\n            s.id as \"subscription_id?\",\n            LOWER(s.status) as \"subscription_status?\",\n            (CASE \n                WHEN s.plan_name ILIKE '%PLATINUM%' THEN 400.00\n                WHEN s.plan_name ILIKE '%ENTERPRISE%' THEN 260.00\n                WHEN s.plan_name ILIKE '%GROWTH%' THEN 190.00\n                ELSE 165.00\n            END)::FLOAT8 as \"amount?\",\n            s.created_at as \"created_at?\"\n        FROM subscriptions s\n        JOIN users u ON s.client_id = u.id\n        LEFT JOIN user_profiles p ON u.id = p.user_id\n        LEFT JOIN projects pr ON s.project_id = pr.id\n        WHERE s.status = 'active'\n          AND u.role::TEXT = 'CLIENT'\n        ORDER BY s.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "full_name!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "email!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "project_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "project_title?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "plan_name?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "project_status?: ProjectStatus",
+        "type_info": {
+          "Custom": {
+            "name": "project_status",
+            "kind": {
+              "Enum": [
+                "DRAFT",
+                "ONBOARDING",
+                "PAYMENT_PENDING",
+                "PAID",
+                "UNDER_DEVELOPMENT",
+                "REVIEW",
+                "LIVE"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "subscription_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "subscription_status?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "amount?",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at?",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      null,
+      null,
+      true
+    ]
+  },
+  "hash": "6d84098f4e706803e97815c72a107e9db9a5fb573142d54d3924a7b02c4ef4d2"
+}

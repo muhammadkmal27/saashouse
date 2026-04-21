@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE user_preferences SET \n            project_updates = COALESCE($1, project_updates),\n            billing_alerts = COALESCE($2, billing_alerts),\n            security_alerts = COALESCE($3, security_alerts),\n            updated_at = NOW()\n        WHERE user_id = $4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Bool",
+        "Bool",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d615d3d2a25b8d4819218e6e0256c915c712554a3a69c02eb7769f16b1a37aa7"
+}

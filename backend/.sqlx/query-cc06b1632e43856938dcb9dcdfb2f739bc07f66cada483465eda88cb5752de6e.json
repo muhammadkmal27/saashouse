@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO subscriptions (client_id, project_id, stripe_sub_id, plan_name, status, current_period_end) \n                     VALUES ($1, $2, $3, $4, 'active', NOW() + INTERVAL '1 month')\n                     ON CONFLICT (stripe_sub_id) DO UPDATE SET status = 'active', current_period_end = EXCLUDED.current_period_end, plan_name = EXCLUDED.plan_name",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cc06b1632e43856938dcb9dcdfb2f739bc07f66cada483465eda88cb5752de6e"
+}

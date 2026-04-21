@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE projects p\n        SET selected_plan = sub.plan_name\n        FROM (\n            SELECT DISTINCT ON (project_id) project_id, plan_name \n            FROM subscriptions \n            ORDER BY project_id, created_at DESC\n        ) sub\n        WHERE p.id = sub.project_id\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "c06336ccc02de2337aafaf9ae51fdb762a0062808aba3d0507ab1ba197e95494"
+}

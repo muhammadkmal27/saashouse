@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET description = '' WHERE description LIKE 'Onboarding via%'",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "4874d01912492ccccecddf5b9e710c037930fc347610364d3a33b4dac0c1612e"
+}

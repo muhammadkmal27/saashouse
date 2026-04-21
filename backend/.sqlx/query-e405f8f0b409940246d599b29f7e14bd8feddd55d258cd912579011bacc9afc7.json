@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE projects \n        SET requirements = requirements || '{\"selected_plan\": \"Standard\"}'::jsonb\n        WHERE requirements->>'selected_plan' ILIKE '%Professional%' \n           OR requirements->>'selected_plan' ILIKE '%Monthly Pro%'\n           OR requirements->>'selected_plan' IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "e405f8f0b409940246d599b29f7e14bd8feddd55d258cd912579011bacc9afc7"
+}

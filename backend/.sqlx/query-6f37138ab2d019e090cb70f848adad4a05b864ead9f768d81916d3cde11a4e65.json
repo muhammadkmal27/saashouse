@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n         SELECT\n            u.id as id,\n            COALESCE(p.full_name, u.email) as \"full_name!\",\n            u.email as \"email!\",\n            pr.id as \"project_id?\",\n            pr.title as \"project_title?\",\n            COALESCE(s.plan_name, pr.requirements->>'selected_plan') as \"plan_name?\",\n            pr.status::TEXT as \"project_status?\",\n            s.id as \"subscription_id?\",\n            s.status as \"subscription_status?\"\n        FROM users u\n        LEFT JOIN user_profiles p ON u.id = p.user_id\n        LEFT JOIN projects pr ON u.id = pr.client_id\n        LEFT JOIN subscriptions s ON pr.id = s.project_id\n        WHERE u.role::TEXT = 'CLIENT'\n        ORDER BY u.id, pr.created_at DESC NULLS LAST\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "full_name!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "email!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "project_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "project_title?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "plan_name?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "project_status?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "subscription_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "subscription_status?",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null,
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      true
+    ]
+  },
+  "hash": "6f37138ab2d019e090cb70f848adad4a05b864ead9f768d81916d3cde11a4e65"
+}
