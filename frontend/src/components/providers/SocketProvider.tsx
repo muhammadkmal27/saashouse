@@ -68,8 +68,10 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     let reconnectTimer: NodeJS.Timeout;
 
     const connect = () => {
+      // Determine secure/insecure protocol dynamically
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       // Backend WebSocket Endpoint via Next.js Proxy
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `ws://${window.location.host}/api/ws`;
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${window.location.host}/api/ws`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {

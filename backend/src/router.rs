@@ -63,11 +63,16 @@ pub struct ApiDoc;
 use crate::AppState;
 
 pub fn create_router(state: AppState) -> Router {
+    // Dynamic CORS origins from env
+    let default_origins = "http://localhost:3000,http://100.105.77.107:3000".to_string();
+    let env_origins = std::env::var("ALLOWED_ORIGINS").unwrap_or(default_origins);
+    let origins: Vec<axum::http::HeaderValue> = env_origins
+        .split(',')
+        .map(|s| s.trim().parse::<axum::http::HeaderValue>().unwrap())
+        .collect();
+
     let cors = CorsLayer::new()
-        .allow_origin([
-            "http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap(),
-            "http://100.105.77.107:3000".parse::<axum::http::HeaderValue>().unwrap(),
-        ])
+        .allow_origin(origins)
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::PATCH])
         .allow_headers([ACCEPT, AUTHORIZATION, CONTENT_TYPE])
         .allow_credentials(true);
