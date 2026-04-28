@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { User, Settings, Shield, Bell, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { T } from "@/components/Translate";
 
 export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -58,28 +59,28 @@ export default function UserMenu() {
                             onClick={() => setIsOpen(false)}
                             className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 dark:hover:text-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-colors"
                         >
-                            <User className="w-4 h-4" /> Edit Profile
+                            <User className="w-4 h-4" /> <T en="Edit Profile" bm="Sunting Profil" />
                         </Link>
                         <Link 
                             href="/app/settings/account" 
                             onClick={() => setIsOpen(false)}
                             className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 dark:hover:text-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-colors"
                         >
-                            <Settings className="w-4 h-4" /> Account Settings
+                            <Settings className="w-4 h-4" /> <T en="Account Settings" bm="Tetapan Akaun" />
                         </Link>
                         <Link 
                             href="/app/settings/security" 
                             onClick={() => setIsOpen(false)}
                             className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 dark:hover:text-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-colors"
                         >
-                            <Shield className="w-4 h-4" /> Security
+                            <Shield className="w-4 h-4" /> <T en="Security" bm="Keselamatan" />
                         </Link>
                         <Link 
                             href="/app/settings/notifications" 
                             onClick={() => setIsOpen(false)}
                             className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 dark:hover:text-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-colors"
                         >
-                            <Bell className="w-4 h-4" /> Notifications
+                            <Bell className="w-4 h-4" /> <T en="Notifications" bm="Notifikasi" />
                         </Link>
                     </div>
 
@@ -88,7 +89,7 @@ export default function UserMenu() {
                             onClick={handleLogout}
                             className="flex items-center gap-2 px-3 py-2 w-full text-left text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors"
                         >
-                            <LogOut className="w-4 h-4" /> Sign Out
+                            <LogOut className="w-4 h-4" /> <T en="Sign Out" bm="Log Keluar" />
                         </button>
                     </div>
                 </div>

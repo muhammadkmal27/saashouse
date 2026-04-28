@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { T } from "@/components/Translate";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -40,12 +41,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Right Side Content */}
         <div className="relative z-10 w-full max-w-lg mt-10">
             <h1 className="text-5xl xl:text-7xl font-black tracking-tighter leading-[0.85] italic text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 drop-shadow-2xl">
-              THE FASTEST<br/>WAY TO<br/>
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 text-transparent bg-clip-text">SCALE.</span>
+              <T en={<>THE FASTEST<br/>WAY TO<br/><span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 text-transparent bg-clip-text">SCALE.</span></>} 
+                 bm={<>CARA TERPANTAS<br/>UNTUK<br/><span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 text-transparent bg-clip-text">BERKEMBANG.</span></>} />
             </h1>
             
             <p className="mt-8 text-lg xl:text-xl text-zinc-300 font-medium leading-relaxed mix-blend-screen border-l-2 border-violet-500 pl-5">
-              Join the platform that handles the infrastructure, so you can focus exclusively on dominating your market.
+              <T en="Join the platform that handles the infrastructure, so you can focus exclusively on dominating your market." bm="Sertai platform yang menguruskan infrastruktur, supaya anda boleh fokus sepenuhnya untuk mendominasi pasaran anda." />
             </p>
             
             <div className="mt-16 flex items-center justify-between border-t border-white/10 pt-8">

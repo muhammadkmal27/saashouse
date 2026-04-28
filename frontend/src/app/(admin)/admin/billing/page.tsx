@@ -11,6 +11,7 @@ import Link from "next/link";
 /* ─── Types ─── */
 type Stats = {
   total_mrr: number;
+  total_revenue: number;
   total_clients: number;
   active_projects: number;
 };
@@ -27,7 +28,10 @@ type LedgerRow = {
   subscription_status?: string;
   next_billing?: string;
   amount?: number;
+  payment_source?: string;
+  description?: string;
   created_at?: string;
+  row_id?: number;
 };
 
 /* ─── Helpers ─── */
@@ -52,9 +56,9 @@ const STATUS_COLORS: Record<string, string> = {
 
 const PRICE_MAP: Record<string, number> = {
   STANDARD: 165,
-  GROWTH: 190,
-  ENTERPRISE: 260,
-  PLATINUM: 400,
+  GROWTH: 240,
+  ENTERPRISE: 410,
+  PLATINUM: 750,
 };
 
 function getInitial(name: string): string {
@@ -127,16 +131,16 @@ export default function AdminBillingPage() {
     if (filteredLedger.length === 0) return;
     
     // Headers
-    const headers = ["Client", "Email", "Project", "Plan", "Amount (RM)", "Status", "Date"];
+    const headers = ["Client", "Email", "Project", "Description", "Source", "Amount (RM)", "Date"];
     
     // Convert rows to CSV strings
     const rows = filteredLedger.map(r => [
       r.full_name || "N/A",
       r.email || "N/A",
       r.project_title || "No Project",
-      r.plan_name || "N/A",
+      r.description || "N/A",
+      r.payment_source || "Stripe",
       r.amount ? r.amount.toFixed(2) : "0.00",
-      "active",
       r.created_at ? new Date(r.created_at).toLocaleDateString() : "N/A"
     ].map(val => `"${val.toString().replace(/"/g, '""')}"`).join(","));
 
@@ -213,15 +217,6 @@ export default function AdminBillingPage() {
       {/* ─── Header ─── */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
         <div>
-          {/* Stripe badge */}
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 ${
-            isLiveMode
-              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-          }`}>
-            <Zap className="w-3 h-3" />
-            {isLiveMode ? "Stripe Live" : "Stripe Sandbox"}
-          </div>
 
           <h1 className="text-3xl font-black tracking-tight text-zinc-900">Revenue overview</h1>
           <p className="text-sm text-zinc-400 font-medium mt-1">
@@ -270,9 +265,9 @@ export default function AdminBillingPage() {
               +0% <ArrowUpRight className="w-3 h-3" />
             </div>
           </div>
-          <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">Total MRR</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">Total Collected</p>
           <p className="text-2xl font-black text-zinc-900 tracking-tight">
-            RM {stats?.total_mrr?.toLocaleString("en-MY") ?? "0"}
+            RM {stats?.total_revenue?.toLocaleString("en-MY") ?? "0"}
           </p>
         </div>
 
@@ -308,10 +303,10 @@ export default function AdminBillingPage() {
         {/* Table Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-5 border-b border-zinc-100 gap-4">
           <div>
-            <h2 className="text-lg font-black tracking-tight text-zinc-900">Verified Stripe Payments</h2>
+            <h2 className="text-lg font-black tracking-tight text-zinc-900">Verified Payments</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-xs text-emerald-600 font-black uppercase tracking-widest">{filteredLedger.length} Completed Transactions</p>
+              <p className="text-xs text-emerald-600 font-black uppercase tracking-widest">{filteredLedger.length} Verified Transactions</p>
             </div>
           </div>
 
@@ -325,7 +320,7 @@ export default function AdminBillingPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-100 bg-zinc-50/30">
-                {["Client / Email", "Project / Product", "Plan Type", "Verified Amount", "Payment Date", "Actions"].map(h => (
+                {["Client / Email", "Project / Description", "Source", "Verified Amount", "Payment Date", "Actions"].map(h => (
                   <th key={h} className="text-left py-4 px-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">{h}</th>
                 ))}
               </tr>
@@ -341,12 +336,12 @@ export default function AdminBillingPage() {
                     </div>
                   </td>
                 </tr>
-              ) : filteredLedger.map((row, idx) => {
+              ) : filteredLedger.map((row) => {
                 const planUpper = (row.plan_name || "").toUpperCase();
                 const amount = row.amount || 0;
 
                 return (
-                  <tr key={idx} className="hover:bg-zinc-50/60 transition-colors group">
+                  <tr key={row.row_id || row.id} className="hover:bg-zinc-50/60 transition-colors group">
                     {/* Client */}
                     <td className="py-4 px-4 max-w-[200px]">
                       <div className="flex items-center gap-3">
@@ -360,23 +355,28 @@ export default function AdminBillingPage() {
                       </div>
                     </td>
 
-                    {/* Project */}
-                    <td className="py-4 px-4 font-bold text-zinc-700 text-sm">
-                       {row.project_title || "Direct Product Sub"}
-                    </td>
-
-                    {/* Plan */}
+                    {/* Project & Description */}
                     <td className="py-4 px-4">
-                        <span className="inline-flex px-2 py-1 bg-zinc-100 text-zinc-600 rounded-md text-[10px] font-black uppercase tracking-widest">
-                          {row.plan_name || "N/A"}
+                       <p className="font-bold text-zinc-700 text-sm">{row.project_title || "Direct Product Sub"}</p>
+                       <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">{row.description || (row.plan_name ? `${row.plan_name} Plan` : "")}</p>
+                    </td>
+ 
+                    {/* Source */}
+                    <td className="py-4 px-4">
+                        <span className={`inline-flex px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${
+                          row.payment_source?.toLowerCase() === 'toyyibpay' 
+                          ? 'bg-amber-50 text-amber-700 border-amber-200' 
+                          : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        }`}>
+                          {row.payment_source || "Stripe"}
                         </span>
                     </td>
-
+ 
                     {/* Amount */}
                     <td className="py-4 px-4 whitespace-nowrap">
                        <div className="flex flex-col">
                           <span className="text-sm font-black text-zinc-900">RM {amount.toFixed(2)}</span>
-                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tight">Verified by Stripe</span>
+                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tight">Verified</span>
                        </div>
                     </td>
 

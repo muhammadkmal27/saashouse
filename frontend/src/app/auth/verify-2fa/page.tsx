@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, ArrowRight, ShieldCheck, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/components/Translate";
 
 export default function Verify2FAPage() {
   const [code, setCode] = useState("");
@@ -72,23 +73,23 @@ export default function Verify2FAPage() {
           <ShieldCheck className="w-6 h-6" />
         </div>
         <h1 className="text-3xl font-extra-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Double Protection.
+          <T en="Double Protection." bm="Pelindungan Berganda." />
         </h1>
         <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
-          We have sent a 6-digit code to your registered email. Please enter the code below to verify your identity.
+          <T en="We have sent a 6-digit code to your registered email. Please enter the code below to verify your identity." bm="Kami telah menghantar kod 6-digit ke e-mel berdaftar anda. Sila masukkan kod di bawah untuk mengesahkan identiti anda." />
         </p>
       </div>
 
       {resendSuccess && (
         <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl px-4 py-3 text-sm font-semibold">
-          <CheckCircle2 className="w-4 h-4" /> A new code has been sent to your email.
+          <CheckCircle2 className="w-4 h-4" /> <T en="A new code has been sent to your email." bm="Kod baru telah dihantar ke e-mel anda." />
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-            Secure OTP Code
+            <T en="Secure OTP Code" bm="Kod OTP Selamat" />
           </label>
           <div className="relative group">
             <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -112,9 +113,9 @@ export default function Verify2FAPage() {
           className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-300 dark:disabled:bg-zinc-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
           suppressHydrationWarning
         >
-          {loading ? "Verifying..." : (
+          {loading ? <T en="Verifying..." bm="Mengesahkan..." /> : (
             <>
-              Verify Now <ArrowRight className="w-5 h-5" />
+              <T en="Verify Now" bm="Sahkan Sekarang" /> <ArrowRight className="w-5 h-5" />
             </>
           )}
         </button>
@@ -129,9 +130,9 @@ export default function Verify2FAPage() {
           suppressHydrationWarning
         >
           {resending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> <T en="Sending..." bm="Menghantar..." /></>
           ) : (
-            <><Mail className="w-4 h-4" /> Resend Code</>
+            <><Mail className="w-4 h-4" /> <T en="Resend Code" bm="Hantar Semula Kod" /></>
           )}
         </button>
         <button
@@ -145,7 +146,7 @@ export default function Verify2FAPage() {
           className="hover:text-emerald-500 transition-colors"
           suppressHydrationWarning
         >
-          Back to Login
+          <T en="Back to Login" bm="Kembali ke Log Masuk" />
         </button>
       </div>
     </div>

@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { User, Loader2 } from "lucide-react";
+import { getCookie } from "@/utils/cookies";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function ProfileSettingsPage() {
+    const { lang } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null);
@@ -39,46 +43,50 @@ export default function ProfileSettingsPage() {
         setMessage(null);
 
         try {
+            const csrfToken = getCookie("csrf_token") || "";
             const res = await fetch("/api/me", {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
                 credentials: "include",
                 body: JSON.stringify(formData),
             });
 
             const data = await res.json();
             if (res.ok) {
-                setMessage({ text: "Profile updated successfully!", type: "success" });
+                setMessage({ text: lang === "EN" ? "Profile updated successfully!" : "Profil berjaya dikemas kini!", type: "success" });
             } else {
-                setMessage({ text: data.error || "Failed to update profile", type: "error" });
+                setMessage({ text: data.error || (lang === "EN" ? "Failed to update profile" : "Gagal mengemas kini profil"), type: "error" });
             }
         } catch (err) {
-            setMessage({ text: "Network error occurred", type: "error" });
+            setMessage({ text: lang === "EN" ? "Network error occurred" : "Ralat rangkaian berlaku", type: "error" });
         } finally {
             setSaving(false);
         }
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2">Public Profile</h2>
-                    <p className="text-sm text-slate-500 font-medium">This information will be displayed on your main dashboard and invoices.</p>
+                    <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2"><T en="Public Profile" bm="Profil Awam" /></h2>
+                    <p className="text-sm text-slate-500 font-medium"><T en="This information will be displayed on your main dashboard and invoices." bm="Maklumat ini akan dipaparkan pada papan pemuka utama dan invois anda." /></p>
                 </div>
                 {loading && <Loader2 className="w-5 h-5 animate-spin text-violet-600" />}
             </div>
 
             <div className={`space-y-8 transition-all duration-500 ${loading ? 'opacity-40 pointer-events-none blur-[2px]' : 'opacity-100'}`}>
                 {message && (
-                    <div className={`p-4 rounded-xl text-sm font-bold animate-in zoom-in-95 ${message.type === 'success' ? 'bg-violet-50 text-violet-600 border border-violet-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                    <div className={`p-4 rounded-xl text-sm font-bold ${message.type === 'success' ? 'bg-violet-50 text-violet-600 border border-violet-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
                         {message.text}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Full Name</label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Full Name" bm="Nama Penuh" /></label>
                         <div className="relative group">
                             <User className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${loading ? 'text-slate-200' : 'text-slate-400 group-focus-within:text-violet-500'}`} />
                             <input 
@@ -87,25 +95,25 @@ export default function ProfileSettingsPage() {
                                 value={formData.full_name}
                                 onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                                 className="w-full pl-12 pr-5 py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
-                                placeholder="e.g. John Doe"
+                                placeholder={lang === "EN" ? "e.g. John Doe" : "cth. Ahmad Albab"}
                             />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Company Name</label>
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Company Name" bm="Nama Syarikat" /></label>
                             <input 
                                 type="text" 
                                 name="company_name"
                                 value={formData.company_name}
                                 onChange={(e) => setFormData({...formData, company_name: e.target.value})}
                                 className="w-full px-6 py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
-                                placeholder="Company Ltd"
+                                placeholder={lang === "EN" ? "Company Ltd" : "Syarikat Sdn Bhd"}
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Phone Number</label>
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Phone Number" bm="Nombor Telefon" /></label>
                             <input 
                                 type="text" 
                                 name="phone_number"
@@ -118,14 +126,14 @@ export default function ProfileSettingsPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Short Bio</label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Short Bio" bm="Bio Ringkas" /></label>
                         <textarea 
                             name="bio"
                             value={formData.bio}
                             onChange={(e) => setFormData({...formData, bio: e.target.value})}
                             rows={4}
                             className="w-full px-6 py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 resize-none font-medium h-32"
-                            placeholder="Tell us a little bit about yourself..."
+                            placeholder={lang === "EN" ? "Tell us a little bit about yourself..." : "Beritahu kami serba sedikit tentang diri anda..."}
                         />
                     </div>
 
@@ -135,7 +143,7 @@ export default function ProfileSettingsPage() {
                             disabled={saving || loading}
                             className="h-[56px] px-10 bg-violet-600 text-white font-bold uppercase tracking-[0.1em] text-xs rounded-2xl hover:bg-violet-700 transition-all disabled:opacity-50 shadow-xl shadow-violet-200/50 flex items-center justify-center gap-2"
                         >
-                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Profile Details"}
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <T en="Save Profile Details" bm="Simpan Butiran Profil" />}
                         </button>
                     </div>
                 </form>

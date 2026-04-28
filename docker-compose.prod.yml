@@ -23,7 +23,10 @@ services:
     restart: always
     depends_on:
       - postgres
+      - redis
     env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379
     ports:
       - "8080:8080"
 
@@ -37,5 +40,29 @@ services:
     ports:
       - "3000:3000"
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: saas_pgadmin4
+    environment:
+      # Emel dan password untuk LOGIN ke dashboard pgAdmin di production
+      PGADMIN_DEFAULT_EMAIL: admin@saashouse.com
+      PGADMIN_DEFAULT_PASSWORD: rootpassword
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: "10"
+    ports:
+      - "8081:80"
+    depends_on:
+      - postgres
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    # Port 6379 tidak dibuka ke luar (public) untuk keselamatan prod
+    # Hanya backend boleh akses melalui internal network
+
 volumes:
   pgdata:
+  redis_data:

@@ -1,5 +1,6 @@
 import { ExternalLink, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/components/Translate";
 
 interface Project {
   title: string;
@@ -58,10 +59,10 @@ const projects: Project[] = [
 ];
 
 const stats = [
-  { value: "150+", label: "Projects Delivered" },
-  { value: "98%", label: "Client Satisfaction" },
-  { value: "50+", label: "Team Members" },
-  { value: "8+", label: "Years Experience" },
+  { value: "150+", label: <T en="Projects Delivered" bm="Projek Disiapkan" /> },
+  { value: "98%", label: <T en="Client Satisfaction" bm="Kepuasan Pelanggan" /> },
+  { value: "50+", label: <T en="Team Members" bm="Ahli Pasukan" /> },
+  { value: "8+", label: <T en="Years Experience" bm="Tahun Pengalaman" /> },
 ];
 
 function ProjectCard({ project }: { project: Project }) {
@@ -87,7 +88,7 @@ function ProjectCard({ project }: { project: Project }) {
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0c0c20]/80 backdrop-blur-md border border-white/10 rounded-full">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-300">
-            Deployed
+            <T en="Deployed" bm="Dilancarkan" />
           </span>
         </div>
       </div>
@@ -133,24 +134,24 @@ export default function ShowcasePage() {
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-violet-500/10 border border-violet-500/20">
             <Sparkles className="w-4 h-4 text-violet-400" />
             <span className="text-xs font-semibold text-violet-300 tracking-wide">
-              Featured Work
+              <T en="Featured Work" bm="Hasil Kerja Terpilih" />
             </span>
           </div>
 
           {/* Title */}
           <h1 className="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
-            Showcase of{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
-              Creative
-            </span>
-            <br />
-            Excellence
+            <T 
+              en={<>Showcase of{" "}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">Creative</span><br />Excellence</>} 
+              bm={<>Portfolio{" "}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">Kecemerlangan</span><br />Kreatif</>} 
+            />
           </h1>
 
           {/* Subtitle */}
           <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Discover our portfolio of award-winning projects that push
-            boundaries and redefine digital experiences.
+            <T 
+              en="Discover our portfolio of award-winning projects that push boundaries and redefine digital experiences." 
+              bm="Terokai portfolio projek kami yang memenangi anugerah, melangkaui sempadan dan mentakrifkan semula pengalaman digital." 
+            />
           </p>
         </div>
       </section>
@@ -179,7 +180,7 @@ export default function ShowcasePage() {
         <div className="max-w-6xl mx-auto">
           {/* Section label */}
           <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-500 mb-10">
-            Recent Projects
+            <T en="Recent Projects" bm="Projek Terkini" />
           </p>
 
           {/* Grid */}
@@ -195,28 +196,29 @@ export default function ShowcasePage() {
       <section className="px-6 pb-40">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">
-            Let&apos;s Create Something
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
-              Extraordinary
-            </span>
+            <T 
+              en={<>Let&apos;s Create Something<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">Extraordinary</span></>} 
+              bm={<>Mari Cipta Sesuatu Yang<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">Luar Biasa</span></>} 
+            />
           </h2>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto">
-            Partner with us to build digital products that inspire, engage, and
-            deliver measurable results.
+            <T 
+              en="Partner with us to build digital products that inspire, engage, and deliver measurable results." 
+              bm="Bekerjasama dengan kami untuk membina produk digital yang memberi inspirasi, menarik, dan memberikan hasil yang nyata." 
+            />
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               href="/app/projects/create"
               className="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 text-white font-bold rounded-full hover:bg-violet-500 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-violet-600/30"
             >
-              Start Project <ArrowRight className="w-4 h-4" />
+              <T en="Start Project" bm="Mula Projek" /> <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 px-8 py-4 bg-transparent border border-white/15 text-white font-bold rounded-full hover:bg-white/5 transition-all"
             >
-              Schedule Call
+              <T en="Schedule Call" bm="Temu Janji Panggilan" />
             </Link>
           </div>
         </div>

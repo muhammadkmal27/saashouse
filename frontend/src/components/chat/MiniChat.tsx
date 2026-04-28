@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Send, Loader2, MessageCircle, Paperclip, X } from "lucide-react";
 import { useSocket } from "../providers/SocketProvider";
+import { getCookie } from "@/utils/cookies";
+import { T } from "../Translate";
 
 export default function MiniChat({ 
   ticketId, 
@@ -32,7 +34,11 @@ export default function MiniChat({
         setMessages(Array.isArray(data) ? data : []);
         setLoading(false);
         // Tandakan mesej sebagai telah dibaca
-        fetch(`/api/requests/${ticketId}/comments/read`, { method: "PATCH" });
+        const csrfToken = getCookie("csrf_token") || "";
+        fetch(`/api/requests/${ticketId}/comments/read`, { 
+          method: "PATCH",
+          headers: { "X-CSRF-Token": csrfToken }
+        });
       })
       .catch(() => setLoading(false));
   }, [ticketId]);
@@ -78,7 +84,11 @@ export default function MiniChat({
         return [...prev, lastEvent.comment];
       });
       // Maklumkan Backend kita Sedang Membaca
-      fetch(`/api/requests/${ticketId}/comments/read`, { method: "PATCH" });
+      const csrfToken = getCookie("csrf_token") || "";
+      fetch(`/api/requests/${ticketId}/comments/read`, { 
+        method: "PATCH",
+        headers: { "X-CSRF-Token": csrfToken }
+      });
     }
   }, [lastEvent, ticketId]);
 
@@ -97,8 +107,10 @@ export default function MiniChat({
       const uploadData = new FormData();
       uploadData.append("file", file);
 
+      const csrfToken = getCookie("csrf_token") || "";
       const res = await fetch("/api/assets/upload", {
         method: "POST",
+        headers: { "X-CSRF-Token": csrfToken },
         body: uploadData
       });
       const result = await res.json();
@@ -118,9 +130,13 @@ export default function MiniChat({
     setSending(true);
 
     try {
+      const csrfToken = getCookie("csrf_token") || "";
       const res = await fetch(`/api/requests/${ticketId}/comments`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
+        },
         body: JSON.stringify({ message: input, attachment_urls: attachments })
       });
       
@@ -157,7 +173,7 @@ export default function MiniChat({
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center opacity-50">
              <MessageCircle size={32} className="mb-4 text-zinc-400" />
-             <p className="text-xs text-center text-zinc-500 font-medium">This is the start of your request conversation.</p>
+             <p className="text-xs text-center text-zinc-500 font-medium"><T en="This is the start of your request conversation." bm="Ini adalah permulaan perbualan permohonan anda." /></p>
           </div>
         )}
         {messages.map((msg, idx) => {
@@ -165,7 +181,23 @@ export default function MiniChat({
           return (
             <div key={idx} className={`flex ${isMine ? 'justify-end' : 'justify-start'} w-full`}>
                <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm shadow-sm ${isMine ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-br-sm' : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-bl-sm'}`}>
-                <p className="whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                <p className="whitespace-pre-wrap leading-relaxed">
+                  {msg.message.includes("[SYSTEM]: Ticket status updated to ") ? (
+                    <>
+                      <span className="font-bold">[SYSTEM]: </span>
+                      <T 
+                        en={msg.message.replace("[SYSTEM]: Ticket status updated to ", "Ticket status updated to ")} 
+                        bm={
+                          msg.message.includes("Open") ? "Status tiket dikemaskini ke Buka" :
+                          msg.message.includes("InProgress") ? "Status tiket dikemaskini ke Sedang Diproses" :
+                          msg.message.includes("Resolved") ? "Status tiket dikemaskini ke Selesai" :
+                          msg.message.includes("Closed") || msg.message.includes("CLOSED") ? "Status tiket dikemaskini ke Ditutup" :
+                          msg.message.replace("[SYSTEM]: Ticket status updated to ", "Status tiket dikemaskini ke ")
+                        } 
+                      />
+                    </>
+                  ) : msg.message}
+                </p>
                 {msg.attachment_urls && msg.attachment_urls.map((url: string, uidx: number) => (
                    <button 
                      key={uidx} 
@@ -176,11 +208,11 @@ export default function MiniChat({
                    </button>
                 ))}
                 <div className="flex items-center justify-end space-x-2 mt-1">
-                  <p className={`text-[9px] font-medium tracking-wide ${isMine ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-400'}`}>
+                   <p className={`text-[9px] font-medium tracking-wide ${isMine ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-400'}`}>
                     {new Date(msg.created_at).toISOString()}
                   </p>
                   {isMine && msg.is_read && (
-                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">Read</span>
+                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter"><T en="Read" bm="Dibaca" /></span>
                   )}
                 </div>
               </div>
@@ -193,22 +225,23 @@ export default function MiniChat({
       {ticket?.status !== 'CLOSED' ? (
         <form onSubmit={handleSend} className="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 flex-shrink-0 flex items-center justify-between gap-3 relative shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-10 flex-wrap">
           {attachments.length > 0 && (
-             <div className="w-full flex gap-3 pb-3 px-1">
-               {attachments.map((url, idx) => (
-                  <div key={idx} className="relative group">
-                        <img src={url} className="w-full h-full object-cover" />
-
-                    <button 
-                        type="button"
-                        onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))}
-                        disabled={sending}
-                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-md z-20 hover:scale-110 active:scale-95"
-                        title="Remove attachment"
-                    >
-                        <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-               ))}
+              <div className="w-full flex flex-wrap gap-3 pb-3 px-1">
+                {attachments.map((url, idx) => (
+                   <div key={idx} className="relative group w-20 h-20">
+                        <div className="w-full h-full bg-zinc-100 rounded-xl overflow-hidden border border-zinc-200 shadow-sm">
+                            <img src={url} className="w-full h-full object-cover" alt="preview" />
+                        </div>
+                        <button 
+                            type="button"
+                            onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))}
+                            disabled={sending}
+                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg z-20 hover:scale-110 active:scale-95 transition-all flex items-center justify-center border-2 border-white"
+                            title="Remove attachment"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                        </button>
+                   </div>
+                ))}
              </div>
           )}
           <label className="cursor-pointer text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors p-2 -ml-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
@@ -220,7 +253,7 @@ export default function MiniChat({
                type="text"
                value={input}
                onChange={e => setInput(e.target.value)}
-               placeholder="Type your message..."
+               placeholder={userProfile?.lang === 'BM' ? "Taip mesej anda..." : "Type your message..."}
                className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-zinc-400 text-zinc-900 dark:text-white"
                disabled={sending || uploading}
              />
@@ -231,8 +264,8 @@ export default function MiniChat({
         </form>
       ) : (
         <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 text-center flex-shrink-0">
-          <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Notice</p>
-          <p className="text-xs text-zinc-500 font-medium">This ticket has been closed.</p>
+          <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500"><T en="Notice" bm="Notis" /></p>
+          <p className="text-xs text-zinc-500 font-medium"><T en="This ticket has been closed." bm="Tiket ini telah ditutup." /></p>
         </div>
       )}
 

@@ -93,3 +93,42 @@ pub async fn send_notification_email(pool: &Pool<Postgres>, to_email: &str, subj
 
     Ok(())
 }
+
+pub async fn send_password_reset_email(pool: &Pool<Postgres>, to_email: &str, token: &str) -> Result<(), ApiError> {
+    let config = get_smtp_config(Some(pool)).await;
+    
+    let password = config.password.as_ref().filter(|p| !p.is_empty())
+        .ok_or_else(|| ApiError::Internal("SMTP password not configured".to_string()))?;
+
+    if config.user.is_empty() {
+        return Err(ApiError::Internal("SMTP user not configured".to_string()));
+    }
+
+    let base_url = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:3000".to_string());
+    let reset_url = format!("{}/auth/reset-password?token={}", base_url, token);
+
+    let email = Message::builder()
+        .from(format!("SaaS House <{}>", config.from).parse().unwrap())
+        .to(to_email.parse().map_err(|_| ApiError::Internal("Invalid recipient email".to_string()))?)
+        .subject("Reset Your Password - SaaS House")
+        .body(format!(
+            "You requested a password reset for your SaaS House account.\n\nClick the link below to set a new password:\n{}\n\nThis link will expire in 30 minutes. If you did not request this, you can safely ignore this email.",
+            reset_url
+        ))
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    let creds = Credentials::new(config.user.clone(), password.clone());
+    let protocol = if config.port == 465 { "smtps" } else { "smtp" };
+    let mailer_url = format!("{}://{}", protocol, config.host);
+
+    let mailer: AsyncSmtpTransport<Tokio1Executor> = AsyncSmtpTransport::<Tokio1Executor>::from_url(&mailer_url)
+        .map_err(|e| ApiError::Internal(format!("Invalid SMTP URL: {}", e)))?
+        .port(config.port)
+        .credentials(creds)
+        .build();
+
+    mailer.send(email).await
+        .map_err(|e| ApiError::Internal(format!("Failed to send reset email: {}", e)))?;
+
+    Ok(())
+}

@@ -22,6 +22,9 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useSocket } from "@/components/providers/SocketProvider";
+import { getCookie } from "@/utils/cookies";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 type Comment = {
     id: string;
@@ -60,6 +63,7 @@ export default function TicketDetailPage() {
     const [uploading, setUploading] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const { lastEvent } = useSocket();
+    const { lang } = useLanguage();
     
     const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -68,8 +72,10 @@ export default function TicketDetailPage() {
             fetchTicketData();
             fetchComments();
             // Omega-Sync: Mark as read on mount
+            const csrfToken = getCookie("csrf_token") || "";
             fetch(`/api/requests/${id}/comments/read`, { 
                 method: "PATCH",
+                headers: { "X-CSRF-Token": csrfToken },
                 credentials: "include"
             }).catch(console.error);
         }
@@ -116,7 +122,12 @@ export default function TicketDetailPage() {
                 fetchTicketData();
             }
 
-            fetch(`/api/requests/${id}/comments/read`, { method: "PATCH", credentials: "include" }).catch(console.error);
+            const csrfToken = getCookie("csrf_token") || "";
+            fetch(`/api/requests/${id}/comments/read`, { 
+                method: "PATCH", 
+                headers: { "X-CSRF-Token": csrfToken },
+                credentials: "include" 
+            }).catch(console.error);
         }
     }, [lastEvent, id]);
 
@@ -165,8 +176,10 @@ export default function TicketDetailPage() {
 
         try {
             setUploading(true);
+            const csrfToken = getCookie("csrf_token") || "";
             const res = await fetch(`/api/assets/upload`, {
                 method: "POST",
+                headers: { "X-CSRF-Token": csrfToken },
                 body: uploadData,
                 credentials: "include"
             });
@@ -191,9 +204,13 @@ export default function TicketDetailPage() {
 
         setSubmitting(true);
         try {
+            const csrfToken = getCookie("csrf_token") || "";
             const res = await fetch(`/api/requests/${id}/comments`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
                 body: JSON.stringify(commentData),
                 credentials: "include"
             });
@@ -228,7 +245,7 @@ export default function TicketDetailPage() {
                         href="/app/tickets"
                         className="flex items-center gap-2 text-slate-400 hover:text-violet-600 font-black uppercase tracking-widest text-[10px] group mb-4 transition-colors"
                     >
-                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> Ticket List
+                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Ticket List" bm="Senarai Tiket" />
                     </Link>
                     
                     <div className="flex items-center gap-4 w-full border-b pb-6 border-slate-50 mb-6">
@@ -240,7 +257,7 @@ export default function TicketDetailPage() {
                     
                     <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
                         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-slate-50 border border-slate-100/50 rounded-full text-[10px] uppercase tracking-widest">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" /> {ticket.status.replace("_", " ")}
+                            <Clock className="w-3.5 h-3.5 text-slate-400" /> <T en={ticket.status.replace("_", " ")} bm={ticket.status === 'OPEN' ? 'TERBUKA' : ticket.status === 'IN_PROGRESS' ? 'DALAM PROSES' : ticket.status === 'RESOLVED' ? 'SELESAI' : 'DITUTUP'} />
                         </div>
                         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-slate-50 border border-slate-100/50 rounded-full text-[10px] uppercase tracking-widest">
                             <Calendar className="w-3.5 h-3.5 text-slate-400" /> {new Date(ticket.created_at).toLocaleDateString()}
@@ -262,7 +279,7 @@ export default function TicketDetailPage() {
                                 <UserCircle2 className="w-7 h-7" />
                             </div>
                             <div>
-                                <p className="font-extrabold text-[12px] text-slate-900 uppercase tracking-widest mb-0.5">Original Post</p>
+                                <p className="font-extrabold text-[12px] text-slate-900 uppercase tracking-widest mb-0.5"><T en="Original Post" bm="Catatan Asal" /></p>
                                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{new Date(ticket.created_at).toLocaleString()}</p>
                             </div>
                         </div>
@@ -303,14 +320,14 @@ export default function TicketDetailPage() {
                                     {comment.user_id !== ticket.created_by && <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-violet-400/10 rounded-full blur-[30px] pointer-events-none"></div>}
                                     <div className="flex items-center justify-between mb-5 relative z-10">
                                         <p className={`font-extrabold text-[10px] uppercase tracking-widest ${comment.user_id === ticket.created_by ? 'text-slate-400' : 'text-violet-600'}`}>
-                                            {comment.user_id === ticket.created_by ? 'You' : 'Admin Response'}
+                                            {comment.user_id === ticket.created_by ? <T en="You" bm="Anda" /> : <T en="Admin Response" bm="Maklum Balas Admin" />}
                                         </p>
                                         <div className="flex items-center gap-2">
                                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                                                 {new Date(comment.created_at).toLocaleTimeString().replace(/(.*)\D\d+/, '$1')}
                                             </p>
                                             {comment.user_id === ticket.created_by && comment.is_read && (
-                                              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-2 bg-emerald-50 px-2.5 py-1 rounded-full">Read</span>
+                                              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-2 bg-emerald-50 px-2.5 py-1 rounded-full"><T en="Read" bm="Dibaca" /></span>
                                             )}
                                         </div>
                                     </div>
@@ -347,7 +364,7 @@ export default function TicketDetailPage() {
                                 <textarea 
                                     value={commentData.message}
                                     onChange={(e) => setCommentData(prev => ({ ...prev, message: e.target.value }))}
-                                    placeholder="Write your reply here... (Markdown supported)"
+                                    placeholder={lang === "EN" ? "Write your reply here... (Markdown supported)" : "Tulis balasan anda di sini... (Markah disokong)"}
                                     className="w-full px-6 pt-5 pb-8 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 outline-none focus:ring-4 ring-violet-500/10 focus:border-violet-200 font-medium text-sm text-slate-800 resize-none transition-all placeholder:text-slate-400"
                                     rows={2}
                                 />
@@ -359,16 +376,17 @@ export default function TicketDetailPage() {
                                             {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Paperclip className="w-5 h-5 group-hover:scale-110 transition-transform" />}
                                         </label>
                                         {commentData.attachment_urls.length > 0 && (
-                                            <div className="flex gap-1.5 flex-wrap">
+                                            <div className="flex gap-2 flex-wrap">
                                                 {commentData.attachment_urls.map((url, i) => (
                                                     <div key={i} className="relative group">
-                                                        <div className="w-10 h-10 rounded-[10px] bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
-                                                            <img src={url} className="w-full h-full object-cover" />
+                                                        <div className="w-12 h-12 rounded-[12px] bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+                                                            <img src={url} className="w-full h-full object-cover" alt="attachment" />
                                                         </div>
                                                         <button 
                                                             type="button"
                                                             onClick={() => setCommentData(prev => ({ ...prev, attachment_urls: prev.attachment_urls.filter((_, idx) => idx !== i) }))}
-                                                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg z-20 hover:scale-110 active:scale-95 transition-all border-2 border-white flex items-center justify-center"
+                                                            title="Remove attachment"
                                                         >
                                                             <X className="w-2.5 h-2.5" />
                                                         </button>
@@ -382,15 +400,15 @@ export default function TicketDetailPage() {
                                         disabled={submitting || !commentData.message.trim()}
                                         className="px-8 py-3.5 bg-violet-600 text-white rounded-full font-extrabold uppercase tracking-widest text-[11px] flex items-center gap-2 hover:bg-violet-700 transition-all disabled:opacity-50 outline-none focus:ring-4 ring-violet-500/20 shadow-[0_8px_30px_rgba(124,58,237,0.35)]"
                                     >
-                                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Reply</>}
+                                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> <T en="Reply" bm="Balas" /></>}
                                     </button>
                                 </div>
                             </form>
                         </div>
                     ) : (
                         <div className="mt-8 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-200 text-center shadow-lg shadow-slate-200/20">
-                            <p className="text-[10px] uppercase tracking-widest font-black text-slate-500 mb-1">Notice</p>
-                            <p className="text-xs text-slate-500 font-medium">This ticket has been officially closed.</p>
+                            <p className="text-[10px] uppercase tracking-widest font-black text-slate-500 mb-1"><T en="Notice" bm="Notis" /></p>
+                            <p className="text-xs text-slate-500 font-medium"><T en="This ticket has been officially closed." bm="Tiket ini telah ditutup secara rasmi." /></p>
                         </div>
                     )}
                 </div>
@@ -404,16 +422,16 @@ export default function TicketDetailPage() {
                                 <div className="w-8 h-8 rounded-full bg-violet-600/20 flex items-center justify-center">
                                     <Clock className="w-4 h-4 text-violet-400" />
                                 </div>
-                                Ticket Status
+                                <T en="Ticket Status" bm="Status Tiket" />
                             </h3>
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between pb-4 border-b border-white/5">
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Current Phase</span>
-                                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-violet-400">{ticket.status.replace("_", " ")}</span>
+                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400"><T en="Current Phase" bm="Fasa Terkini" /></span>
+                                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-violet-400"><T en={ticket.status.replace("_", " ")} bm={ticket.status === 'OPEN' ? 'TERBUKA' : ticket.status === 'IN_PROGRESS' ? 'DALAM PROSES' : ticket.status === 'RESOLVED' ? 'SELESAI' : 'DITUTUP'} /></span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Priority</span>
-                                    <span className={`text-[11px] font-extrabold uppercase tracking-widest ${ticket.type_ === 'BUG' ? 'text-orange-400' : 'text-violet-400'}`}>{ticket.type_ === 'BUG' ? 'High' : 'Medium'}</span>
+                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400"><T en="Priority" bm="Keutamaan" /></span>
+                                    <span className={`text-[11px] font-extrabold uppercase tracking-widest ${ticket.type_ === 'BUG' ? 'text-orange-400' : 'text-violet-400'}`}>{ticket.type_ === 'BUG' ? <T en="High" bm="Tinggi" /> : <T en="Medium" bm="Sederhana" />}</span>
                                 </div>
                             </div>
                         </div>
@@ -425,16 +443,16 @@ export default function TicketDetailPage() {
                             <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shadow-inner shadow-white">
                                 <MessageSquare className="w-4 h-4 text-violet-600" />
                             </div>
-                            Interaction Stats
+                            <T en="Interaction Stats" bm="Statistik Interaksi" />
                         </h3>
                         <div className="space-y-6 relative z-10">
                             <div className="flex items-center justify-between pb-4 border-b border-violet-100/50">
-                                <span className="text-[10px] font-extrabold uppercase tracking-widest text-violet-700">Total Replies</span>
+                                <span className="text-[10px] font-extrabold uppercase tracking-widest text-violet-700"><T en="Total Replies" bm="Jumlah Balasan" /></span>
                                 <span className="text-xl font-black text-violet-900">{comments.length}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-extrabold uppercase tracking-widest text-violet-700">Response Time</span>
-                                <span className="text-[11px] font-extrabold text-violet-900 uppercase tracking-widest">~ 2 Hours</span>
+                                <span className="text-[10px] font-extrabold uppercase tracking-widest text-violet-700"><T en="Response Time" bm="Masa Maklum Balas" /></span>
+                                <span className="text-[11px] font-extrabold text-violet-900 uppercase tracking-widest">~ <T en="2 Hours" bm="2 Jam" /></span>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { 
     Bug, 
     Zap, 
@@ -31,14 +33,15 @@ type Ticket = {
 const timeAgo = (dateStr: string) => {
     const ms = Date.now() - new Date(dateStr).getTime();
     const hours = Math.floor(ms / 3600000);
-    if (hours < 1) return `Just now`;
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 1) return <T en="Just now" bm="Baru sahaja" />;
+    if (hours < 24) return <>{hours}<T en="h ago" bm="j lepas" /></>;
     const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return <>{days}<T en="d ago" bm="h lepas" /></>;
 };
 
 export default function TicketsPage() {
     const router = useRouter();
+    const { lang } = useLanguage();
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -89,16 +92,16 @@ export default function TicketsPage() {
                 
                 <div className="relative z-10">
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-slate-500 shadow-sm border border-slate-200/60 mb-7 backdrop-blur-md">
-                        <Hash className="w-3.5 h-3.5 text-slate-400" /> Support Center
+                        <Hash className="w-3.5 h-3.5 text-slate-400" /> <T en="Support Center" bm="Pusat Sokongan" />
                     </span>
 
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8 mb-14">
                         <div>
                             <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-3">
-                                Project Support & <span className="text-violet-600">Tasks</span>
+                                <T en={<>Project Support & <span className="text-violet-600">Tasks</span></>} bm={<>Sokongan Projek & <span className="text-violet-600">Tugasan</span></>} />
                             </h1>
                             <p className="text-[14px] text-slate-500 max-w-lg leading-relaxed font-medium">
-                                Have an issue or a new idea? We're here to help realize your digital vision.
+                                <T en="Have an issue or a new idea? We're here to help realize your digital vision." bm="Ada masalah atau idea baru? Kami di sini untuk merealisasikan visi digital anda." />
                             </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-3 shrink-0 mt-3">
@@ -107,14 +110,14 @@ export default function TicketsPage() {
                                 className="flex items-center justify-center gap-2.5 h-[50px] px-7 rounded-full bg-white text-orange-600 font-bold text-[13px] hover:bg-orange-50 transition-all border border-slate-200 shadow-sm hover:-translate-y-0.5"
                             >
                                 <Bug className="w-[18px] h-[18px] text-orange-500" />
-                                Report Bug
+                                <T en="Report Bug" bm="Lapor Pepijat" />
                             </Link>
                             <Link 
                                 href="/app/tickets/new?type=FEATURE" 
                                 className="flex items-center justify-center gap-2.5 h-[50px] px-8 rounded-full bg-violet-600 text-white font-semibold text-[14px] shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:bg-violet-700 transition-all hover:-translate-y-0.5 border border-violet-500"
                             >
                                 <Zap className="w-[18px] h-[18px]" strokeWidth={2.5} />
-                                Request Feature
+                                <T en="Request Feature" bm="Mohon Ciri" />
                             </Link>
                         </div>
                     </div>
@@ -129,7 +132,7 @@ export default function TicketsPage() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{tickets.length}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Total Tickets</div>
+                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Total Tickets" bm="Jumlah Tiket" /></div>
                             </div>
                         </div>
 
@@ -140,7 +143,7 @@ export default function TicketsPage() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{openBugs}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Open Bugs</div>
+                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Open Bugs" bm="Pepijat Terbuka" /></div>
                             </div>
                         </div>
 
@@ -151,7 +154,7 @@ export default function TicketsPage() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{featureReqs}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Feature Requests</div>
+                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Feature Requests" bm="Permohonan Ciri" /></div>
                             </div>
                         </div>
 
@@ -162,7 +165,7 @@ export default function TicketsPage() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{resolvedCount}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Resolved</div>
+                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Resolved" bm="Selesai" /></div>
                             </div>
                         </div>
 
@@ -177,7 +180,7 @@ export default function TicketsPage() {
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder="Search tickets..." 
+                        placeholder={lang === "EN" ? "Search tickets..." : "Cari tiket..."} 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full h-[46px] pl-[3.25rem] pr-5 rounded-full bg-white border border-slate-200/70 text-[13px] focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all font-medium placeholder:text-slate-400 shadow-sm"
@@ -196,7 +199,7 @@ export default function TicketsPage() {
                                     : 'text-slate-500 hover:text-slate-800'
                             }`}
                         >
-                            {f === 'ALL' ? 'All' : f === 'BUG' ? 'Bug' : 'Feature'}
+                            {f === 'ALL' ? <T en="All" bm="Semua" /> : f === 'BUG' ? <T en="Bug" bm="Pepijat" /> : <T en="Feature" bm="Ciri" />}
                         </button>
                     ))}
                 </div>
@@ -209,8 +212,8 @@ export default function TicketsPage() {
                         <Inbox className="w-10 h-10" />
                     </div>
                     <div className="space-y-1">
-                        <p className="text-slate-800 font-bold text-lg">Ticket Inbox Empty</p>
-                        <p className="text-slate-500 font-medium text-sm">Have an issue or a new idea? Click a button above to start!</p>
+                        <p className="text-slate-800 font-bold text-lg"><T en="Ticket Inbox Empty" bm="Peti Masuk Tiket Kosong" /></p>
+                        <p className="text-slate-500 font-medium text-sm"><T en="Have an issue or a new idea? Click a button above to start!" bm="Ada masalah atau idea baru? Klik butang di atas untuk mula!" /></p>
                     </div>
                 </div>
             ) : (
@@ -234,11 +237,11 @@ export default function TicketsPage() {
                                     <div className="flex items-center justify-between mb-6">
                                         {isBug ? (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50/80 text-orange-600 text-[9px] font-black uppercase tracking-widest border border-orange-100/50 rounded-full">
-                                                <Bug className="w-3 h-3" /> BUG
+                                                <Bug className="w-3 h-3" /> <T en="BUG" bm="PEPIJAT" />
                                             </div>
                                         ) : (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 text-[9px] font-black uppercase tracking-widest border border-violet-100/50 rounded-full">
-                                                <Hash className="w-3 h-3 text-violet-500" /> FEATURE
+                                                <Hash className="w-3 h-3 text-violet-500" /> <T en="FEATURE" bm="CIRI" />
                                             </div>
                                         )}
 
@@ -248,7 +251,10 @@ export default function TicketsPage() {
                                                 ticket.status === 'IN_PROGRESS' ? 'bg-blue-500' :
                                                 'bg-amber-500'
                                             }`}></div>
-                                            {ticket.status.replace('_', '-')}
+                                            {ticket.status === 'OPEN' ? <T en="OPEN" bm="TERBUKA" /> : 
+                                             ticket.status === 'IN_PROGRESS' ? <T en="IN-PROGRESS" bm="DALAM PROSES" /> :
+                                             ticket.status === 'RESOLVED' ? <T en="RESOLVED" bm="SELESAI" /> :
+                                             <T en="CLOSED" bm="DITUTUP" />}
                                         </div>
                                     </div>
 
@@ -273,7 +279,7 @@ export default function TicketsPage() {
                                             </div>
                                         </div>
                                         <div className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.1em] flex items-center group-hover:text-violet-600 transition-colors">
-                                            OPEN DISCUSSION <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2.5} />
+                                            <T en="OPEN DISCUSSION" bm="BUKA PERBINCANGAN" /> <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2.5} />
                                         </div>
                                     </div>
                                 </div>

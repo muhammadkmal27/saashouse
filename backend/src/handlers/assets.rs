@@ -37,11 +37,30 @@ pub async fn upload_asset(
         let data = field.bytes().await.map_err(|e| ApiError::BadRequest(e.to_string()))?;
         validate_file_size(data.len())?;
 
+        // Rule 22: File Upload Integrity (Magic Bytes Validation)
+        let kind = infer::get(&data).ok_or(ApiError::BadRequest("Unknown file type".to_string()))?;
+        let mime = kind.mime_type();
+        if !mime.starts_with("image/") && mime != "application/pdf" && mime != "application/zip" && !mime.contains("word") && mime != "text/plain" {
+             return Err(ApiError::BadRequest(format!("MIME type {} not allowed.", mime)));
+        }
+
         let unique_name = format!("{}_{}", Uuid::new_v4(), file_name.replace(" ", "_"));
         let path = format!("uploads/{}", unique_name);
 
-        let mut file = File::create(&path).await.map_err(|e| ApiError::Internal(e.to_string()))?;
-        file.write_all(&data).await.map_err(|e| ApiError::Internal(e.to_string()))?;
+        // Rule 18: Information Leakage (EXIF removal for images)
+        let ext = file_name.split('.').last().unwrap_or("").to_lowercase();
+        if ["jpg", "jpeg", "png", "jfif"].contains(&ext.as_str()) {
+            if let Ok(img) = image::load_from_memory(&data) {
+                img.save(&path).map_err(|e| ApiError::Internal(format!("Failed to save stripped image: {}", e)))?;
+            } else {
+                // If image parsing fails but extension was image, fallback to raw save or reject
+                let mut file = File::create(&path).await.map_err(|e| ApiError::Internal(e.to_string()))?;
+                file.write_all(&data).await.map_err(|e| ApiError::Internal(e.to_string()))?;
+            }
+        } else {
+            let mut file = File::create(&path).await.map_err(|e| ApiError::Internal(e.to_string()))?;
+            file.write_all(&data).await.map_err(|e| ApiError::Internal(e.to_string()))?;
+        }
 
         urls.push(format!("/uploads/{}", unique_name));
     }

@@ -162,13 +162,19 @@ pub async fn google_callback_logic<C: GoogleOAuthClient>(
         });
 
         let token = create_token(user.id, role_str, false)?;
-        let cookie = Cookie::build(("auth_token", token)).path("/").http_only(true).build();
-        return Ok((jar.add(cookie), Redirect::to(&format!("{}/auth/verify-2fa", frontend_url)).into_response()));
+        let cookie = crate::utils::cookie::build_auth_cookie(token);
+        let csrf_token = uuid::Uuid::new_v4().to_string();
+        let csrf_cookie = crate::utils::cookie::build_csrf_cookie(csrf_token);
+
+        return Ok((jar.add(cookie).add(csrf_cookie), Redirect::to(&format!("{}/auth/verify-2fa", frontend_url)).into_response()));
     }
 
     let token = create_token(user.id, role_str, true)?;
-    let cookie = Cookie::build(("auth_token", token)).path("/").http_only(true).build();
+    let cookie = crate::utils::cookie::build_auth_cookie(token);
+    let csrf_token = uuid::Uuid::new_v4().to_string();
+    let csrf_cookie = crate::utils::cookie::build_csrf_cookie(csrf_token);
+
     let has_plan = jar.get("next-plan").is_some();
     let target_path = if has_plan { "/app/projects/create" } else { "/app/dashboard" };
-    Ok((jar.add(cookie), Redirect::to(&format!("{}{}", frontend_url, target_path)).into_response()))
+    Ok((jar.add(cookie).add(csrf_cookie), Redirect::to(&format!("{}{}", frontend_url, target_path)).into_response()))
 }

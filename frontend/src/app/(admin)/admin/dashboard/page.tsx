@@ -13,6 +13,7 @@ import Link from "next/link";
 
 interface AdminStats {
     total_mrr: number;
+    total_revenue: number;
     total_clients: number;
     active_projects: number;
 }
@@ -95,8 +96,8 @@ export default function AdminDashboard() {
                             +0% <ArrowUpRight className="w-4 h-4" />
                         </div>
                     </div>
-                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1">Total MRR</h3>
-                    <p className="text-3xl font-black">RM {stats?.total_mrr.toLocaleString() || "0.00"}</p>
+                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1">Total Collected</h3>
+                    <p className="text-3xl font-black">RM {stats?.total_revenue?.toLocaleString() || "0.00"}</p>
                 </div>
 
                 <div className="p-8 rounded-[2rem] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group">

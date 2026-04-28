@@ -20,6 +20,7 @@ interface ClientLedgerRow {
     project_status?: string;
     subscription_id?: string;
     subscription_status?: string;
+    row_id?: number;
 }
 
 export default function AdminClients() {
@@ -118,7 +119,7 @@ export default function AdminClients() {
                             </thead>
                             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                                 {filteredClients.map((client) => (
-                                    <tr key={client.project_id || client.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                    <tr key={client.row_id || client.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                                         <td className="px-8 py-7">
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-sm">{client.full_name}</span>

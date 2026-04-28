@@ -21,6 +21,7 @@ mod tests {
         
         AppState {
             pool,
+            redis: redis::Client::open("redis://127.0.0.1/").unwrap(),
             hub: Arc::new(RealtimeHub::new()),
         }
     }
@@ -33,7 +34,7 @@ mod tests {
         sqlx::query!("DELETE FROM subscriptions").execute(&state.pool).await.unwrap();
 
         // 2. Insert strategic subscription plans to test rounding and summing
-        // Platinum: 400.00, Enterprise: 260.00, Growth: 190.00, Standard: 165.00
+        // Platinum: 750.00, Enterprise: 410.00, Growth: 240.00, Standard: 165.00
         let subscriptions = vec![
             (Uuid::new_v4(), "PLATINUM", "active"),
             (Uuid::new_v4(), "ENTERPRISE", "active"),
@@ -55,11 +56,14 @@ mod tests {
         }
 
         // 3. Run Stats Handler
-        let result = get_admin_stats(State(state.clone())).await.unwrap();
+        use axum::extract::Query;
+        use crate::models::admin::StatsQuery;
+        let query = Query(StatsQuery { days: Some(0) });
+        let result = get_admin_stats(State(state.clone()), query).await.unwrap();
         let stats = result.0;
 
-        // 4. Verification (400 + 260 + 190 + 165 = 1015.00)
-        assert_eq!(stats.total_mrr, 1015.0, "MRR Calculation must be exact including cents");
+        // 4. Verification (750 + 410 + 240 + 165 = 1565.00)
+        assert_eq!(stats.total_mrr, 1565.0, "MRR Calculation must be exact including cents");
     }
 
     #[tokio::test]
@@ -68,7 +72,7 @@ mod tests {
         let client_id = Uuid::new_v4();
         let project_id = Uuid::new_v4();
 
-        // Setup Project with ENTERPRISE plan (260.00)
+        // Setup Project with ENTERPRISE plan (410.00)
         sqlx::query!("INSERT INTO users (id, email, password_hash) VALUES ($1, $2, 'hash')", client_id, format!("billing_{}@test.com", client_id)).execute(&state.pool).await.unwrap();
         
         sqlx::query!(
@@ -96,9 +100,9 @@ mod tests {
             project_id
         ).fetch_one(&state.pool).await.unwrap();
 
-        // Enterprise is 260.00
+        // Enterprise is 410.00
         let amount_f64: f64 = format!("{:.2}", billing_row.amount).parse().unwrap();
-        assert_eq!(amount_f64, 260.0, "Billing record must match plan price exactly");
+        assert_eq!(amount_f64, 410.0, "Billing record must match plan price exactly");
     }
 
     #[tokio::test]

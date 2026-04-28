@@ -1,8 +1,9 @@
 use axum::{extract::{State, Path}, Json, Extension};
 use sqlx::PgPool;
 use crate::AppState;
-use crate::models::project::{Project, CreateProjectRequest, RequirementsPayload};
-use crate::utils::{error::ApiError, jwt::Claims};
+use crate::models::project::{Project, CreateProjectRequest, RequirementsPayload, ProjectStatus};
+use crate::models::admin::AdminProjectRow;
+use crate::utils::{error::ApiError, jwt::Claims, realtime::RealtimeEvent};
 
 #[utoipa::path(
     get,
@@ -88,6 +89,8 @@ pub async fn get_project(
     Ok(Json(project))
 }
 
+use validator::Validate;
+
 #[utoipa::path(
     post,
     path = "/api/projects",
@@ -104,6 +107,9 @@ pub async fn create_project(
     Extension(claims): Extension<Claims>,
     Json(payload): Json<CreateProjectRequest>,
 ) -> Result<Json<Project>, ApiError> {
+    // 0. Strict Input Validation (Rule 1)
+    payload.validate().map_err(ApiError::Validation)?;
+
     let pool = &state.pool;
     println!("DEBUG: Received create_project request from client: {}", claims.sub);
     println!("DEBUG: Payload: {:?}", payload);
@@ -128,6 +134,46 @@ pub async fn create_project(
     .fetch_one(pool)
     .await
     .map_err(|e| ApiError::Internal(e.to_string()))?;
+    
+    // Broadcast for Admin Real-time Dashboard
+    let admin_view = sqlx::query_as!(
+        AdminProjectRow,
+        r#"
+        SELECT
+            pr.id as id,
+            pr.title as title,
+            pr.description as description,
+            pr.whatsapp_number as whatsapp_number,
+            COALESCE(p.full_name, u.email) as "client_name!",
+            u.email as "client_email!",
+            COALESCE(s.plan_name, pr.selected_plan, pr.requirements->>'selected_plan') as "plan_name?",
+            pr.status as "status!: ProjectStatus",
+            pr.dev_url,
+            pr.prod_url,
+            LOWER(s.status) as "subscription_status?",
+            pr.client_edit_allowed as "client_edit_allowed!",
+            pr.created_at
+        FROM projects pr
+        JOIN users u ON pr.client_id = u.id
+        LEFT JOIN user_profiles p ON u.id = p.user_id
+        LEFT JOIN LATERAL (
+            SELECT status, plan_name, id
+            FROM subscriptions sub
+            WHERE sub.project_id = pr.id 
+               OR (sub.project_id IS NULL AND sub.client_id = pr.client_id)
+            ORDER BY (sub.project_id = pr.id) DESC, sub.updated_at DESC
+            LIMIT 1
+        ) s ON TRUE
+        WHERE pr.id = $1
+        "#,
+        project.id
+    )
+    .fetch_one(pool)
+    .await;
+
+    if let Ok(row) = admin_view {
+        let _ = state.hub.tx.send(RealtimeEvent::NewProject { project: row });
+    }
 
     Ok(Json(project))
 }
@@ -184,8 +230,21 @@ pub async fn update_project_requirements(
             requirements = $1::jsonb - CAST('selected_plan' AS TEXT), 
             updated_at = NOW() 
         WHERE id = $2
-        RETURNING id, client_id as "client_id!", title, description, whatsapp_number, requirements, status as "status!: _", 
-                  dev_url, prod_url, NULL::TEXT as subscription_status, selected_plan, client_edit_allowed as "client_edit_allowed!", created_at, updated_at
+        RETURNING 
+            id, 
+            COALESCE(client_id, '00000000-0000-0000-0000-000000000000'::uuid) as "client_id!", 
+            title, 
+            description, 
+            whatsapp_number, 
+            requirements, 
+            COALESCE(status, 'DRAFT'::project_status) as "status!: _", 
+            dev_url, 
+            prod_url, 
+            NULL::TEXT as subscription_status, 
+            selected_plan, 
+            COALESCE(client_edit_allowed, FALSE) as "client_edit_allowed!", 
+            created_at, 
+            updated_at
         "#,
         req_json,
         id

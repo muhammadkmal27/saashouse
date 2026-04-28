@@ -6,7 +6,6 @@ import {
     ArrowLeft,
     User,
     MessageCircle,
-    FileText,
     Globe,
     Box,
     Rocket,
@@ -30,11 +29,18 @@ import {
     BadgeCheck,
     Calendar,
     Briefcase,
-    X
+    X,
+    MoveVertical,
+    Type,
+    Maximize2,
+    RotateCcw,
+    FileText
 } from "lucide-react";
+import Script from 'next/script';
 import Link from "next/link";
 import { getAssetUrl } from "@/utils/url";
 import ProjectOnboardingReport from "@/components/ProjectOnboardingReport";
+import ServiceAgreementDocument from "@/components/ServiceAgreementDocument";
 
 interface Requirements {
   payment_setup?: {
@@ -82,12 +88,28 @@ interface ProjectData {
   created_at: string;
 }
 
+interface ServiceAgreement {
+  id: string;
+  client_name: string;
+  provider_name: string;
+  project_name: string;
+  total_cost: number;
+  deposit_amount: number;
+  balance_amount: number;
+  signed_at: string;
+  signature_data?: string;
+  provider_signature?: string;
+}
+
 
 export default function AdminProjectDetails() {
   const { id } = useParams();
   const router = useRouter();
   const [project, setProject] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
+    const [lineSpacing, setLineSpacing] = useState(1.6);
+    const [pageMargin, setPageMargin] = useState(48); // default p-12 is 48px
+    const [isExporting, setIsExporting] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [permissionLoading, setPermissionLoading] = useState(false);
@@ -98,8 +120,26 @@ export default function AdminProjectDetails() {
   const [tempDevUrl, setTempDevUrl] = useState("");
   const [tempProdUrl, setTempProdUrl] = useState("");
 
-  // Asset Viewer State
   const [activeAsset, setActiveAsset] = useState<string | null>(null);
+  const [agreement, setAgreement] = useState<ServiceAgreement | null>(null);
+  const [isAgreementOpen, setIsAgreementOpen] = useState(false);
+  const [isAgreementPreviewOpen, setIsAgreementPreviewOpen] = useState(false);
+  const [printTarget, setPrintTarget] = useState<'REPORT' | 'AGREEMENT'>('REPORT');
+
+  // Layout Adjustment States for Agreement
+  const [sectionGap, setSectionGap] = useState(8);
+  const [fontSize, setFontSize] = useState(14);
+  const [signatureGap, setSignatureGap] = useState(20);
+  const [otpTemplate, setOtpTemplate] = useState<any[]>([]);
+  const [saasTemplate, setSaasTemplate] = useState<any[]>([]);
+
+  const resetAgreementLayout = () => {
+    setSectionGap(8);
+    setFontSize(14);
+    setSignatureGap(20);
+    setPageMargin(48);
+    setLineSpacing(1.6);
+  };
 
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
     setNotification({ message, type });
@@ -122,6 +162,21 @@ export default function AdminProjectDetails() {
         console.error(err);
         setLoading(false);
       });
+
+    // Fetch Agreement
+    fetch(`/api/projects/${id}/agreement`, { credentials: "include" })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setAgreement(data))
+      .catch(console.error);
+
+    // Fetch Settings for Templates
+    fetch("/api/status", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        setOtpTemplate(data.agreement_template_otp || []);
+        setSaasTemplate(data.agreement_template_saas || []);
+      })
+      .catch(console.error);
   }, [id]);
 
   const handlePermissionToggle = async () => {
@@ -129,10 +184,15 @@ export default function AdminProjectDetails() {
     setPermissionLoading(true);
     const newValue = !project.client_edit_allowed;
     
+    const csrfToken = document.cookie.split("; ").find((row) => row.startsWith("csrf_token="))?.split("=")[1] || "";
+    
     try {
         const res = await fetch(`/api/admin/projects/${id}/permission`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken
+            },
             body: JSON.stringify({ allowed: newValue }),
             credentials: "include"
         });
@@ -154,10 +214,15 @@ export default function AdminProjectDetails() {
 
   const handleProjectUpdate = async (params: { status?: string, dev_url?: string, prod_url?: string }, silent: boolean = false) => {
     if (!silent) setUpdating(true);
+    const csrfToken = document.cookie.split("; ").find((row) => row.startsWith("csrf_token="))?.split("=")[1] || "";
+
     try {
         const res = await fetch(`/api/admin/projects/${id}`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken
+            },
             body: JSON.stringify(params),
             credentials: "include"
         });
@@ -216,9 +281,14 @@ export default function AdminProjectDetails() {
 
   const handleGenerateInvoice = async () => {
     setUpdating(true);
+    const csrfToken = document.cookie.split("; ").find((row) => row.startsWith("csrf_token="))?.split("=")[1] || "";
+
     try {
         const res = await fetch(`/api/admin/projects/${id}/invoice`, {
             method: "POST",
+            headers: {
+                "X-CSRF-Token": csrfToken
+            },
             credentials: "include"
         });
 
@@ -237,8 +307,61 @@ export default function AdminProjectDetails() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportReportPDF = async () => {
+    if (!project) return;
+    setIsExporting(true);
+    setPrintTarget('REPORT');
+
+    // Wait for the DOM to update so the report is rendered
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const element = document.getElementById('project-report-print');
+    if (!element) {
+        setIsExporting(false);
+        return;
+    }
+
+    const options = {
+        margin: [0, 0, 0, 0],
+        filename: `Report_${(project.title || 'Project').replace(/\s+/g, '_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            letterRendering: true,
+            logging: false,
+            scrollY: 0,
+            scrollX: 0
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    try {
+        // @ts-ignore
+        if (typeof window.html2pdf !== 'function') {
+            showNotification("PDF components are still loading. Please wait a moment.", "error");
+            setIsExporting(false);
+            return;
+        }
+        // @ts-ignore
+        await window.html2pdf().set(options).from(element).save();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setIsExporting(false);
+    }
+  };
+
+  const handlePrint = (target: 'REPORT' | 'AGREEMENT' = 'REPORT') => {
+    if (target === 'REPORT') {
+        handleExportReportPDF();
+        return;
+    }
+    setPrintTarget(target);
+    setTimeout(() => {
+        window.print();
+    }, 100);
   };
 
   const getStatusBadge = (status: string) => {
@@ -261,10 +384,29 @@ export default function AdminProjectDetails() {
 
   return (
     <div className="min-h-screen bg-zinc-50/50 p-4 md:p-8 pb-32">
+      <Script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" strategy="afterInteractive" />
 
-      {/* ONBOARDING REPORT (Only visible in Print) */}
+      {/* PRINT VIEWS */}
       <div className="hidden print:block">
-        <ProjectOnboardingReport project={project} />
+        {printTarget === 'REPORT' && <ProjectOnboardingReport project={project} />}
+        {printTarget === 'AGREEMENT' && agreement && (
+            <ServiceAgreementDocument 
+                project={agreement as any} 
+                fontSize={fontSize}
+                sectionGap={sectionGap}
+                signatureGap={signatureGap}
+                lineSpacing={lineSpacing}
+                padding={pageMargin}
+                template={
+                  (agreement.plan_name?.toLowerCase() || "").includes("standard") || 
+                  (agreement.plan_name?.toLowerCase() || "").includes("growth") || 
+                  (agreement.plan_name?.toLowerCase() || "").includes("enterprise") || 
+                  (agreement.plan_name?.toLowerCase() || "").includes("platinum")
+                  ? saasTemplate
+                  : otpTemplate
+                }
+            />
+        )}
       </div>
 
       {/* Main Container (Hidden in Print to show only Onboarding Report) */}
@@ -279,12 +421,13 @@ export default function AdminProjectDetails() {
             
             <div className="flex flex-wrap items-center gap-3">
                 <button 
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-zinc-200 hover:border-zinc-300 rounded-xl text-sm font-bold text-zinc-600 transition-all shadow-sm"
+                    onClick={() => handlePrint('REPORT')}
+                    disabled={isExporting}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
                 >
-                    <Printer className="w-4 h-4" /> Save as PDF
+                    <Download className="w-4 h-4" /> {isExporting ? 'Generating...' : 'Download PDF (HQ)'}
                 </button>
-                <div className="h-6 w-px bg-zinc-200 hidden sm:block" />
+
                 <button 
                   onClick={handlePermissionToggle}
                   disabled={permissionLoading}
@@ -312,7 +455,7 @@ export default function AdminProjectDetails() {
                             Plan: {project.selected_plan || 'Custom Plan'}
                         </span>
                         <span className="px-3 py-1 text-[10px] font-bold bg-zinc-100 text-zinc-500 rounded-lg uppercase tracking-wider">
-                            Sub: {project.subscription_status || 'Inactive'}
+                            Sub: {project.subscription_status ? (project.subscription_status.charAt(0).toUpperCase() + project.subscription_status.slice(1)) : (project.selected_plan?.toUpperCase().includes('ONE-TIME') && !['REVIEW', 'DRAFT'].includes(project.status.toUpperCase())) ? 'Active (OTP)' : 'Inactive'}
                         </span>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-zinc-900 tracking-tight leading-none uppercase">
@@ -341,9 +484,18 @@ export default function AdminProjectDetails() {
                 {/* Project Vision - FULL CONTEXT */}
                 {req.project_vision && (
                     <div className="bg-white border-2 border-zinc-200 rounded-3xl p-8 md:p-12 shadow-sm space-y-6">
-                        <div className="flex items-center gap-3 text-zinc-400">
-                            <FileSearch className="w-6 h-6" />
-                            <span className="text-sm font-black uppercase tracking-widest">The Creative Vision</span>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-zinc-400">
+                                <FileSearch className="w-6 h-6" />
+                                <span className="text-sm font-black uppercase tracking-widest">The Creative Vision</span>
+                            </div>
+                            <button 
+                                onClick={handleExportReportPDF}
+                                disabled={isExporting}
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                            >
+                                <Download className="w-3.5 h-3.5" /> {isExporting ? 'Exporting...' : 'Download Blueprint'}
+                            </button>
                         </div>
                         <div className="max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar">
                             <p className="text-base md:text-lg font-medium text-zinc-600 leading-relaxed selection:bg-zinc-100 break-words whitespace-pre-wrap">
@@ -577,6 +729,31 @@ export default function AdminProjectDetails() {
                                 <FileText className="w-5 h-5" /> {project.status === "PAYMENT_PENDING" ? "Invoice Pending Review" : "Request Payment"}
                             </button>
                             </div>
+
+                            {/* SIGNED AGREEMENT ACCESS */}
+                            {agreement && (
+                                <div className="pt-6 border-t border-zinc-800 space-y-3">
+                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-violet-400">
+                                        <BadgeCheck className="w-3 h-3" /> Agreement Verified
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            setPrintTarget('AGREEMENT');
+                                            setIsAgreementPreviewOpen(true);
+                                        }}
+                                        className="w-full py-4 bg-violet-600/20 hover:bg-violet-600/40 border border-violet-500/30 text-violet-100 rounded-2xl font-black flex items-center justify-center gap-3 transition-all"
+                                    >
+                                        <Printer className="w-5 h-5" /> Print Agreement
+                                    </button>
+                                    <div className="px-4 py-3 bg-zinc-800/50 rounded-xl border border-zinc-700/50">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-[8px] font-bold text-zinc-500 uppercase">Signed By</span>
+                                            <span className="text-[8px] font-mono text-zinc-500">{new Date(agreement.signed_at).toLocaleDateString()}</span>
+                                        </div>
+                                        <p className="text-xs font-bold text-zinc-200 truncate">{agreement.client_name}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -785,6 +962,176 @@ export default function AdminProjectDetails() {
                         <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em]">Corporate Strategic Asset Vault</p>
                     </div>
                 </div>
+            </div>
+        )}
+
+        {/* Agreement Preview Overlay */}
+        {isAgreementPreviewOpen && agreement && (
+            <div className="fixed inset-0 z-[150] bg-zinc-950 overflow-y-auto custom-scrollbar p-8 print:hidden animate-in fade-in duration-300">
+
+                {/* Control Panel (Moved from component to here for better print control) */}
+                <div className="fixed top-32 right-12 w-64 bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-6 z-[160] transition-all ring-1 ring-black/5">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
+                        <Layout className="w-4 h-4 text-emerald-600" />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 text-center flex-1">Adjust Layout</h3>
+                        <button 
+                            onClick={resetAgreementLayout}
+                            className="p-1 hover:bg-zinc-100 rounded-md transition-colors text-zinc-400 hover:text-zinc-900"
+                            title="Reset Layout"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <div className="space-y-5">
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                                    <MoveVertical className="w-3 h-3" /> Section Gap
+                                </label>
+                                <span className="text-[10px] font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-full">{sectionGap}</span>
+                            </div>
+                            <input 
+                                type="range" min="2" max="16" step="1"
+                                value={sectionGap}
+                                onChange={(e) => setSectionGap(parseInt(e.target.value))}
+                                className="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                                    <Type className="w-3 h-3" /> Font Size
+                                </label>
+                                <span className="text-[10px] font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-full">{fontSize}px</span>
+                            </div>
+                            <input 
+                                type="range" min="11" max="18" step="0.5"
+                                value={fontSize}
+                                onChange={(e) => setFontSize(parseFloat(e.target.value))}
+                                className="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                                    <Maximize2 className="w-3 h-3" /> Signature Gap
+                                </label>
+                                <span className="text-[10px] font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-full">{signatureGap}</span>
+                            </div>
+                            <input 
+                                type="range" min="4" max="40" step="2"
+                                value={signatureGap}
+                                onChange={(e) => setSignatureGap(parseInt(e.target.value))}
+                                className="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
+                                    <Maximize2 className="w-3 h-3" /> Page Margins
+                                </label>
+                                <span className="text-[10px] font-mono text-zinc-400">{pageMargin}px</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="20" 
+                                max="100" 
+                                step="2"
+                                value={pageMargin}
+                                onChange={(e) => setPageMargin(parseInt(e.target.value))}
+                                className="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-zinc-100 space-y-3">
+                        <button 
+                            onClick={async () => {
+                                setIsExporting(true);
+                                const element = document.getElementById('agreement-document-print');
+                                if (!element) return;
+
+                                // Reset scroll of the container to avoid offsets in PDF
+                                const container = element.closest('.overflow-y-auto');
+                                if (container) container.scrollTop = 0;
+                                
+                                const options = {
+                                    margin: [15, 10, 15, 10], // Top, Left, Bottom, Right in mm
+                                    filename: `Agreement_${project.title.replace(/\s+/g, '_')}.pdf`,
+                                    image: { type: 'jpeg', quality: 0.98 },
+                                    html2canvas: { 
+                                        scale: 2, 
+                                        useCORS: true, 
+                                        letterRendering: true,
+                                        logging: false,
+                                        scrollY: 0,
+                                        scrollX: 0
+                                    },
+                                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                                };
+
+                                try {
+                                    // @ts-ignore
+                                    if (typeof window.html2pdf !== 'function') {
+                                        showNotification("PDF components are still loading...", "error");
+                                        setIsExporting(false);
+                                        return;
+                                    }
+                                    // @ts-ignore
+                                    await window.html2pdf().set(options).from(element).save();
+                                } catch (error) {
+                                    console.error(error);
+                                } finally {
+                                    setIsExporting(false);
+                                }
+                            }}
+                            disabled={isExporting}
+                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50"
+                        >
+                            <Download className="w-4 h-4" /> {isExporting ? 'Generating PDF...' : 'Download PDF (HQ)'}
+                        </button>
+
+                        <button 
+                            onClick={() => window.print()}
+                            className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg transition-all"
+                        >
+                            <Printer className="w-4 h-4" /> Confirm & Print
+                        </button>
+
+                        <p className="text-[10px] text-zinc-400 font-medium italic text-center">Final output will follow these adjustments</p>
+                    </div>
+                </div>
+
+                <button 
+                    onClick={() => setIsAgreementPreviewOpen(false)}
+                    className="fixed top-8 left-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-md z-[160] transition-all group border border-white/10"
+                >
+                    <div className="flex items-center gap-2">
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-xs font-black uppercase tracking-widest mr-2">Exit Preview</span>
+                    </div>
+                </button>
+                
+                    <ServiceAgreementDocument 
+                        project={agreement as any} 
+                        fontSize={fontSize}
+                        sectionGap={sectionGap}
+                        signatureGap={signatureGap}
+                        lineSpacing={lineSpacing}
+                        padding={pageMargin}
+                        template={
+                          (agreement.plan_name?.toLowerCase() || "").includes("standard") || 
+                          (agreement.plan_name?.toLowerCase() || "").includes("growth") || 
+                          (agreement.plan_name?.toLowerCase() || "").includes("enterprise") || 
+                          (agreement.plan_name?.toLowerCase() || "").includes("platinum")
+                          ? saasTemplate
+                          : otpTemplate
+                        }
+                    />
             </div>
         )}
     </div>

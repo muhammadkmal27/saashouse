@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useSocket } from "@/components/providers/SocketProvider";
 import { Search, Eye, Lock, Unlock } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface Project {
   id: string;
@@ -23,7 +25,8 @@ const normalizePlanName = (name?: string): string => {
   if (n.includes("PLATINUM")) return "Platinum";
   if (n.includes("ENTERPRISE")) return "Enterprise";
   if (n.includes("GROWTH")) return "Growth";
-  return "Standard";
+  if (n.includes("ONE_TIME") || n.includes("PURCHASE") || n.includes("OWNERSHIP")) return "One-Time Purchase";
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -43,6 +46,9 @@ const getStatusLabel = (status: string): string => {
   return STATUS_LABEL[key] ?? status.replace(/_/g, " ");
 };
 
+// Keep track of processed IDs across page navigations in this session
+const processedProjectIds = new Set<string>();
+
 export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -55,6 +61,37 @@ export default function AdminProjects() {
       .then(data => { if (Array.isArray(data)) setProjects(data); setLoading(false); })
       .catch(err => { console.error("Failed to fetch projects:", err); setLoading(false); });
   }, []);
+
+  const { lastEvent } = useSocket();
+
+  // Handle NewProject event from Global Socket
+  useEffect(() => {
+    if (lastEvent?.type === "NewProject") {
+      const newProject = lastEvent.data.project;
+      
+      // Update projects list immediately
+      setProjects(prev => {
+        if (prev.some(p => p.id === newProject.id)) return prev;
+        return [newProject, ...prev];
+      });
+
+      // Avoid duplicate toasts for the same project in this session (persisted across mounts)
+      if (processedProjectIds.has(newProject.id)) return;
+      processedProjectIds.add(newProject.id);
+
+      // Only show toast if the project is actually "new" (created in last 15s)
+      const createdAt = new Date(newProject.created_at).getTime();
+      const now = Date.now();
+      const isFresh = (now - createdAt) < 15000; // 15 seconds threshold
+
+      if (isFresh) {
+        toast.success("New Project Deployed", {
+          description: `${newProject.title} has been added by a client.`,
+          duration: 10000,
+        });
+      }
+    }
+  }, [lastEvent]);
 
   const filtered = useMemo(() => {
     let list = projects;

@@ -21,6 +21,7 @@ mod tests {
         
         AppState {
             pool,
+            redis: redis::Client::open("redis://127.0.0.1/").unwrap(),
             hub: Arc::new(RealtimeHub::new()),
         }
     }

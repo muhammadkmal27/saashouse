@@ -22,6 +22,7 @@ mod tests {
         
         AppState {
             pool,
+            redis: redis::Client::open("redis://127.0.0.1/").unwrap(),
             hub: Arc::new(RealtimeHub::new()),
         }
     }
@@ -38,7 +39,9 @@ mod tests {
             full_name: "Test User".to_string(),
         };
 
-        let result = register_logic(state.pool.clone(), jar, payload).await;
+        use crate::handlers::auth::registration_repo::SqlxRegistrationRepo;
+        let repo = SqlxRegistrationRepo::new(state.pool.clone());
+        let result: Result<_, ApiError> = register_logic(repo, jar, payload, None, None).await;
         
         assert!(result.is_ok(), "Registration should succeed");
         
@@ -69,11 +72,13 @@ mod tests {
 
         let payload = RegisterRequest {
             email: email.clone(),
-            password: "any_password".to_string(),
+            password: "ComplexPass!123".to_string(),
             full_name: "Duplicate Tester".to_string(),
         };
 
-        let result = register_logic(state.pool.clone(), jar, payload).await;
+        use crate::handlers::auth::registration_repo::SqlxRegistrationRepo;
+        let repo = SqlxRegistrationRepo::new(state.pool.clone());
+        let result: Result<_, ApiError> = register_logic(repo, jar, payload, None, None).await;
         
         assert!(result.is_err(), "Should fail with duplicate email");
         match result.unwrap_err() {
@@ -95,11 +100,13 @@ mod tests {
             full_name: "No Pass".to_string(),
         };
 
-        let result = register_logic(state.pool.clone(), jar, payload).await;
-        assert!(result.is_ok());
+        use crate::handlers::auth::registration_repo::SqlxRegistrationRepo;
+        let repo = SqlxRegistrationRepo::new(state.pool.clone());
+        let result: Result<_, ApiError> = register_logic(repo, jar, payload, None, None).await;
+        assert!(result.is_err(), "Should fail validation for empty password");
         
-        let user_hash = sqlx::query!("SELECT password_hash FROM users WHERE email = $1", email)
-            .fetch_one(&state.pool).await.unwrap();
-        assert_ne!(user_hash.password_hash.unwrap(), "");
+        let user_exists = sqlx::query!("SELECT id FROM users WHERE email = $1", email)
+            .fetch_optional(&state.pool).await.unwrap();
+        assert!(user_exists.is_none(), "User should NOT be created for invalid input");
     }
 }

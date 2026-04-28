@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/components/providers/SocketProvider";
+import { LanguageProvider } from "@/components/providers/LanguageProvider";
 import ChatWidget from "@/components/chat/ChatWidget";
 
 export default function RootLayout({
@@ -21,10 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50`}>
-        <SocketProvider>
-          {children}
-          <Toaster position="top-center" richColors />
-        </SocketProvider>
+        <LanguageProvider>
+          <SocketProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </SocketProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

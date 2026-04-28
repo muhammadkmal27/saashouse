@@ -4,3 +4,4 @@ pub mod project;
 pub mod billing;
 pub mod admin;
 pub mod requests;
+pub mod agreement;

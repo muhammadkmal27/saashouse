@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { getCookie } from "@/utils/cookies";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function LoginPage() {
+  const { lang } = useLanguage();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,9 +59,9 @@ export default function LoginPage() {
   return (
     <div className="w-full">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2">Welcome back</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2"><T en="Welcome back" bm="Selamat kembali" /></h1>
         <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
-          Sign in to access your enterprise dashboard
+          <T en="Sign in to access your enterprise dashboard" bm="Log masuk untuk mengakses papan pemuka perusahaan anda" />
         </p>
       </div>
 
@@ -71,13 +74,13 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-5 mt-8">
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
-            Email
+            <T en="Email" bm="E-mel" />
           </label>
           <div className="relative">
             <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="email"
-              placeholder="name@example.com"
+              placeholder={lang === "EN" ? "name@example.com" : "nama@contoh.com"}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -90,10 +93,10 @@ export default function LoginPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
-              Password
+              <T en="Password" bm="Kata Laluan" />
             </label>
-            <a href="#" className="text-sm font-medium text-cyan-600 hover:text-cyan-500 dark:text-cyan-400">
-              Forgot password?
+            <a href="/auth/forgot-password" className="text-sm font-medium text-cyan-600 hover:text-cyan-500 dark:text-cyan-400">
+              <T en="Forgot password?" bm="Lupa kata laluan?" />
             </a>
           </div>
           <div className="relative">
@@ -117,9 +120,9 @@ export default function LoginPage() {
           className="mt-6 inline-flex items-center justify-center rounded-full text-sm font-black uppercase tracking-widest bg-gradient-to-r from-violet-500 to-cyan-400 text-white hover:opacity-90 h-14 w-full transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(139,92,246,0.3)] group"
           suppressHydrationWarning
         >
-          {loading ? "Signing In..." : (
+          {loading ? <T en="Signing In..." bm="Log Masuk..." /> : (
             <span className="flex items-center gap-2">
-              Sign In
+              <T en="Sign In" bm="Log Masuk" />
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
           )}
@@ -144,14 +147,14 @@ export default function LoginPage() {
             <path d="M5.84 14.13C5.61 13.46 5.49 12.74 5.49 12C5.49 11.26 5.61 10.54 5.84 9.87V7.02H2.17C1.43 8.5 1 10.19 1 12C1 13.81 1.43 15.5 2.17 16.98L5.84 14.13Z" fill="#FBBC05"/>
             <path d="M12 5.38C13.62 5.38 15.06 5.94 16.2 7.02L19.36 3.86C17.46 2.08 14.97 1 12 1C7.7 1 3.98 3.42 2.17 7.02L5.84 9.87C6.72 7.29 9.14 5.38 12 5.38Z" fill="#EA4335"/>
           </svg>
-          Continue with Google
+          <T en="Continue with Google" bm="Teruskan dengan Google" />
         </button>
       </div>
 
       <div className="text-center text-sm text-slate-500 mt-8">
-        Don&apos;t have an account?{" "}
+        <T en="Don't have an account?" bm="Belum mempunyai akaun?" />{" "}
         <a href="/auth/register" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-cyan-400 hover:opacity-80">
-          Sign up for free
+          <T en="Sign up for free" bm="Daftar secara percuma" />
         </a>
       </div>
     </div>

@@ -3,9 +3,14 @@
 import { Suspense, useState } from "react";
 import { ArrowRight, ArrowLeft, UploadCloud, CheckCircle2, Shield, Search } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/components/Translate";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCookie, deleteCookie } from "@/utils/cookies";
 import { toast } from "sonner";
+
+import { fetchPrices, DEFAULT_PRICES } from "@/utils/pricing";
+import { useEffect } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 // Form State Types
 interface OnboardingData {
@@ -39,17 +44,96 @@ interface OnboardingData {
   project_vision: string;
 }
 
-function CreateProjectForm() {
+function DomainChecker({ value, onChange, label, lang }: { value: string, onChange: (val: string) => void, label: string, lang: string }) {
+  const [status, setStatus] = useState<"idle" | "checking" | "available" | "unavailable" | "error">("idle");
+
+  const checkDomain = async (domain: string) => {
+    if (!domain || domain.length < 3) return;
+    setStatus("checking");
+    try {
+      const res = await fetch(`/api/tools/domain-check?domain=${encodeURIComponent(domain)}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Check failed");
+      const data = await res.json();
+      if (data.status === "available") {
+        setStatus("available");
+      } else {
+        setStatus("unavailable");
+      }
+    } catch (e) {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1">{label}</label>
+      <div className="relative group">
+        <input 
+          type="text"
+          className={`w-full bg-white border rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none shadow-sm transition-all ${
+            status === "available" ? "border-emerald-500 ring-4 ring-emerald-500/5" : 
+            status === "unavailable" ? "border-red-500 ring-4 ring-red-500/5" : 
+            "border-zinc-200 focus:border-emerald-500"
+          }`}
+          placeholder={lang === "BM" ? "cth., namajenama.com atau namajenama.my" : "e.g., brandname.com or brandname.my"}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setStatus("idle");
+          }}
+          onBlur={() => checkDomain(value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              checkDomain(value);
+            }
+          }}
+        />
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {status === "checking" && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
+          {status === "available" && <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100"><T en="Available" bm="Boleh Diguna" /></span>}
+          {status === "unavailable" && <span className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100"><T en="Unavailable" bm="Tidak Tersedia" /></span>}
+          {status === "idle" && value.length > 3 && (
+             <button 
+               type="button"
+               onClick={() => checkDomain(value)}
+               className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-emerald-600 transition-colors"
+             >
+               <T en="Check" bm="Semak" />
+             </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreateProjectForm({ lang }: { lang: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlPlan = searchParams.get("plan");
 
-  const [step, setStep] = useState(urlPlan ? 1 : 0);
+  const [step, setStep] = useState(0); // Always start at step 0 (Select Your Plan) as requested
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [ssmFile, setSsmFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [dynamicPrices, setDynamicPrices] = useState<Record<string, string>>(DEFAULT_PRICES);
+  const [status, setStatus] = useState<any>(null);
+
+  useEffect(() => {
+    fetchPrices().then(setDynamicPrices);
+    fetch("/api/status")
+      .then(r => r.json())
+      .then(setStatus)
+      .catch(console.error);
+  }, []);
+
+  const otpMode = status?.otp_mode_active;
+  const otpDeposit = status?.otp_deposit_price || "200";
+  const otpFinal = status?.otp_final_price || "500";
+  const otpTotal = Number(otpDeposit) + Number(otpFinal);
 
   const [formData, setFormData] = useState<OnboardingData>({
     selected_plan: urlPlan || "",
@@ -105,10 +189,15 @@ function CreateProjectForm() {
 
     const data = new FormData();
     data.append("file", file);
+    const csrfToken = getCookie("csrf_token") || "";
+
     try {
         const res = await fetch("/api/assets/upload", {
             method: "POST",
             body: data,
+            headers: {
+                "X-CSRF-Token": csrfToken,
+            },
             credentials: "include",
         });
         if (!res.ok) {
@@ -125,7 +214,24 @@ function CreateProjectForm() {
   };
 
   const submitForm = async () => {
+    // 1. Validation for mandatory fields
+    const missingFields = [];
+    if (!formData.selected_plan) missingFields.push("Project Plan");
+    if (!formData.project_title) missingFields.push("Project Title");
+    if (formData.whatsapp_number.length < 7) missingFields.push("WhatsApp Number (Min 7 digits)");
+    if (!formData.domain_requested) missingFields.push("Primary Domain Choice");
+    if (!formData.project_vision) missingFields.push("Project Vision (The Big Idea)");
+
+    if (missingFields.length > 0) {
+        toast.error(`Please complete: ${missingFields.join(", ")}`, {
+            description: "This information is required to initialize your project build.",
+            duration: 5000,
+        });
+        return;
+    }
+
     setIsSubmitting(true);
+    const csrfToken = getCookie("csrf_token") || "";
     
     try {
         let finalRequirements = JSON.parse(JSON.stringify(formData));
@@ -144,16 +250,16 @@ function CreateProjectForm() {
             }
         }
 
-        const whatsapp = finalRequirements.whatsapp_number;
+        const whatsapp = `60${finalRequirements.whatsapp_number.replace(/^60/, "").replace(/^0/, "")}`;
         delete finalRequirements.whatsapp_number;
         
         const plan = formData.selected_plan;
-        // Kita hantar selected_plan di peringkat atas, bukan dalam requirements bundle
         
         const res = await fetch("/api/projects", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
           },
           credentials: "include",
           body: JSON.stringify({
@@ -191,12 +297,23 @@ function CreateProjectForm() {
         <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center">
           <CheckCircle2 className="w-12 h-12 text-emerald-500" />
         </div>
-        <h1 className="text-4xl font-black italic uppercase tracking-tighter">Project Submitted!</h1>
-        <p className="text-zinc-400 text-lg max-w-xl">
-          Our programmer is currently reviewing your requirements. No setup fees or payment required today. We will contact you via WhatsApp shortly to confirm the details before we start coding.
-        </p>
+        <h1 className="text-4xl font-black tracking-tight text-zinc-900"><T en="Project Successfully Submitted" bm="Projek Berjaya Dihantar" /></h1>
+        <div className="space-y-4 max-w-xl">
+          <p className="text-zinc-600 text-lg font-medium">
+            <T en="Our development team is currently reviewing your project requirements in detail." bm="Pasukan pembangunan kami sedang menyemak keperluan projek anda secara terperinci." />
+          </p>
+          <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl text-amber-800">
+            <p className="font-black uppercase tracking-widest text-xs mb-2 flex items-center gap-2 justify-center text-amber-900">
+              <Shield className="w-4 h-4" /> <T en="Important Instruction" bm="Arahan Penting" />
+            </p>
+            <p className="text-sm font-bold leading-relaxed">
+              <T en={<>A developer will contact you via <span className="text-emerald-600 font-black">WhatsApp</span> once the review is complete. Please <span className="underline decoration-2 underline-offset-4 font-black">do not make any payments</span> until you have been officially contacted by our developer via WhatsApp.</>} 
+                 bm={<>Pembangun akan menghubungi anda melalui <span className="text-emerald-600 font-black">WhatsApp</span> sebaik sahaja semakan selesai. Sila <span className="underline decoration-2 underline-offset-4 font-black">jangan buat sebarang pembayaran</span> sehingga anda dihubungi secara rasmi oleh pembangun kami melalui WhatsApp.</>} />
+            </p>
+          </div>
+        </div>
         <Link href="/app/dashboard" className="px-8 py-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 font-bold text-white transition-all">
-          Return to Dashboard
+          <T en="Return to Dashboard" bm="Kembali ke Papan Pemuka" />
         </Link>
       </div>
     );
@@ -205,8 +322,13 @@ function CreateProjectForm() {
   return (
     <div className="max-w-4xl mx-auto py-12 px-6">
       <div className="mb-12">
-        <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2">Project Onboarding</h1>
-        <p className="text-zinc-500">Provide your vision and we will build it. 0 upfront cost.</p>
+        <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2"><T en="Project Onboarding" bm="Kemasukan Projek" /></h1>
+        <p className="text-zinc-500">
+          {otpMode 
+            ? <T en="Complete one-time purchase package. Submit your vision to start." bm="Lengkapkan pakej pembelian sekali. Hantar visi anda untuk bermula." /> 
+            : <T en="Provide your vision and we will build it. 0 upfront cost." bm="Berikan visi anda dan kami akan binanya. 0 kos pendahuluan." />
+          }
+        </p>
         
         {/* Progress Bar (0-6) */}
         <div className="flex gap-2 mt-8">
@@ -220,80 +342,99 @@ function CreateProjectForm() {
         <div className="relative z-10 text-zinc-900">
         {step === 0 && (
           <div className="space-y-8 animate-fade-in">
-            <h2 className="text-3xl font-black text-zinc-900 tracking-tight italic uppercase">0. Select Your Plan</h2>
-            <p className="text-zinc-600 font-medium leading-relaxed">Please select a package for your new project. You will only be billed once your staging site is ready.</p>
+            <h2 className="text-3xl font-black text-zinc-900 tracking-tight italic uppercase">0. <T en="Select Your Plan" bm="Pilih Pelan Anda" /></h2>
+            <p className="text-zinc-600 font-medium leading-relaxed"><T en="Please select a package for your new project. You will only be billed once your staging site is ready." bm="Sila pilih pakej untuk projek baru anda. Anda hanya akan dibilkan setelah tapak pementasan anda siap." /></p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { name: "Standard", price: "165" },
-                { name: "Growth", price: "190" },
-                { name: "Enterprise", price: "260" },
-                { name: "Platinum", price: "400" }
-              ].map((plan) => (
+              {status === null ? (
+                <div className="col-span-full py-20 text-center">
+                  <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Loading protocol configuration..." bm="Memuatkan konfigurasi protokol..." /></p>
+                </div>
+              ) : otpMode ? (
                 <button
-                  key={plan.name}
-                  onClick={() => setFormData(p => ({ ...p, selected_plan: plan.name }))}
-                  className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === plan.name ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
+                  key="otp-package"
+                  onClick={() => setFormData(p => ({ ...p, selected_plan: "One-Time Purchase" }))}
+                  className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === "One-Time Purchase" ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500/50 shadow-lg shadow-indigo-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
                 >
                   <div className="flex justify-between items-center mb-4">
-                    <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === plan.name ? 'text-emerald-600' : 'text-zinc-900'}`}>{plan.name}</span>
-                    {formData.selected_plan === plan.name && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                    <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === "One-Time Purchase" ? 'text-indigo-600' : 'text-zinc-900'}`}><T en="One-Time Purchase" bm="Pembelian Sekali" /></span>
+                    {formData.selected_plan === "One-Time Purchase" && <CheckCircle2 className="w-6 h-6 text-indigo-500" />}
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-zinc-400 text-xs font-bold font-mono">RM</span>
-                    <span className="text-4xl font-black text-zinc-900">{plan.price}</span>
-                    <span className="text-zinc-500 text-[10px] font-black uppercase tracking-tighter">/ Month</span>
+                    <span className="text-4xl font-black text-zinc-900">{otpTotal}</span>
                   </div>
+                  <p className="mt-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Deposit: RM{otpDeposit} | Final: RM{otpFinal}</p>
                 </button>
-              ))}
+              ) : (
+                [
+                  { name: "Standard", price: dynamicPrices.Standard || "165" },
+                  { name: "Growth", price: dynamicPrices.Growth || "240" },
+                  { name: "Enterprise", price: dynamicPrices.Enterprise || "410" },
+                  { name: "Platinum", price: dynamicPrices.Platinum || "750" }
+                ].map((plan) => (
+                  <button
+                    key={plan.name}
+                    onClick={() => setFormData(p => ({ ...p, selected_plan: plan.name }))}
+                    className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === plan.name ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === plan.name ? 'text-emerald-600' : 'text-zinc-900'}`}>{plan.name}</span>
+                      {formData.selected_plan === plan.name && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-zinc-400 text-xs font-bold font-mono">RM</span>
+                      <span className="text-4xl font-black text-zinc-900">{plan.price}</span>
+                      <span className="text-zinc-500 text-[10px] font-black uppercase tracking-tighter"><T en="/ Month" bm="/ Bulan" /></span>
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
 
-            <div className="pt-4">
-                <Link href="/pricing" target="_blank" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition-all font-black uppercase tracking-widest text-[10px] underline decoration-indigo-200 underline-offset-4">
-                  <Search className="w-3.5 h-3.5" /> View Full Plan Details & Features
-                </Link>
-            </div>
+            {/* Link moved to footer */}
           </div>
         )}
 
         {step === 1 && (
           <div className="space-y-8 animate-fade-in">
-            <h2 className="text-2xl font-black text-zinc-900 uppercase italic">1. Payment Integration (Optional)</h2>
-            <p className="text-zinc-600 font-medium">If you want to sell online, you need a payment gateway. Do you already have a ToyyibPay account?</p>
+            <h2 className="text-2xl font-black text-zinc-900 uppercase italic">1. <T en="Payment Integration (Optional)" bm="Integrasi Pembayaran (Pilihan)" /></h2>
+            <p className="text-zinc-600 font-medium"><T en="If you want to sell online, you need a payment gateway. Do you already have a ToyyibPay account?" bm="Jika anda ingin menjual dalam talian, anda memerlukan gerbang pembayaran. Adakah anda sudah mempunyai akaun ToyyibPay?" /></p>
             
             <div className="flex gap-4">
               <button 
                 onClick={() => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, has_toyyibpay: true } }))}
                 className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs border transition-all ${formData.payment_setup.has_toyyibpay ? 'bg-emerald-50 border-emerald-500 text-emerald-600 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 border-zinc-200 text-zinc-400 hover:border-zinc-300'}`}
               >
-                Yes, I have ToyyibPay
+                <T en="Yes, I have ToyyibPay" bm="Ya, saya mempunyai ToyyibPay" />
               </button>
               <button 
                 onClick={() => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, has_toyyibpay: false } }))}
                 className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs border transition-all ${!formData.payment_setup.has_toyyibpay ? 'bg-emerald-50 border-emerald-500 text-emerald-600 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 border-zinc-200 text-zinc-400 hover:border-zinc-300'}`}
               >
-                No, help me register
+                <T en="No, help me register" bm="Tidak, bantu saya mendaftar" />
               </button>
             </div>
 
             {formData.payment_setup.has_toyyibpay ? (
               <div className="space-y-4 pt-4">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Secret Key</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Secret Key" bm="Kunci Rahsia" /></label>
                   <input 
                     type="password"
                     className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
-                    placeholder="Enter ToyyibPay Secret Key"
+                    placeholder={lang === "BM" ? "Masukkan Kunci Rahsia ToyyibPay" : "Enter ToyyibPay Secret Key"}
                     value={formData.payment_setup.secret_key || ""}
                     onChange={(e) => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, secret_key: e.target.value } }))}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Category Code</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Category Code" bm="Kod Kategori" /></label>
                   <input 
                     type="text"
                     className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
-                    placeholder="Enter Category Code"
+                    placeholder={lang === "BM" ? "Masukkan Kod Kategori" : "Enter Category Code"}
                     value={formData.payment_setup.category_code || ""}
                     onChange={(e) => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, category_code: e.target.value } }))}
                   />
@@ -303,12 +444,23 @@ function CreateProjectForm() {
               <div className="pt-4 p-8 border border-dashed border-zinc-300 rounded-2xl bg-zinc-50/50 flex flex-col items-center justify-center gap-4">
                  <UploadCloud className="w-10 h-10 text-zinc-300" />
                  <div className="text-center">
-                    <p className="font-black text-zinc-900 uppercase tracking-widest text-sm mb-1">Upload SSM Document</p>
-                    <p className="text-[10px] text-zinc-400 font-bold">ONLY .PDF, .JPG, .PNG ALLOWED (MAX 10MB)</p>
+                    <p className="font-black text-zinc-900 uppercase tracking-widest text-sm mb-1"><T en="Upload SSM Document" bm="Muat Naik Dokumen SSM" /></p>
+                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"><T en="ONLY .PDF, .JPG, .PNG ALLOWED (MAX 10MB)" bm="HANYA .PDF, .JPG, .PNG DIBENARKAN (MAKS 10MB)" /></p>
                  </div>
-                 <input type="file" className="block w-full max-w-xs text-xs text-zinc-500 file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-zinc-900 file:text-white hover:file:bg-black transition-all" 
-                 onChange={(e) => setSsmFile(e.target.files?.[0] || null)}
-                 accept=".pdf,.png,.jpg,.jpeg" />
+                 <div className="flex flex-col items-center gap-3">
+                   <label className="px-8 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all cursor-pointer shadow-lg active:scale-95">
+                     <T en="CHOOSE FILE" bm="PILIH FAIL" />
+                     <input 
+                       type="file" 
+                       className="hidden" 
+                       onChange={(e) => setSsmFile(e.target.files?.[0] || null)}
+                       accept=".pdf,.png,.jpg,.jpeg" 
+                     />
+                   </label>
+                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">
+                     {ssmFile ? ssmFile.name : (lang === "BM" ? "Tiada fail dipilih" : "No file chosen")}
+                   </p>
+                 </div>
               </div>
             )}
           </div>
@@ -316,8 +468,8 @@ function CreateProjectForm() {
 
         {step === 2 && (
           <div className="space-y-8 animate-fade-in">
-            <h2 className="text-2xl font-black text-zinc-900 uppercase italic">2. Feature Specification</h2>
-            <p className="text-zinc-600 font-medium">Select the core functionalities for your site. All systems are included in your tier.</p>
+            <h2 className="text-2xl font-black text-zinc-900 uppercase italic">2. <T en="Feature Specification" bm="Spesifikasi Ciri" /></h2>
+            <p className="text-zinc-600 font-medium"><T en="Select the core functionalities for your site. All systems are included in your tier." bm="Pilih fungsi teras untuk tapak anda. Semua sistem disertakan dalam pelan anda." /></p>
             
             <div className="grid md:grid-cols-2 gap-6">
                {[
@@ -327,7 +479,12 @@ function CreateProjectForm() {
                  { title: "User Engagement", items: ["Blog / News Engine", "FAQ Hub", "Floating Chat Support", "Lead Generation Forms"] }
                ].map((cat, idx) => (
                  <div key={idx} className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all">
-                    <h3 className="font-black italic uppercase tracking-widest text-xs text-emerald-600 mb-6">{cat.title}</h3>
+                    <h3 className="font-black italic uppercase tracking-widest text-xs text-emerald-600 mb-6">
+                      {cat.title === "Commercial" ? <T en="Commercial" bm="Komersial" /> : 
+                       cat.title === "Service & Bookings" ? <T en="Service & Bookings" bm="Perkhidmatan & Tempahan" /> : 
+                       cat.title === "Brand Identity" ? <T en="Brand Identity" bm="Identiti Jenama" /> : 
+                       cat.title === "User Engagement" ? <T en="User Engagement" bm="Penglibatan Pengguna" /> : cat.title}
+                    </h3>
                     <div className="space-y-4">
                       {cat.items.map(item => (
                         <label key={item} className="flex items-center gap-4 cursor-pointer group">
@@ -337,7 +494,24 @@ function CreateProjectForm() {
                             onChange={() => toggleFeature(item)}
                             className="w-5 h-5 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500/20 bg-white"
                           />
-                          <span className="text-sm font-bold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">{item}</span>
+                          <span className="text-sm font-bold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">
+                            {item === "Shopping Cart & Checkout" ? <T en="Shopping Cart & Checkout" bm="Troli Belah & Daftar Keluar" /> :
+                             item === "Payment Gateway Sync" ? <T en="Payment Gateway Sync" bm="Sinkronasi Gerbang Pembayaran" /> :
+                             item === "Promo Code System" ? <T en="Promo Code System" bm="Sistem Kod Promo" /> :
+                             item === "Order Notifications" ? <T en="Order Notifications" bm="Notifikasi Pesanan" /> :
+                             item === "Appointment Scheduler" ? <T en="Appointment Scheduler" bm="Penjadual Temujanji" /> :
+                             item === "Service Catalog" ? <T en="Service Catalog" bm="Katalog Perkhidmatan" /> :
+                             item === "Location Mapping" ? <T en="Location Mapping" bm="Pemetaan Lokasi" /> :
+                             item === "Staff Directory" ? <T en="Staff Directory" bm="Direktori Kakitangan" /> :
+                             item === "Interactive Gallery" ? <T en="Interactive Gallery" bm="Galeri Interaktif" /> :
+                             item === "Customer Testimonials" ? <T en="Customer Testimonials" bm="Testimoni Pelanggan" /> :
+                             item === "Company Timeline" ? <T en="Company Timeline" bm="Garis Masa Syarikat" /> :
+                             item === "Partner Showcase" ? <T en="Partner Showcase" bm="Pameran Rakan Kongsi" /> :
+                             item === "Blog / News Engine" ? <T en="Blog / News Engine" bm="Enjin Blog / Berita" /> :
+                             item === "FAQ Hub" ? <T en="FAQ Hub" bm="Hab Soalan Lazim" /> :
+                             item === "Floating Chat Support" ? <T en="Floating Chat Support" bm="Sokongan Sembang Terapung" /> :
+                             item === "Lead Generation Forms" ? <T en="Lead Generation Forms" bm="Borang Penjanaan Prospek" /> : item}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -346,7 +520,7 @@ function CreateProjectForm() {
             </div>
 
             <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm">
-                <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-6 font-mono">Custom Requirements</h3>
+                <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-6 font-mono"><T en="Custom Requirements" bm="Keperluan Tersuai" /></h3>
                 <div className="space-y-3">
                     {formData.custom_features.map((feature, idx) => (
                         <div key={idx} className="flex gap-2">
@@ -355,7 +529,7 @@ function CreateProjectForm() {
                                 value={feature}
                                 onChange={(e) => handleCustomFeatureChange(idx, e.target.value)}
                                 className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 focus:outline-none focus:border-emerald-500"
-                                placeholder="e.g. Member Area, Multi-vendor setup..."
+                                placeholder={lang === "BM" ? "cth. Kawasan Ahli, Penyediaan berbilang vendor..." : "e.g. Member Area, Multi-vendor setup..."}
                             />
                         </div>
                     ))}
@@ -364,19 +538,19 @@ function CreateProjectForm() {
                         onClick={() => setFormData(p => ({ ...p, custom_features: [...p.custom_features, ""] }))}
                         className="text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
                     >
-                        <span className="text-lg">+</span> Add Extra Feature
+                        <span className="text-lg">+</span> <T en="Add Extra Feature" bm="Tambah Ciri Tambahan" />
                     </button>
                     {formData.custom_features.length === 0 && (
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">No extra features added yet.</p>
+                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"><T en="No extra features added yet." bm="Tiada ciri tambahan ditambah lagi." /></p>
                     )}
                 </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3">Additional Project Notes</label>
+              <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3"><T en="Additional Project Notes" bm="Nota Projek Tambahan" /></label>
               <textarea 
                 className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all min-h-[140px]"
-                placeholder="Share any other specific technical requirements or workflows we should know about..."
+                placeholder={lang === "BM" ? "Kongsi sebarang keperluan teknikal atau aliran kerja khusus lain yang perlu kami ketahui..." : "Share any other specific technical requirements or workflows we should know about..."}
                 value={formData.custom_needs}
                 onChange={(e) => setFormData(p => ({ ...p, custom_needs: e.target.value }))}
               />
@@ -386,12 +560,12 @@ function CreateProjectForm() {
 
         {step === 3 && (
            <div className="space-y-8 animate-fade-in">
-             <h2 className="text-2xl font-black text-zinc-900 uppercase italic">3. Brand & Visuals</h2>
-             <p className="text-zinc-600 font-medium leading-relaxed">Let's define your website's look and feel. Provide your brand assets and structural preferences.</p>
+             <h2 className="text-2xl font-black text-zinc-900 uppercase italic">3. <T en="Brand & Visuals" bm="Jenama & Visual" /></h2>
+             <p className="text-zinc-600 font-medium leading-relaxed"><T en="Let's define your website's look and feel. Provide your brand assets and structural preferences." bm="Mari tentukan rupa dan rasa laman web anda. Berikan aset jenama dan pilihan struktur anda." /></p>
              
              <div className="grid md:grid-cols-2 gap-8">
                <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm">
-                 <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-6 font-mono">Proposed Sitemap</h3>
+                 <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-6 font-mono"><T en="Proposed Sitemap" bm="Peta Laman Cadangan" /></h3>
                  <div className="space-y-3">
                    {formData.sitemap.map((page, idx) => (
                      <div key={idx} className="flex gap-2 group">
@@ -413,27 +587,27 @@ function CreateProjectForm() {
                      onClick={() => setFormData(p => ({ ...p, sitemap: [...p.sitemap, "New Page"] }))}
                      className="text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
                    >
-                     <span className="text-lg">+</span> Add Page
+                     <span className="text-lg">+</span> <T en="Add Page" bm="Tambah Halaman" />
                    </button>
                  </div>
                </div>
 
                <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm space-y-8">
                  <div className="pb-6 border-b border-zinc-200/50">
-                    <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-4 font-mono">Competitor Reference</h3>
-                    <p className="text-[10px] text-zinc-400 font-bold mb-3 uppercase tracking-widest leading-tight">Link to a website style you admire</p>
+                    <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-4 font-mono"><T en="Competitor Reference" bm="Rujukan Pesaing" /></h3>
+                    <p className="text-[10px] text-zinc-400 font-bold mb-3 uppercase tracking-widest leading-tight"><T en="Link to a website style you admire" bm="Pautan ke gaya laman web yang anda kagumi" /></p>
                     <input 
                         type="url" 
                         value={formData.competitor_ref}
                         onChange={(e) => setFormData(p => ({ ...p, competitor_ref: e.target.value }))}
                         className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm font-bold text-zinc-700 focus:outline-none focus:border-emerald-500 shadow-sm"
-                        placeholder="https://example.com"
+                        placeholder={lang === "BM" ? "https://contoh-pesaing.com" : "https://example.com"}
                     />
                  </div>
                  
                  <div className="space-y-8">
                     <div>
-                        <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-4 font-mono">Theme Color</h3>
+                        <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-4 font-mono"><T en="Theme Color" bm="Warna Tema" /></h3>
                         <div className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
                             <input 
                                 type="color" 
@@ -446,7 +620,7 @@ function CreateProjectForm() {
                     </div>
 
                     <div>
-                        <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-4 font-mono">Brand Logo</h3>
+                        <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-4 font-mono"><T en="Brand Logo" bm="Logo Jenama" /></h3>
                         <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col sm:flex-row items-center gap-6">
                             <div className="w-20 h-20 bg-zinc-50 border border-dashed border-zinc-200 rounded-2xl flex items-center justify-center overflow-hidden shrink-0">
                                 {logoPreview ? (
@@ -455,30 +629,34 @@ function CreateProjectForm() {
                                     <UploadCloud className="w-8 h-8 text-zinc-200" />
                                 )}
                             </div>
-                            <div className="space-y-3 flex-1 w-full">
-                                <label 
-                                    htmlFor="logo-upload"
-                                    className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black cursor-pointer transition-all shadow-md active:scale-95"
-                                >
-                                    <UploadCloud className="w-4 h-4" />
-                                    Upload Logo
-                                </label>
-                                <input 
-                                    id="logo-upload"
-                                    type="file" 
-                                    className="hidden" 
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0] || null;
-                                        setLogoFile(file);
-                                        if (file) {
-                                            setLogoPreview(URL.createObjectURL(file));
-                                        } else {
-                                            setLogoPreview(null);
-                                        }
-                                    }}
-                                    accept=".png,.jpg,.jpeg" 
-                                />
-                                <p className="text-[9px] text-zinc-300 font-bold uppercase tracking-widest text-center sm:text-left">Max size: 5MB</p>
+                            <div className="space-y-4 flex-1 w-full">
+                                <div className="flex flex-col sm:flex-row items-center gap-4">
+                                    <label 
+                                        htmlFor="logo-upload"
+                                        className="px-6 py-3 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all cursor-pointer shadow-lg active:scale-95"
+                                    >
+                                        <T en="CHOOSE FILE" bm="PILIH FAIL" />
+                                        <input 
+                                            id="logo-upload"
+                                            type="file" 
+                                            className="hidden" 
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0] || null;
+                                                setLogoFile(file);
+                                                if (file) {
+                                                    setLogoPreview(URL.createObjectURL(file));
+                                                } else {
+                                                    setLogoPreview(null);
+                                                }
+                                            }}
+                                            accept=".png,.jpg,.jpeg" 
+                                        />
+                                    </label>
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">
+                                        {logoFile ? logoFile.name : (lang === "BM" ? "Tiada fail dipilih" : "No file chosen")}
+                                    </p>
+                                </div>
+                                <p className="text-[9px] text-zinc-300 font-bold uppercase tracking-widest text-center sm:text-left"><T en="Max size: 5MB" bm="Saiz maks: 5MB" /></p>
                             </div>
                         </div>
                     </div>
@@ -490,46 +668,50 @@ function CreateProjectForm() {
 
         {step === 4 && (
            <div className="space-y-8 animate-fade-in">
-              <h2 className="text-2xl font-black text-zinc-900 uppercase italic">4. Business Identity</h2>
-              <p className="text-zinc-600 font-medium leading-relaxed">Provide your official business details for the footer, contact page, and social links.</p>
+              <h2 className="text-2xl font-black text-zinc-900 uppercase italic">4. <T en="Business Identity" bm="Identiti Perniagaan" /></h2>
+              <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide your official business details for the footer, contact page, and social links." bm="Berikan butiran perniagaan rasmi anda untuk footer, halaman kenalan dan pautan sosial." /></p>
               
               <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-[2.5rem] shadow-sm">
-                <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3">WhatsApp Number (Mandatory)</label>
+                <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3"><T en="WhatsApp Number (Mandatory)" bm="Nombor WhatsApp (Wajib)" /></label>
                 <div className="relative group max-w-sm">
                   <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <span className="text-zinc-900 font-black">+</span>
+                    <span className="text-zinc-900 font-black">+ 60</span>
                   </div>
                   <input 
                     type="text"
                     required
-                    pattern="^60[1-9]\d{7,9}$"
-                    className="w-full bg-white border border-zinc-200 rounded-2xl pl-10 pr-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-emerald-500 transition-all font-mono text-lg shadow-inner"
-                    placeholder="60123456789"
+                    className="w-full bg-white border border-zinc-200 rounded-2xl pl-16 pr-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-emerald-500 transition-all font-mono text-lg shadow-inner"
+                    placeholder={lang === "BM" ? "No. Telefon WhatsApp" : "WhatsApp Number"}
                     value={formData.whatsapp_number}
-                    onChange={(e) => setFormData(p => ({ ...p, whatsapp_number: e.target.value }))}
+                    onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, ""); // Hanya nombor
+                        if (val.startsWith("60")) val = val.substring(2); // Buang 60 jika user paste
+                        if (val.startsWith("0")) val = val.substring(1);  // Buang 0 di depan
+                        setFormData(p => ({ ...p, whatsapp_number: val }));
+                    }}
                   />
                 </div>
-                <p className="text-[10px] font-bold text-zinc-400 mt-3 uppercase tracking-widest">Format: 60 followed by your number (No + sign).</p>
+                <p className="text-[10px] font-bold text-zinc-400 mt-3 uppercase tracking-widest"><T en="Just enter your number (e.g. 123456789). We've handled the + 60 for you." bm="Hanya masukkan nombor anda (cth. 123456789). Kami telah mengendalikan + 60 untuk anda." /></p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm space-y-4">
-                    <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-2 font-mono">Direct Contact</h3>
+                    <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-2 font-mono"><T en="Direct Contact" bm="Hubungan Langsung" /></h3>
                     <div>
-                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-1">Official Business Email</label>
+                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-1"><T en="Official Business Email" bm="E-mel Rasmi Perniagaan" /></label>
                         <input 
                             type="email"
                             className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 shadow-sm"
-                            placeholder="hello@yourbusiness.com"
+                            placeholder={lang === "BM" ? "hello@bisnesanda.com" : "hello@yourbusiness.com"}
                             value={formData.business_email}
                             onChange={(e) => setFormData(p => ({ ...p, business_email: e.target.value }))}
                         />
                     </div>
                     <div>
-                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-1">Physical Business Address</label>
+                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-1"><T en="Physical Business Address" bm="Alamat Perniagaan Fizikal" /></label>
                         <textarea 
                             className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 min-h-[90px] shadow-sm"
-                            placeholder="Complete address for Footer & Google Maps"
+                            placeholder={lang === "BM" ? "Alamat lengkap untuk Footer & Google Maps" : "Complete address for Footer & Google Maps"}
                             value={formData.business_address}
                             onChange={(e) => setFormData(p => ({ ...p, business_address: e.target.value }))}
                         />
@@ -537,36 +719,36 @@ function CreateProjectForm() {
                 </div>
 
                 <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm space-y-4">
-                    <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-2 font-mono">Socials & Operations</h3>
+                    <h3 className="text-xs font-black italic uppercase tracking-widest text-zinc-900 mb-2 font-mono"><T en="Socials & Operations" bm="Sosial & Operasi" /></h3>
                     <div className="space-y-2">
                         <input 
                             type="text"
                             className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm"
-                            placeholder="Facebook Page Link"
+                            placeholder={lang === "BM" ? "Pautan Halaman Facebook" : "Facebook Page Link"}
                             value={formData.social_media.facebook}
                             onChange={(e) => setFormData(p => ({ ...p, social_media: { ...p.social_media, facebook: e.target.value } }))}
                         />
                         <input 
                             type="text"
                             className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm"
-                            placeholder="Instagram Profile Link"
+                            placeholder={lang === "BM" ? "Pautan Profil Instagram" : "Instagram Profile Link"}
                             value={formData.social_media.instagram}
                             onChange={(e) => setFormData(p => ({ ...p, social_media: { ...p.social_media, instagram: e.target.value } }))}
                         />
                         <input 
                             type="text"
                             className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm"
-                            placeholder="TikTok Profile Link"
+                            placeholder={lang === "BM" ? "Pautan Profil TikTok" : "TikTok Profile Link"}
                             value={formData.social_media.tiktok}
                             onChange={(e) => setFormData(p => ({ ...p, social_media: { ...p.social_media, tiktok: e.target.value } }))}
                         />
                     </div>
                     <div className="pt-2">
-                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-1">Operation Hours</label>
+                        <label className="block text-[10px] font-black uppercase text-zinc-400 mb-1"><T en="Operation Hours" bm="Waktu Operasi" /></label>
                         <input 
                             type="text"
                             className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 shadow-sm"
-                            placeholder="e.g. Mon-Fri: 9AM - 6PM, Sat: 9AM - 1PM"
+                            placeholder={lang === "BM" ? "cth. Isnin-Jumaat: 9AM - 6PM" : "e.g. Mon-Fri: 9AM - 6PM, Sat: 9AM - 1PM"}
                             value={formData.operation_hours}
                             onChange={(e) => setFormData(p => ({ ...p, operation_hours: e.target.value }))}
                         />
@@ -578,40 +760,28 @@ function CreateProjectForm() {
 
         {step === 5 && (
            <div className="space-y-8 animate-fade-in">
-             <h2 className="text-2xl font-black text-zinc-900 uppercase italic">5. Domain Request</h2>
-             <p className="text-zinc-600 font-medium leading-relaxed">Provide up to 3 choices for your website domain in order of preference. We will verify and register the best option.</p>
+             <h2 className="text-2xl font-black text-zinc-900 uppercase italic">5. <T en="Domain Request" bm="Permintaan Domain" /></h2>
+             <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide up to 3 choices for your website domain in order of preference. We will verify and register the best option." bm="Berikan sehingga 3 pilihan untuk domain laman web anda mengikut urutan pilihan. Kami akan mengesahkan dan mendaftarkan pilihan terbaik." /></p>
              
               <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-black uppercase tracking-widest text-emerald-600 mb-3">Choice 1 (Primary)</label>
-                  <input 
-                    type="text"
-                    className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-emerald-500 shadow-sm"
-                    placeholder="e.g., brandname.com"
-                    value={formData.domain_requested}
-                    onChange={(e) => setFormData(p => ({ ...p, domain_requested: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3">Choice 2</label>
-                  <input 
-                    type="text"
-                    className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-emerald-500 shadow-sm"
-                    placeholder="e.g., brandname.com.my"
-                    value={formData.domain_2}
-                    onChange={(e) => setFormData(p => ({ ...p, domain_2: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3">Choice 3</label>
-                  <input 
-                    type="text"
-                    className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-emerald-500 shadow-sm"
-                    placeholder="e.g., shopbrandname.my"
-                    value={formData.domain_3}
-                    onChange={(e) => setFormData(p => ({ ...p, domain_3: e.target.value }))}
-                  />
-                </div>
+                <DomainChecker 
+                  lang={lang}
+                  label={lang === "BM" ? "Pilihan 1 (Utama)" : "Choice 1 (Primary)"} 
+                  value={formData.domain_requested} 
+                  onChange={(val) => setFormData(p => ({ ...p, domain_requested: val }))} 
+                />
+                <DomainChecker 
+                  lang={lang}
+                  label={lang === "BM" ? "Pilihan 2" : "Choice 2"} 
+                  value={formData.domain_2} 
+                  onChange={(val) => setFormData(p => ({ ...p, domain_2: val }))} 
+                />
+                <DomainChecker 
+                  lang={lang}
+                  label={lang === "BM" ? "Pilihan 3" : "Choice 3"} 
+                  value={formData.domain_3} 
+                  onChange={(val) => setFormData(p => ({ ...p, domain_3: val }))} 
+                />
              </div>
 
              <div className="mt-8 p-8 bg-emerald-50 border border-emerald-100 rounded-3xl flex items-start gap-6 shadow-sm">
@@ -619,9 +789,10 @@ function CreateProjectForm() {
                   <Shield className="w-8 h-8 text-emerald-500" />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-xs font-black text-emerald-700 uppercase tracking-widest italic">Secure Staging Protocol</h4>
+                  <h4 className="text-xs font-black text-emerald-700 uppercase tracking-widest italic"><T en="Secure Staging Protocol" bm="Protokol Pementasan Selamat" /></h4>
                   <p className="text-sm text-zinc-600 font-medium leading-relaxed">
-                    Once submitted, our team explores these domains while building your Staging environment. <strong className="text-zinc-900">No payment is required today.</strong> Subscription officially starts only after your final approval.
+                    <T en={<>Once submitted, our team explores these domains while building your Staging environment. <strong className="text-zinc-900">No payment is required today.</strong> Subscription officially starts only after your final approval.</>} 
+                       bm={<>Setelah dihantar, pasukan kami melayari domain ini semasa membina persekitaran Pementasan anda. <strong className="text-zinc-900">Tiada bayaran diperlukan hari ini.</strong> Langganan bermula secara rasmi hanya selepas kelulusan akhir anda.</>} />
                   </p>
                 </div>
               </div>
@@ -634,58 +805,65 @@ function CreateProjectForm() {
                     <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center">
                         <CheckCircle2 className="w-6 h-6 text-indigo-500" />
                     </div>
-                    <h2 className="text-2xl font-black text-zinc-900 uppercase italic">6. Project Vision</h2>
+                    <h2 className="text-2xl font-black text-zinc-900 uppercase italic">6. <T en="Project Vision" bm="Visi Projek" /></h2>
                 </div>
 
                 <div className="space-y-6">
                     <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm">
-                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono">Website Title / Project Name</label>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono"><T en="Website Title / Project Name" bm="Tajuk Laman Web / Nama Projek" /></label>
                         <input 
                             type="text"
                             required
                             className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-indigo-500 text-lg shadow-inner"
-                            placeholder="e.g. Acme Corporation Business Portal"
+                            placeholder={lang === "BM" ? "cth. Portal Perniagaan Acme Corporation" : "e.g. Acme Corporation Business Portal"}
                             value={formData.project_title}
                             onChange={(e) => setFormData(p => ({ ...p, project_title: e.target.value }))}
                         />
                     </div>
                     
                     <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-[2.5rem] shadow-sm">
-                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono">The Big Idea (Describe Your Vision)</label>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono"><T en="The Big Idea (Describe Your Vision)" bm="Idea Besar (Terangkan Visi Anda)" /></label>
                         <textarea 
                             className="w-full bg-white border border-zinc-200 rounded-2xl px-8 py-6 text-zinc-900 font-bold focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all min-h-[300px] text-lg leading-relaxed shadow-inner"
-                            placeholder="Tell us everything. What is your business about? Who is your target audience? What specific vibe or unique experience do you want users to have?"
+                            placeholder={lang === "BM" ? "Ceritakan segalanya kepada kami. Apakah perniagaan anda? Siapakah khalayak sasaran anda? Apakah getaran khusus atau pengalaman unik yang anda inginkan untuk pengguna?" : "Tell us everything. What is your business about? Who is your target audience? What specific vibe or unique experience do you want users to have?"}
                             value={formData.project_vision}
                             onChange={(e) => setFormData(p => ({ ...p, project_vision: e.target.value }))}
                         />
                         <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                            <CheckCircle2 className="w-4 h-4" /> This vision will be prioritized in our development roadmap.
+                            <CheckCircle2 className="w-4 h-4" /> <T en="This vision will be prioritized in our development roadmap." bm="Visi ini akan diutamakan dalam pelan hala tuju pembangunan kami." />
                         </div>
                     </div>
                 </div>
             </div>
          )}
 
-         <div className="mt-12 flex items-center justify-between pt-8 border-t border-zinc-100">
-          {step === 0 ? (
+         <div className="mt-12 flex items-end justify-between pt-8 border-t border-zinc-100">
+          <div className="flex flex-col items-start gap-3">
+            {step === 0 && (
+                <Link href="/pricing" target="_blank" className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-indigo-600 hover:text-indigo-800 transition-all group border border-indigo-100 rounded-xl bg-indigo-50/50 hover:bg-indigo-50">
+                  <Search className="w-3.5 h-3.5" /> <T en="View Full Plan Details & Features" bm="Lihat Butiran Pelan & Ciri Penuh" />
+                </Link>
+            )}
+            {step === 0 ? (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    deleteCookie("next-plan");
+                    window.location.href = '/app/dashboard';
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-red-600 hover:text-red-800 transition-all group border border-red-100 rounded-xl bg-red-50/50 hover:bg-red-50"
+                >
+                  <span>←</span> <T en="Cancel & Return to Dashboard" bm="Batal & Kembali ke Papan Pemuka" />
+                </button>
+            ) : (
               <button 
-                type="button"
-                onClick={() => {
-                  deleteCookie("next-plan");
-                  window.location.href = '/app/dashboard';
-                }}
-                className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-red-600 hover:text-red-800 transition-all group border border-red-100 rounded-xl bg-red-50/50 hover:bg-red-50"
+                onClick={prevStep}
+                className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-zinc-400 hover:text-zinc-900 transition-all font-mono"
               >
-                <span>←</span> Cancel & Return to Dashboard
+                <ArrowLeft className="w-5 h-5" /> <T en="Back" bm="Kembali" />
               </button>
-          ) : (
-            <button 
-              onClick={prevStep}
-              className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-zinc-400 hover:text-zinc-900 transition-all font-mono"
-            >
-              <ArrowLeft className="w-5 h-5" /> Back
-            </button>
-          )}
+            )}
+          </div>
           
           {step < 6 ? (
             <button 
@@ -693,15 +871,15 @@ function CreateProjectForm() {
               disabled={step === 0 && !formData.selected_plan}
               className={`flex items-center gap-2 px-8 py-3 bg-zinc-900 text-white rounded-xl font-black hover:bg-black transition-colors ${step === 0 && !formData.selected_plan ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Continue <ArrowRight className="w-5 h-5" />
+              <T en="Continue" bm="Teruskan" /> <ArrowRight className="w-5 h-5" />
             </button>
           ) : (
             <button 
               onClick={submitForm}
-              disabled={isSubmitting || !formData.whatsapp_number.match(/^60[1-9]\d{7,9}$/) || !formData.project_title}
+              disabled={isSubmitting}
               className="flex items-center gap-2 px-10 py-4 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-emerald-500 transition-all disabled:opacity-50 hover:scale-105 shadow-xl shadow-emerald-500/20"
             >
-              {isSubmitting ? "Syncing Logic..." : "Deploy Requirements"}
+              {isSubmitting ? <T en="Syncing Logic..." bm="Menyegerakkan Logik..." /> : <T en="Deploy Requirements" bm="Hantar Keperluan" />}
             </button>
           )}
         </div>
@@ -712,9 +890,10 @@ function CreateProjectForm() {
 }
 
 export default function CreateProjectPage() {
+  const { lang } = useLanguage();
   return (
     <Suspense fallback={<div className="p-20 text-center font-bold text-zinc-500 animate-pulse italic">Loading Project Onboarding...</div>}>
-      <CreateProjectForm />
+      <CreateProjectForm lang={lang} />
     </Suspense>
   );
 }

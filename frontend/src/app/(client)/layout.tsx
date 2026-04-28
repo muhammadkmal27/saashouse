@@ -3,6 +3,8 @@ import { LayoutDashboard, Briefcase, FileText, Settings, Bell, LogOut, Receipt }
 import Link from "next/link";
 import ChatWidget from "@/components/chat/ChatWidget";
 import UserMenu from "@/components/UserMenu";
+import LanguageToggle from "@/components/LanguageToggle";
+import { T } from "@/components/Translate";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,24 +19,25 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <nav className="hidden md:flex items-center gap-1">
               <Link href="/app/dashboard" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-900 bg-zinc-100 dark:text-zinc-50 dark:bg-zinc-900">
                 <LayoutDashboard className="w-4 h-4" />
-                Dashboard
+                <T en="Dashboard" bm="Papan Pemuka" />
               </Link>
               <Link href="/app/projects" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <Briefcase className="w-4 h-4" />
-                Projects
+                <T en="Projects" bm="Projek" />
               </Link>
               <Link href="/app/billing" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <Receipt className="w-4 h-4" />
-                Billing
+                <T en="Billing" bm="Pengebilan" />
               </Link>
               <Link href="/app/tickets" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <FileText className="w-4 h-4" />
-                Support & Tasks
+                <T en="Support & Tasks" bm="Sokongan & Tugasan" />
               </Link>
             </nav>
           </div>
           
           <div className="flex items-center gap-2">
+            <LanguageToggle />
             <UserMenu />
           </div>
 

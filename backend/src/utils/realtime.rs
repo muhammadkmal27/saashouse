@@ -2,6 +2,9 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast;
 use uuid::Uuid;
 use crate::models::requests::RequestComment;
+use crate::models::project::ProjectStatus;
+
+use crate::models::admin::AdminProjectRow;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
@@ -19,6 +22,19 @@ pub enum RealtimeEvent {
     },
     ReadSync {
         request_id: Uuid,
+    },
+    ProjectPermissionUpdate {
+        project_id: Uuid,
+        allowed: bool,
+    },
+    ProjectDataUpdate {
+        project_id: Uuid,
+        status: ProjectStatus,
+        dev_url: Option<String>,
+        prod_url: Option<String>,
+    },
+    NewProject {
+        project: AdminProjectRow,
     },
     Ping,
 }

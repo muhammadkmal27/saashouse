@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Loader2, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { T } from "../Translate";
+import { useLanguage } from "../providers/LanguageProvider";
 
 export default function MiniCreateTicket({ 
   onCreated, 
@@ -11,6 +13,7 @@ export default function MiniCreateTicket({
   onCreated: (newTicket: any) => void;
   onCancel: () => void;
 }) {
+  const { lang } = useLanguage();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -98,8 +101,8 @@ export default function MiniCreateTicket({
     return (
       <div className="flex flex-col h-full items-center justify-center p-8 text-center text-zinc-500">
         <AlertCircle size={36} className="mb-4 text-zinc-300" />
-        <p className="text-sm font-bold text-zinc-900 dark:text-white mb-2">No Active Projects</p>
-        <p className="text-xs leading-relaxed">You must have an active project assigned to your account in order to open a support ticket.</p>
+        <p className="text-sm font-bold text-zinc-900 dark:text-white mb-2"><T en="No Active Projects" bm="Tiada Projek Aktif" /></p>
+        <p className="text-xs leading-relaxed"><T en="You must have an active project assigned to your account in order to open a support ticket." bm="Anda mesti mempunyai projek aktif yang ditugaskan ke akaun anda untuk membuka tiket sokongan." /></p>
       </div>
     );
   }
@@ -107,14 +110,14 @@ export default function MiniCreateTicket({
   return (
     <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950">
       <div className="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/40 border-b border-zinc-100 dark:border-zinc-800/60 flex items-center shadow-sm z-10 w-full flex-shrink-0">
-        <h3 className="font-black tracking-tight text-[13px] text-zinc-900 dark:text-zinc-100 uppercase">Create New Ticket</h3>
+        <h3 className="font-black tracking-tight text-[13px] text-zinc-900 dark:text-zinc-100 uppercase"><T en="Create New Ticket" bm="Cipta Tiket Baharu" /></h3>
       </div>
       
       <div className="flex-1 overflow-y-auto w-full">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block">Select Project</label>
+              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block"><T en="Select Project" bm="Pilih Projek" /></label>
               <select 
                 value={projectId} 
                 onChange={e => setProjectId(e.target.value)}
@@ -125,30 +128,30 @@ export default function MiniCreateTicket({
             </div>
 
             <div>
-              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block">Issue Category</label>
+              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block"><T en="Issue Category" bm="Kategori Isu" /></label>
               <div className="flex gap-3 bg-zinc-50 dark:bg-zinc-900/30 p-1.5 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
-                <button type="button" onClick={() => setType('BUG')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'BUG' ? 'bg-white dark:bg-zinc-800 text-red-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}>Report Bug</button>
-                <button type="button" onClick={() => setType('FEATURE')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'FEATURE' ? 'bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}>Request Feature</button>
+                <button type="button" onClick={() => setType('BUG')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'BUG' ? 'bg-white dark:bg-zinc-800 text-red-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}><T en="Report Bug" bm="Lapor Pepigat" /></button>
+                <button type="button" onClick={() => setType('FEATURE')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'FEATURE' ? 'bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}><T en="Request Feature" bm="Mohon Ciri" /></button>
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block">Ticket Title</label>
-              <input required type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Summary of the issue..." className="w-full bg-zinc-50/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-zinc-900 dark:ring-zinc-100 outline-none transition-all shadow-sm placeholder:text-zinc-400" />
+              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block"><T en="Ticket Title" bm="Tajuk Tiket" /></label>
+              <input required type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder={lang === "EN" ? "Summary of the issue..." : "Ringkasan isu ini..."} className="w-full bg-zinc-50/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-zinc-900 dark:ring-zinc-100 outline-none transition-all shadow-sm placeholder:text-zinc-400" />
             </div>
 
             <div>
-              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block">Description Details</label>
-              <textarea required value={desc} onChange={e => setDesc(e.target.value)} placeholder="Please elaborate on the situation..." rows={4} className="w-full bg-zinc-50/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-zinc-900 dark:ring-zinc-100 outline-none transition-all shadow-sm resize-none placeholder:text-zinc-400 leading-relaxed" />
+              <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block"><T en="Description Details" bm="Butiran Penerangan" /></label>
+              <textarea required value={desc} onChange={e => setDesc(e.target.value)} placeholder={lang === "EN" ? "Please elaborate on the situation..." : "Sila jelaskan keadaan situasi dengan lebih lanjut..."} rows={4} className="w-full bg-zinc-50/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-zinc-900 dark:ring-zinc-100 outline-none transition-all shadow-sm resize-none placeholder:text-zinc-400 leading-relaxed" />
             </div>
 
             <div>
-               <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block">Attachments (Optional)</label>
+               <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block"><T en="Attachments (Optional)" bm="Lampiran (Pilihan)" /></label>
                <label className="flex flex-col items-center justify-center w-full bg-zinc-50/50 dark:bg-zinc-900/30 border border-dashed border-zinc-300 dark:border-zinc-700/60 rounded-xl p-4 text-sm cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group">
                   <div className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 shadow-sm border border-zinc-100 dark:border-zinc-700 flex items-center justify-center mb-3 group-hover:-translate-y-1 transition-transform">
                     {uploading ? <Loader2 size={18} className="animate-spin text-zinc-400" /> : <Upload size={18} className="text-zinc-500" />}
                   </div>
-                  <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400">{uploading ? 'Uploading securely...' : 'Click or tap to upload evidence'}</span>
+                  <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400">{uploading ? <T en="Uploading securely..." bm="Memuat naik dengan selamat..." /> : <T en="Click or tap to upload evidence" bm="Klik atau ketik untuk muat naik bukti" />}</span>
                   <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
                </label>
                
@@ -168,7 +171,8 @@ export default function MiniCreateTicket({
       
       <div className="p-5 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 w-full flex-shrink-0 z-10 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
          <button onClick={handleSubmit} disabled={submitting || !title || !desc} className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 disabled:bg-zinc-200 disabled:text-zinc-400 dark:disabled:bg-zinc-800 font-bold tracking-wide rounded-xl p-3.5 text-xs uppercase flex items-center justify-center hover:bg-black dark:hover:bg-white active:scale-[0.98] transition-all shadow-md">
-           {submitting ? <><Loader2 size={16} className="animate-spin mr-2" /> Creating Ticket...</> : 'Launch Ticket'}
+                       {submitting ? <><Loader2 size={16} className="animate-spin mr-2" /> <T en="Creating Ticket..." bm="Mencipta Tiket..." /></> : <T en="Launch Ticket" bm="Lancar Tiket" />}
+
          </button>
       </div>
     </div>

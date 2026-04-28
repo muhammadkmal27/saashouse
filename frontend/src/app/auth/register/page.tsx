@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function RegisterPage() {
+  const { lang } = useLanguage();
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -48,9 +51,9 @@ export default function RegisterPage() {
   return (
     <div className="w-full">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2">Create an account</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2"><T en="Create an account" bm="Daftar akaun" /></h1>
         <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
-          Enter your details below to set up your enterprise workspace
+          <T en="Enter your details below to set up your enterprise workspace" bm="Masukkan butiran anda di bawah untuk menyediakan ruang kerja perusahaan anda" />
         </p>
       </div>
 
@@ -63,11 +66,11 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="space-y-5 mt-8">
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
-            Full Name
+            <T en="Full Name" bm="Nama Penuh" />
           </label>
           <input
             id="name"
-            placeholder="John Doe"
+            placeholder={lang === "EN" ? "John Doe" : "Ahmad Albab"}
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
@@ -78,11 +81,11 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
-            Email
+            <T en="Email" bm="E-mel" />
           </label>
           <input
             id="email"
-            placeholder="name@example.com"
+            placeholder={lang === "EN" ? "name@example.com" : "nama@contoh.com"}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -93,7 +96,7 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-2">
           <label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
-            Password
+            <T en="Password" bm="Kata Laluan" />
           </label>
           <input
             id="password"
@@ -113,14 +116,14 @@ export default function RegisterPage() {
           className="mt-6 inline-flex items-center justify-center rounded-full text-sm font-black uppercase tracking-widest bg-gradient-to-r from-violet-500 to-cyan-400 text-white hover:opacity-90 h-14 w-full transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(139,92,246,0.3)] group"
           suppressHydrationWarning
         >
-          {loading ? "Creating Account..." : "Create Account"}
+          {loading ? <T en="Creating Account..." bm="Mendaftarkan Akaun..." /> : <T en="Create Account" bm="Daftar Akaun" />}
         </button>
       </form>
 
       <div className="text-center text-sm text-slate-500 mt-8">
-        Already have an account?{" "}
+        <T en="Already have an account?" bm="Sudah mempunyai akaun?" />{" "}
         <a href="/auth/login" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-cyan-400 hover:opacity-80">
-          Sign In
+          <T en="Sign In" bm="Log Masuk" />
         </a>
       </div>
     </div>

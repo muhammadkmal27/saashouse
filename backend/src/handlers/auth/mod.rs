@@ -6,8 +6,10 @@ use axum_extra::extract::cookie::CookieJar;
 
 pub mod login;
 pub mod registration;
+pub mod registration_repo;
 pub mod otp;
 pub mod google;
+pub mod password_reset;
 
 #[cfg(test)]
 mod registration_tests;
@@ -15,6 +17,8 @@ mod registration_tests;
 mod otp_tests;
 #[cfg(test)]
 mod google_tests;
+#[cfg(test)]
+mod password_reset_tests;
 
 #[utoipa::path(
     post,
@@ -30,7 +34,13 @@ pub async fn register(
     Json(payload): Json<RegisterRequest>
 ) -> Result<Response, ApiError> {
     let jar = CookieJar::from_headers(&headers);
-    let result = registration::register_logic(state.pool.clone(), jar, payload).await?;
+    let ip = headers.get("x-forwarded-for")
+        .and_then(|h| h.to_str().ok())
+        .map(|s| s.split(',').next().unwrap_or(s).trim().to_string());
+    let ua = headers.get("user-agent").and_then(|h| h.to_str().ok()).map(|s| s.to_string());
+    
+    let repo = registration_repo::SqlxRegistrationRepo::new(state.pool.clone());
+    let result = registration::register_logic(repo, jar, payload, ip, ua).await?;
     Ok(result.into_response())
 }
 
@@ -48,7 +58,12 @@ pub async fn login(
     Json(payload): Json<LoginRequest>
 ) -> Result<Response, ApiError> {
     let jar = CookieJar::from_headers(&headers);
-    let result = login::login_logic(state.pool.clone(), jar, payload).await?;
+    let ip = headers.get("x-forwarded-for")
+        .and_then(|h| h.to_str().ok())
+        .map(|s| s.split(',').next().unwrap_or(s).trim().to_string());
+    let ua = headers.get("user-agent").and_then(|h| h.to_str().ok()).map(|s| s.to_string());
+    
+    let result = login::login_logic(state.pool.clone(), jar, payload, ip, ua).await?;
     Ok(result.into_response())
 }
 

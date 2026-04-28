@@ -5,7 +5,17 @@ on:
     branches: [ "main" ]
 
 jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      - name: Security Audit
+        run: cd backend && cargo audit
+  
   build:
+    needs: security_scan
     runs-on: ubuntu-latest
     permissions:
       contents: read

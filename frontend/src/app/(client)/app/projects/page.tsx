@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { Search, Sparkles, FolderOpen, ArrowUpRight, Plus, Activity, TrendingUp, Archive, Layers } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { ReactNode } from "react";
 
 interface Project {
     id: string;
@@ -20,6 +23,7 @@ export default function ProjectsListPage() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState('All');
+    const { lang } = useLanguage();
 
     useEffect(() => {
         fetch("/api/projects", { credentials: "include" })
@@ -36,11 +40,17 @@ export default function ProjectsListPage() {
             });
     }, []);
 
+    interface StatusTheme {
+        color: string;
+        dot: string;
+        label: ReactNode;
+    }
+
     const getStatusTheme = (status: string) => {
         const s = status.toUpperCase();
-        if (s === 'REVIEW') return { color: 'text-amber-500', dot: 'bg-amber-500', label: 'REVIEW' };
-        if (s === 'LIVE' || s === 'PAID') return { color: 'text-emerald-500', dot: 'bg-emerald-500', label: 'ACTIVE' };
-        return { color: 'text-slate-500', dot: 'bg-slate-400', label: s.replace('_', ' ') };
+        if (s === 'REVIEW') return { color: 'text-amber-500', dot: 'bg-amber-500', label: <T en="REVIEW" bm="SEMAKAN" /> };
+        if (s === 'LIVE' || s === 'PAID' || s === 'UNDER_DEVELOPMENT') return { color: 'text-emerald-500', dot: 'bg-emerald-500', label: <T en="ACTIVE" bm="AKTIF" /> };
+        return { color: 'text-slate-500', dot: 'bg-slate-400', label: <T en={s.replace('_', ' ')} bm={s === 'DRAFT' ? 'DRAF' : s === 'PAID' ? 'DIBAYAR' : s === 'UNDER_DEVELOPMENT' ? 'DALAM PEMBANGUNAN' : s.replace('_', ' ')} /> };
     };
 
     const getPlanTheme = (plan: string) => {
@@ -51,15 +61,15 @@ export default function ProjectsListPage() {
         return 'text-slate-600 font-semibold';
     };
 
-    if (loading) return <div className="p-20 text-center font-bold text-slate-500 animate-pulse">Synchronizing Platforms...</div>;
+    if (loading) return <div className="p-20 text-center font-bold text-slate-500 animate-pulse"><T en="Synchronizing Platforms..." bm="Menselaraskan Platform..." /></div>;
 
     const reviewCount = projects.filter(p => p.status.toUpperCase() === 'REVIEW').length;
-    const activeCount = projects.filter(p => ['LIVE', 'PAID'].includes(p.status.toUpperCase())).length;
+    const activeCount = projects.filter(p => ['LIVE', 'PAID', 'UNDER_DEVELOPMENT'].includes(p.status.toUpperCase())).length;
 
     const filteredProjects = projects.filter(p => {
         if (activeFilter === 'All') return true;
         if (activeFilter === 'Review' && p.status.toUpperCase() === 'REVIEW') return true;
-        if (activeFilter === 'Active' && ['LIVE', 'PAID'].includes(p.status.toUpperCase())) return true;
+        if (activeFilter === 'Active' && ['LIVE', 'PAID', 'UNDER_DEVELOPMENT'].includes(p.status.toUpperCase())) return true;
         if (activeFilter === 'Archived') return false; // None supported yet natively
         return false;
     });
@@ -78,16 +88,16 @@ export default function ProjectsListPage() {
                 
                 <div className="relative z-10">
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-violet-700 shadow-sm border border-violet-200/50 mb-7 backdrop-blur-md">
-                        <Sparkles className="w-3.5 h-3.5 text-violet-600" /> Workspace
+                        <Sparkles className="w-3.5 h-3.5 text-violet-600" /> <T en="Workspace" bm="Ruang Kerja" />
                     </span>
 
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8 mb-14">
                         <div>
                             <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-4">
-                                My <span className="text-violet-600">Platforms</span>
+                                <T en={<>My <span className="text-violet-600">Platforms</span></>} bm={<><span className="text-violet-600">Platform</span> Saya</>} />
                             </h1>
                             <p className="text-[14px] text-slate-500 max-w-sm leading-relaxed font-medium">
-                                A curated overview of every platform across your infrastructure — track lifecycle, plans, and progress in one place.
+                                <T en="A curated overview of every platform across your infrastructure — track lifecycle, plans, and progress in one place." bm="Ringkasan khusus untuk setiap platform merentasi infrastruktur anda — jejak kitaran hayat, pelan, dan kemajuan di satu tempat." />
                             </p>
                         </div>
                         <Link 
@@ -95,7 +105,7 @@ export default function ProjectsListPage() {
                             className="shrink-0 flex items-center justify-center gap-2.5 h-[50px] px-8 rounded-full bg-violet-600 text-white font-semibold text-[14px] shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:bg-violet-700 transition-all hover:-translate-y-0.5 mt-2 border border-violet-500"
                         >
                             <Plus className="w-[18px] h-[18px]" strokeWidth={2.5} />
-                            New Project
+                            <T en="New Project" bm="Projek Baru" />
                         </Link>
                     </div>
 
@@ -106,7 +116,7 @@ export default function ProjectsListPage() {
                         <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80">
                             <div className="flex items-center gap-3 mb-4">
                                 <Layers className="w-4 h-4 text-slate-400" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Total Platforms</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400"><T en="Total Platforms" bm="Jumlah Platform" /></span>
                             </div>
                             <div className="flex items-end gap-2">
                                 <div className="text-[2.2rem] font-black text-slate-900 leading-none">{projects.length}</div>
@@ -117,7 +127,7 @@ export default function ProjectsListPage() {
                         <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80">
                             <div className="flex items-center gap-3 mb-4">
                                 <Activity className="w-4 h-4 text-amber-500" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">In Review</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400"><T en="In Review" bm="Dalam Semakan" /></span>
                             </div>
                             <div className="flex items-end gap-2">
                                 <div className="text-[2.2rem] font-black text-amber-500 leading-none">{reviewCount}</div>
@@ -128,7 +138,7 @@ export default function ProjectsListPage() {
                         <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80">
                             <div className="flex items-center gap-3 mb-4">
                                 <TrendingUp className="w-4 h-4 text-emerald-500" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Active</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400"><T en="Active" bm="Aktif" /></span>
                             </div>
                             <div className="flex items-end gap-2">
                                 <div className="text-[2.2rem] font-black text-emerald-500 leading-none">{activeCount}</div>
@@ -139,7 +149,7 @@ export default function ProjectsListPage() {
                         <div className="flex-1 px-8 py-7">
                             <div className="flex items-center gap-3 mb-4">
                                 <Archive className="w-4 h-4 text-slate-400" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Archived</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400"><T en="Archived" bm="Diarkib" /></span>
                             </div>
                             <div className="flex items-end gap-2">
                                 <div className="text-[2.2rem] font-black text-slate-400 leading-none">0</div>
@@ -156,7 +166,7 @@ export default function ProjectsListPage() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder="Search platforms, IDs, plans..." 
+                        placeholder={lang === "EN" ? "Search platforms, IDs, plans..." : "Cari platform, ID, pelan..."} 
                         className="w-full h-[42px] pl-11 pr-5 rounded-full bg-white border border-slate-200/70 text-[13px] focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all font-medium placeholder:text-slate-400 shadow-sm"
                     />
                 </div>
@@ -173,7 +183,7 @@ export default function ProjectsListPage() {
                                     : 'text-slate-500 hover:text-slate-800'
                             }`}
                         >
-                            {f}
+                            {f === 'All'? <T en="All" bm="Semua" /> : f === 'Review'? <T en="Review" bm="Semakan" /> : f === 'Active'? <T en="Active" bm="Aktif" /> : <T en="Archived" bm="Diarkib" />}
                         </button>
                     ))}
                 </div>
@@ -182,18 +192,18 @@ export default function ProjectsListPage() {
             {/* List Header */}
             <div className="flex items-end justify-between mb-8 px-2">
                 <div>
-                    <h2 className="text-[17px] font-extrabold text-slate-900 leading-tight">All Platforms</h2>
-                    <p className="text-[12px] text-slate-500 font-medium mt-1">{filteredProjects.length} projects - sorted by latest activity</p>
+                    <h2 className="text-[17px] font-extrabold text-slate-900 leading-tight"><T en="All Platforms" bm="Semua Platform" /></h2>
+                    <p className="text-[12px] text-slate-500 font-medium mt-1"><T en={`${filteredProjects.length} projects - sorted by latest activity`} bm={`${filteredProjects.length} projek - disusun ikut aktiviti terkini`} /></p>
                 </div>
                 <button className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 transition-colors">
-                    View archived —
+                    <T en="View archived —" bm="Papar diarkib —" />
                 </button>
             </div>
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.map((project) => {
-                    const theme = getStatusTheme(project.status);
+                    const theme: StatusTheme = getStatusTheme(project.status);
                     const planText = project.selected_plan || 'Standard';
                     
                     return (
@@ -218,7 +228,7 @@ export default function ProjectsListPage() {
                             {/* Card Title */}
                             <div>
                                 <h3 className="text-[17px] font-extrabold text-slate-900 truncate mb-1">{project.title}</h3>
-                                <p className="text-[11px] font-medium text-slate-400">Initiated {new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                <p className="text-[11px] font-medium text-slate-400"><T en="Initiated" bm="Dimulakan" /> {new Date(project.created_at).toLocaleDateString(lang === 'BM' ? 'ms-MY' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                             </div>
 
                             <hr className="my-6 border-t border-slate-100/60" />
@@ -226,15 +236,17 @@ export default function ProjectsListPage() {
                             {/* Meta Grid */}
                             <div className="grid grid-cols-2 gap-4 mb-7">
                                 <div>
-                                    <h4 className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1.5">Plan</h4>
+                                    <h4 className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1.5"><T en="Plan" bm="Pelan" /></h4>
                                     <p className={`text-[12px] truncate ${getPlanTheme(planText)}`}>
-                                        {planText}
+                                        <T en={planText} bm={planText === 'Platinum' ? 'Platinum' : planText === 'Enterprise' ? 'Enterprise' : planText} />
                                     </p>
                                 </div>
                                 <div>
-                                    <h4 className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1.5">Subscription</h4>
+                                    <h4 className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1.5"><T en="Subscription" bm="Langganan" /></h4>
                                     <p className="text-[12px] font-semibold text-slate-600 truncate">
-                                        {project.subscription_status === 'active' ? 'Active' : 'No Subscription'}
+                                        {(project.subscription_status === 'active' || (planText.toUpperCase().includes('ONE-TIME') && !['REVIEW', 'DRAFT'].includes(project.status.toUpperCase()))) 
+                                            ? <T en="Active" bm="Aktif" /> 
+                                            : <T en="No Subscription" bm="Tiada Langganan" />}
                                     </p>
                                 </div>
                             </div>
@@ -242,7 +254,7 @@ export default function ProjectsListPage() {
                             {/* Card Footer */}
                             <div className="mt-auto">
                                 <div className="w-full h-11 bg-slate-50 group-hover:bg-slate-100 rounded-2xl flex items-center justify-between px-5 transition-colors border border-slate-100 group-hover:border-slate-200">
-                                    <span className="text-[11px] font-bold text-slate-700 transition-colors">View Project</span>
+                                    <span className="text-[11px] font-bold text-slate-700 transition-colors"><T en="View Project" bm="Papar Projek" /></span>
                                     <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-slate-800 transition-colors" strokeWidth={2.5} />
                                 </div>
                             </div>
@@ -255,8 +267,8 @@ export default function ProjectsListPage() {
             {filteredProjects.length === 0 && !loading && (
                 <div className="p-20 text-center bg-white border border-slate-100 rounded-[2.5rem] shadow-sm">
                     <FolderOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">No Platforms Found</h3>
-                    <p className="text-sm text-slate-500 max-w-sm mx-auto">Change your filters or create a new platform to track your lifecycle here.</p>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2"><T en="No Platforms Found" bm="Tiada Platform Dijumpai" /></h3>
+                    <p className="text-sm text-slate-500 max-w-sm mx-auto"><T en="Change your filters or create a new platform to track your lifecycle here." bm="Tukar penapis atau cipta platform baharu untuk jejak kitaran hayat anda." /></p>
                 </div>
             )}
         </div>

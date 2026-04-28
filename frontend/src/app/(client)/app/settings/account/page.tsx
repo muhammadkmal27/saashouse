@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Mail, BadgeCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { T } from "@/components/Translate";
 
 export default function AccountSettingsPage() {
     const [loading, setLoading] = useState(true);
@@ -28,16 +29,16 @@ export default function AccountSettingsPage() {
     };
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-500 relative">
+        <div className="space-y-12 relative">
             {/* Locked feature toast */}
             {showLocked && (
-                <div className="fixed top-24 right-8 z-50 animate-in slide-in-from-right fade-in px-6 py-4 bg-slate-900 text-white rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
+                <div className="fixed top-24 right-8 z-50 px-6 py-4 bg-slate-900 text-white rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
                     <div className="p-2 bg-red-500/20 text-red-400 rounded-lg">
                         <AlertTriangle className="w-5 h-5" />
                     </div>
                     <div>
-                        <p className="font-black uppercase tracking-tighter leading-none italic">Feature Locked</p>
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Please contact support to update your email</p>
+                        <p className="font-black uppercase tracking-tighter leading-none italic"><T en="Feature Locked" bm="Ciri Dikunci" /></p>
+                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1"><T en="Please contact support to update your email" bm="Sila hubungi sokongan untuk mengemas kini e-mel" /></p>
                     </div>
                 </div>
             )}
@@ -46,8 +47,8 @@ export default function AccountSettingsPage() {
             <div className="space-y-10">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2">Account Information</h2>
-                        <p className="text-sm text-slate-500 font-medium">Manage the core details of your SaaS House account.</p>
+                        <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2"><T en="Account Information" bm="Maklumat Akaun" /></h2>
+                        <p className="text-sm text-slate-500 font-medium"><T en="Manage the core details of your SaaS House account." bm="Urus butiran teras akaun SaaS House anda." /></p>
                     </div>
                     {loading && <Loader2 className="w-5 h-5 animate-spin text-violet-600" />}
                 </div>
@@ -59,7 +60,7 @@ export default function AccountSettingsPage() {
                                 <Mail className="w-7 h-7" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Email Address</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1"><T en="Email Address" bm="Alamat E-mel" /></p>
                                 <p className="text-xl font-bold text-slate-900 dark:text-white leading-none">{email || (loading ? "loading..." : "None")}</p>
                             </div>
                         </div>
@@ -67,7 +68,7 @@ export default function AccountSettingsPage() {
                             onClick={handleLockedFeature}
                             className="px-6 py-3 bg-white border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:border-violet-300 transition-all shadow-sm active:scale-95"
                         >
-                            Change Email
+                            <T en="Change Email" bm="Tukar E-mel" />
                         </button>
                     </div>
 
@@ -77,32 +78,14 @@ export default function AccountSettingsPage() {
                                 <BadgeCheck className="w-7 h-7" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Account Role</p>
-                                <p className="text-xl font-black uppercase text-slate-900 dark:text-white leading-none">{role || (loading ? "..." : "USER")}</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1"><T en="Account Role" bm="Peranan Akaun" /></p>
+                                <p className="text-xl font-black uppercase text-slate-900 dark:text-white leading-none">{role === 'Admin' ? <T en="Admin" bm="Admin" /> : <T en="Client" bm="Pelanggan" />}</p>
                             </div>
                         </div>
                         <span className="px-5 py-2 bg-violet-100/50 text-violet-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-violet-200/50 shadow-sm">
-                            Verified Status
+                            <T en="Verified Status" bm="Status Disahkan" />
                         </span>
                     </div>
-                </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className={`pt-10 border-t border-slate-100 dark:border-red-900/30 transition-all duration-700 ${loading ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
-                <h2 className="text-xl font-black text-red-600 mb-2 flex items-center gap-3">
-                    <AlertTriangle className="w-5 h-5" /> Danger Zone
-                </h2>
-                <p className="text-sm text-slate-500 font-medium mb-8">Irreversible actions regarding your account and data.</p>
-                
-                <div className="border border-red-100 bg-red-50/20 dark:border-red-900/50 rounded-[2rem] p-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <h3 className="font-extrabold text-slate-900 dark:text-white mb-1 uppercase tracking-tight">Delete Account Permanently</h3>
-                        <p className="text-xs text-slate-500 font-medium">Removing your account will purge all associated project data and active subscriptions.</p>
-                    </div>
-                    <button className="px-8 py-4 bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all w-full md:w-auto shadow-sm active:scale-95">
-                        Confirm Deletion
-                    </button>
                 </div>
             </div>
         </div>

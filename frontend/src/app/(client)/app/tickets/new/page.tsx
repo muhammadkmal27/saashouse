@@ -2,6 +2,8 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { 
     ArrowLeft, 
     Send, 
@@ -14,10 +16,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { getCookie } from "@/utils/cookies";
 
 function NewTicketForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { lang } = useLanguage();
     const type = searchParams.get("type") || "BUG";
     
     const [projects, setProjects] = useState<any[]>([]);
@@ -58,8 +62,10 @@ function NewTicketForm() {
 
         try {
             setLoading(true);
+            const csrfToken = getCookie("csrf_token") || "";
             const res = await fetch(`/api/assets/upload`, {
                 method: "POST",
+                headers: { "X-CSRF-Token": csrfToken },
                 body: uploadData,
                 credentials: "include"
             });
@@ -89,9 +95,13 @@ function NewTicketForm() {
 
         setSubmitting(true);
         try {
+            const csrfToken = getCookie("csrf_token") || "";
             const res = await fetch(`/api/requests`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
                 body: JSON.stringify(formData),
                 credentials: "include"
             });
@@ -116,7 +126,7 @@ function NewTicketForm() {
                 href="/app/tickets"
                 className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 font-black uppercase tracking-widest text-[10px] mb-8 group"
             >
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Back to Dashboard" bm="Kembali ke Papan Pemuka" />
             </Link>
 
             <div className="bg-white/80 bg-gradient-to-br from-white to-violet-50/20 rounded-[3rem] p-10 lg:p-12 border border-violet-100/50 shadow-xl shadow-violet-100/30 relative overflow-hidden group">
@@ -128,9 +138,9 @@ function NewTicketForm() {
                     </div>
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">
-                            {type === 'BUG' ? "Report Issue (Bug)" : "Request Feature"}
+                            {type === 'BUG' ? <T en="Report Issue (Bug)" bm="Lapor Isu (Pepijat)" /> : <T en="Request Feature" bm="Mohon Ciri" />}
                         </h1>
-                        <p className="text-slate-500 font-medium">Please provide details to help us take action.</p>
+                        <p className="text-slate-500 font-medium"><T en="Please provide details to help us take action." bm="Sila berikan butiran untuk membantu kami mengambil tindakan." /></p>
                     </div>
                 </div>
 
@@ -138,7 +148,7 @@ function NewTicketForm() {
                     {/* Project Selection */}
                     <div className="space-y-3">
                         <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4 flex items-center gap-2">
-                            <LayoutGrid className="w-3.5 h-3.5" /> Project
+                            <LayoutGrid className="w-3.5 h-3.5" /> <T en="Project" bm="Projek" />
                         </label>
                         <select 
                             value={formData.project_id}
@@ -153,10 +163,10 @@ function NewTicketForm() {
 
                     {/* Title */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Subject Title</label>
+                        <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4"><T en="Subject Title" bm="Tajuk Subjek" /></label>
                         <input 
                             type="text"
-                            placeholder="E.g., Payment button doesn't respond..."
+                            placeholder={lang === "EN" ? "E.g., Payment button doesn't respond..." : "Cth: Butang pembayaran tidak bertindak balas..."}
                             value={formData.title}
                             onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                             className="w-full px-8 py-5 bg-white border border-slate-200/70 rounded-[1.25rem] font-bold text-slate-900 outline-none focus:ring-4 ring-violet-500/10 focus:border-violet-300 transition-all placeholder:text-slate-300 shadow-sm"
@@ -165,10 +175,10 @@ function NewTicketForm() {
 
                     {/* Description */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Detailed Description (Markdown OK)</label>
+                        <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4"><T en="Detailed Description (Markdown OK)" bm="Huraian Terperinci (Markah OK)" /></label>
                         <textarea 
                             rows={6}
-                            placeholder="Explain exactly what happened or what you'd like to see..."
+                            placeholder={lang === "EN" ? "Explain exactly what happened or what you'd like to see..." : "Terangkan dengan tepat apa yang berlaku atau apa yang anda ingin lihat..."}
                             value={formData.description}
                             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                             className="w-full px-8 py-5 bg-white border border-slate-200/70 rounded-[1.25rem] font-bold text-slate-900 outline-none focus:ring-4 ring-violet-500/10 focus:border-violet-300 transition-all placeholder:text-slate-300 resize-none shadow-sm"
@@ -177,17 +187,20 @@ function NewTicketForm() {
 
                     {/* Attachments */}
                     <div className="space-y-4">
-                        <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Attachments (Images/Docs)</label>
+                        <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4"><T en="Attachments (Images/Docs)" bm="Lampiran (Imej/Dokumen)" /></label>
                         <div className="flex flex-wrap gap-3">
                             {formData.attachment_urls.map((url, i) => (
-                                <div key={i} className="group relative w-20 h-20 bg-slate-50 rounded-xl overflow-hidden border border-slate-200">
-                                    <img src={url} className="w-full h-full object-cover" alt="attachment" />
+                                <div key={i} className="group relative w-20 h-20">
+                                    <div className="w-full h-full bg-slate-50 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                                        <img src={url} className="w-full h-full object-cover" alt="attachment" />
+                                    </div>
                                     <button 
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, attachment_urls: prev.attachment_urls.filter((_, idx) => idx !== i) }))}
-                                        className="absolute inset-0 bg-red-500/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg z-20 hover:scale-110 active:scale-95 transition-all border-2 border-white flex items-center justify-center"
+                                        title="Remove attachment"
                                     >
-                                        <X className="w-5 h-5" />
+                                        <X className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             ))}
@@ -204,7 +217,7 @@ function NewTicketForm() {
                         disabled={submitting}
                         className="w-full py-6 mt-4 bg-violet-600 text-white rounded-[2rem] font-extrabold uppercase tracking-widest hover:bg-violet-700 hover:-translate-y-1 transition-all shadow-[0_8px_30px_rgba(124,58,237,0.35)] flex items-center justify-center gap-3 disabled:opacity-50 border border-violet-500"
                     >
-                        {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <><Send className="w-6 h-6" /> Submit Ticket</>}
+                        {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <><Send className="w-6 h-6" /> <T en="Submit Ticket" bm="Hantar Tiket" /></>}
                     </button>
                 </form>
             </div>

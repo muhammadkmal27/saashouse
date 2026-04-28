@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MessageCircle, X, ChevronRight, User, CirclePlus } from "lucide-react";
+import { T } from "../Translate";
 import { useSocket } from "../providers/SocketProvider";
 import { useRouter } from "next/navigation";
 import MiniChat from "./MiniChat";
@@ -58,11 +59,11 @@ export default function ChatWidget() {
   }
 
   const renderContent = () => {
-    if (loading) return <div className="p-10 text-center w-full text-sm text-zinc-500 animate-pulse mt-10">Loading connection...</div>;
+    if (loading) return <div className="p-10 text-center w-full text-sm text-zinc-500 animate-pulse mt-10"><T en="Loading connection..." bm="Memuatkan sambungan..." /></div>;
 
     // ADMIN VIEW
     if (userProfile?.user?.role === 'ADMIN') {
-      if (tickets.length === 0) return <div className="p-10 text-center w-full text-sm text-zinc-500 mt-10">No active tickets.</div>;
+      if (tickets.length === 0) return <div className="p-10 text-center w-full text-sm text-zinc-500 mt-10"><T en="No active tickets." bm="Tiada tiket aktif." /></div>;
       return (
         <div className="flex-1 overflow-y-auto w-full h-full">
           {tickets.map(t => (
@@ -110,7 +111,9 @@ export default function ChatWidget() {
           >
              <div className="w-full pr-4 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-blue-600 mb-1">{t.type_}</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-blue-600 mb-1">
+                    <T en={t.type_} bm={t.type_ === 'BUG' ? 'PEPIGAT' : 'CIRI'} />
+                  </p>
                   <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{t.title}</h4>
                 </div>
                 {t.unread_count > 0 && (
@@ -127,20 +130,20 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 print:hidden">
       {isOpen ? (
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl w-[350px] h-[580px] flex flex-col overflow-hidden transition-all duration-300 transform scale-100 opacity-100 animate-in fade-in slide-in-from-bottom-5">
            <div className="bg-zinc-900 dark:bg-black text-white p-4 flex justify-between items-center cursor-pointer shadow-sm relative z-10 flex-shrink-0">
               <div className="flex items-center space-x-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-400 border-2 border-emerald-900" : "bg-red-500 animate-pulse"}`}></div>
                 <h3 className="font-semibold text-sm tracking-wide">
-                  {userProfile?.user?.role === 'ADMIN' ? 'Client Inbox' : (activeTicketId && tickets.length ? 'Live Support' : 'Support Hub')}
+                  {userProfile?.user?.role === 'ADMIN' ? <T en="Client Inbox" bm="Peti Masuk Pelanggan" /> : (activeTicketId && tickets.length ? <T en="Live Support" bm="Sokongan Langsung" /> : <T en="Support Hub" bm="Hab Sokongan" />)}
                 </h3>
               </div>
               <div className="flex space-x-3 items-center">
                  {/* Back button if client is inside a chat but has multiple tickets */}
                  {userProfile?.user?.role !== 'ADMIN' && activeTicketId && tickets.length > 1 && (
-                    <button onClick={(e) => { e.stopPropagation(); setActiveTicketId(null); }} className="text-zinc-400 hover:text-white text-xs font-medium transition-colors">Back</button>
+                    <button onClick={(e) => { e.stopPropagation(); setActiveTicketId(null); }} className="text-zinc-400 hover:text-white text-xs font-medium transition-colors"><T en="Back" bm="Kembali" /></button>
                  )}
                  <button onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} className="text-zinc-400 hover:text-white transition-colors">
                    <X size={18} />

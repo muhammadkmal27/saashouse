@@ -3,12 +3,16 @@ use axum_extra::extract::cookie::{Cookie, CookieJar};
 use sqlx::PgPool;
 use crate::models::{auth::{AuthResponse, Verify2FARequest}, user::User};
 use crate::utils::{error::ApiError, jwt::create_token};
+use validator::Validate;
 
 pub async fn verify_2fa_logic(
     pool: PgPool,
     jar: CookieJar,
     payload: Verify2FARequest
 ) -> Result<(CookieJar, Json<AuthResponse>), ApiError> {
+    // 0. Strict Input Validation (Rule 1)
+    payload.validate().map_err(ApiError::Validation)?;
+
     let token = jar.get("auth_token").map(|c| c.value().to_string()).ok_or(ApiError::Unauthorized)?;
     let claims = crate::utils::jwt::verify_token(&token)?;
 
@@ -36,14 +40,19 @@ pub async fn verify_2fa_logic(
 
     // Issue FINAL token with 2FA verified
     let token = create_token(claims.sub, claims.role, true)?;
-    let cookie = Cookie::build(("auth_token", token))
-        .path("/")
-        .http_only(true)
-        .same_site(axum_extra::extract::cookie::SameSite::Lax)
-        .secure(false) 
-        .build();
+    let cookie = crate::utils::cookie::build_auth_cookie(token);
 
-    Ok((jar.add(cookie), Json(AuthResponse { message: "2FA verified successfully".to_owned() })))
+    // 6. CSRF Protection (Rule 19)
+    let csrf_token = uuid::Uuid::new_v4().to_string();
+    let csrf_cookie = crate::utils::cookie::build_csrf_cookie(csrf_token.clone());
+
+    Ok((
+        jar.add(cookie).add(csrf_cookie), 
+        Json(AuthResponse { 
+            message: "2FA verified successfully".to_owned(),
+            csrf_token: Some(csrf_token),
+        })
+    ))
 }
 
 pub async fn resend_otp_logic(
@@ -102,5 +111,8 @@ pub async fn resend_otp_logic(
         }
     });
 
-    Ok((jar, Json(AuthResponse { message: "OTP resent successfully".to_owned() })))
+    Ok((jar, Json(AuthResponse { 
+        message: "OTP resent successfully".to_owned(),
+        csrf_token: None 
+    })))
 }

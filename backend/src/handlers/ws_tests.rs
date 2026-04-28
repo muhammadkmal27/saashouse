@@ -24,7 +24,11 @@ mod tests {
             .unwrap();
         
         let hub = Arc::new(RealtimeHub::new());
-        let state = AppState { pool, hub };
+        let state = AppState { 
+            pool, 
+            redis: redis::Client::open("redis://127.0.0.1/").unwrap(),
+            hub 
+        };
         create_router(state)
     }
 

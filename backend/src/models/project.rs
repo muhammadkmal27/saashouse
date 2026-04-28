@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use validator::Validate;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, sqlx::Type, Clone, PartialEq, Eq)]
 #[sqlx(type_name = "project_status", rename_all = "SCREAMING_SNAKE_CASE")]
@@ -54,14 +55,18 @@ pub struct RequirementsPayload {
     pub project_vision: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct CreateProjectRequest {
     #[schema(example = "E-Commerce Website")]
+    #[validate(length(min = 5, max = 100, message = "Tajuk projek mestilah antara 5 hingga 100 aksara"))]
     pub title: String,
+    
     #[schema(example = "Full stack application with payment integration.")]
+    #[validate(length(max = 1000, message = "Deskripsi terlalu panjang (maksimum 1000 aksara)"))]
     pub description: Option<String>,
     
     #[schema(example = "60123456789")]
+    #[validate(length(min = 10, max = 15, message = "Nombor WhatsApp tidak sah"))]
     pub whatsapp_number: String,
     
     #[schema(example = "Growth")]

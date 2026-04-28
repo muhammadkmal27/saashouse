@@ -1,4 +1,5 @@
 "use client";
+import { T } from "@/components/Translate";
 
 import { useRouter } from "next/navigation";
 import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
@@ -13,9 +14,9 @@ export default function PaymentCancelPage() {
           <AlertTriangle className="w-12 h-12" />
         </div>
         
-        <h1 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Payment Cancelled</h1>
+        <h1 className="text-3xl font-black text-slate-900 mb-4 tracking-tight"><T en="Payment Cancelled" bm="Pembayaran Dibatalkan" /></h1>
         <p className="text-slate-500 font-medium mb-12 leading-relaxed">
-            It seems the payment process has been stopped. Don't worry, no charges have been made to your card.
+            <T en="It seems the payment process has been stopped. Don't worry, no charges have been made to your card." bm="Proses pembayaran telah dihentikan. Jangan risau, tiada caj dikenakan pada kad anda." />
         </p>
 
         <div className="space-y-4">
@@ -24,14 +25,14 @@ export default function PaymentCancelPage() {
                 className="w-full py-5 bg-slate-900 text-white rounded-3xl font-black uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-200"
             >
                 <RefreshCcw className="w-5 h-5" />
-                Try Again
+                <T en="Try Again" bm="Cuba Lagi" />
             </button>
             <button 
                 onClick={() => router.push("/app/dashboard")}
                 className="w-full py-5 bg-white text-slate-400 rounded-3xl font-bold uppercase tracking-widest hover:text-slate-900 transition-all flex items-center justify-center gap-3"
             >
                 <Home className="w-5 h-5" />
-                Back to Dashboard
+                <T en="Back to Dashboard" bm="Kembali ke Papan Pemuka" />
             </button>
         </div>
       </div>

@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Wrench, Clock, Mail, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const POLL_INTERVAL_MS = 8000; // Check every 8 seconds
 
 export default function MaintenancePage() {
+  const { lang } = useLanguage();
   const router = useRouter();
   const [checking, setChecking] = useState(false);
   const [countdown, setCountdown] = useState(POLL_INTERVAL_MS / 1000);
@@ -61,13 +64,7 @@ export default function MaintenancePage() {
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-violet-600/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-2xl w-full text-center space-y-10">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-            <Sparkles className="w-6 h-6 fill-white text-white" />
-          </div>
-          <span className="text-2xl font-black tracking-tight">SaaS House</span>
-        </div>
+        <div className="h-4" /> {/* Spacer instead of logo */}
 
         {/* Main Icon — changes when back online */}
         <div className="flex justify-center">
@@ -88,34 +85,29 @@ export default function MaintenancePage() {
           <div className="space-y-4 animate-in fade-in duration-500">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black uppercase tracking-widest text-emerald-400">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Platform Back Online
+              <T en="Platform Back Online" bm="Platform Kembali Dalam Talian" />
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
-              We&rsquo;re{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                Back!
-              </span>
+              <T en={<>We&rsquo;re <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Back!</span></>} 
+                 bm={<>Kami Telah <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Kembali!</span></>} />
             </h1>
             <p className="text-zinc-400 text-lg font-medium">
-              Redirecting you to the homepage...
+              <T en="Redirecting you to the homepage..." bm="Membawa anda kembali ke halaman utama..." />
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-xs font-black uppercase tracking-widest text-amber-400">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              Scheduled Maintenance
+              <T en="Scheduled Maintenance" bm="Penyelenggaraan Terjadual" />
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
-              We&rsquo;ll Be Back
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300">
-                Shortly
-              </span>
+              <T en={<>We&rsquo;ll Be Back<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300">Shortly</span></>} 
+                 bm={<>Kami Akan Kembali<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300">Tidak Lama Lagi</span></>} />
             </h1>
             <p className="text-zinc-400 text-lg leading-relaxed max-w-lg mx-auto font-medium">
-              Our team is currently performing scheduled maintenance to improve
-              your experience. This page will automatically refresh when we&rsquo;re back.
+              <T en="Our team is currently performing scheduled maintenance to improve your experience. This page will automatically refresh when we&rsquo;re back." 
+                 bm="Pasukan kami sedang menjalankan penyelenggaraan terjadual untuk meningkatkan pengalaman anda. Halaman ini akan dikemaskini secara automatik apabila kami kembali." />
             </p>
           </div>
         )}
@@ -129,8 +121,8 @@ export default function MaintenancePage() {
             }
             <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
               {checking
-                ? "Checking status…"
-                : `Next check in ${countdown}s`
+                ? <T en="Checking status…" bm="Menyemak status…" />
+                : (lang === "BM" ? `Semakan seterusnya dalam ${countdown}s` : `Next check in ${countdown}s`)
               }
             </span>
           </div>
@@ -143,10 +135,10 @@ export default function MaintenancePage() {
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                 <Clock className="w-5 h-5 text-blue-400" />
               </div>
-              <h3 className="font-black text-white text-sm uppercase tracking-widest">Auto-Refresh</h3>
+              <h3 className="font-black text-white text-sm uppercase tracking-widest"><T en="Auto-Refresh" bm="Kemas Kini Automatik" /></h3>
               <p className="text-zinc-400 text-sm font-medium leading-relaxed">
-                This page checks our system every 8 seconds. When maintenance ends,
-                you&rsquo;ll be automatically redirected — no manual refresh needed.
+                <T en="This page checks our system every 8 seconds. When maintenance ends, you&rsquo;ll be automatically redirected — no manual refresh needed." 
+                   bm="Halaman ini menyemak sistem kami setiap 8 saat. Apabila penyelenggaraan selesai, anda akan dibawa balik secara automatik — tiada kemas kini manual diperlukan." />
               </p>
             </div>
 
@@ -154,9 +146,9 @@ export default function MaintenancePage() {
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                 <Mail className="w-5 h-5 text-emerald-400" />
               </div>
-              <h3 className="font-black text-white text-sm uppercase tracking-widest">Need Urgent Help?</h3>
+              <h3 className="font-black text-white text-sm uppercase tracking-widest"><T en="Need Urgent Help?" bm="Perlukan Bantuan Segera?" /></h3>
               <p className="text-zinc-400 text-sm font-medium leading-relaxed">
-                For urgent matters, contact us directly at{" "}
+                <T en="For urgent matters, contact us directly at" bm="Untuk perkara mendesak, hubungi kami terus di" />{" "}
                 <a
                   href="mailto:support@saashouse.com"
                   className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors"
@@ -173,20 +165,20 @@ export default function MaintenancePage() {
           <>
             <div className="border-t border-zinc-800" />
             <p className="text-zinc-600 text-xs font-medium">
-              Are you an admin?{" "}
+              <T en="Are you an admin?" bm="Adakah anda seorang admin?" />{" "}
               <Link
                 href="/auth/login"
                 className="text-zinc-400 hover:text-white underline underline-offset-2 transition-colors font-bold"
               >
-                Sign in here
+                <T en="Sign in here" bm="Log masuk di sini" />
               </Link>{" "}
-              — admin access is always available during maintenance.
+              <T en="— admin access is always available during maintenance." bm="— akses admin sentiasa tersedia semasa penyelenggaraan." />
             </p>
           </>
         )}
 
         <p className="text-zinc-800 text-xs">
-          © {new Date().getFullYear()} SaaS House. All rights reserved.
+          © {new Date().getFullYear()}. <T en="All rights reserved." bm="Hak cipta terpelihara." />
         </p>
       </div>
     </div>

@@ -14,6 +14,7 @@ pub enum RequestType {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, ToSchema, PartialEq, Eq)]
 #[sqlx(type_name = "request_status", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum RequestStatus {
     Open,
     InProgress,

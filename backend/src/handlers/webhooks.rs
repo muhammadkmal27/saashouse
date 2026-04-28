@@ -66,7 +66,10 @@ pub async fn handle_stripe_webhook(
             if let (Ok(pid), Ok(uid)) = (uuid::Uuid::parse_str(project_id_str), uuid::Uuid::parse_str(user_id_str)) {
                 let mut tx = pool.begin().await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
-                // 1. Mark Project as PAID (Confirmed Payment)
+                // 1. Lock Project row and Mark as PAID (Rule 14)
+                let _project_lock = sqlx::query!("SELECT id FROM projects WHERE id = $1 FOR UPDATE", pid)
+                    .fetch_one(&mut *tx).await.map_err(|e| ApiError::Internal(e.to_string()))?;
+
                 sqlx::query!("UPDATE projects SET status = 'PAID' WHERE id = $1", pid)
                     .execute(&mut *tx).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 

@@ -8,7 +8,10 @@ type RealtimeEvent =
   | { type: "NewComment", request_id: string, comment: any }
   | { type: "TicketStatusUpdate", request_id: string, status: string }
   | { type: "StatusPulse", request_id: string }
-  | { type: "ReadSync", request_id: string };
+  | { type: "ReadSync", request_id: string }
+  | { type: "NewProject", data: { project: any } }
+  | { type: "ProjectPermissionUpdate", data: { project_id: string, allowed: boolean } }
+  | { type: "ProjectDataUpdate", data: { project_id: string, status: string, dev_url: string, prod_url: string } };
 
 interface SocketContextType {
   socket: WebSocket | null;
@@ -67,87 +70,108 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let reconnectTimer: NodeJS.Timeout;
 
-    const connect = () => {
-      // Determine secure/insecure protocol dynamically
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      // Backend WebSocket Endpoint via Next.js Proxy
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${window.location.host}/api/ws`;
-      const ws = new WebSocket(wsUrl);
+    const connect = async () => {
+      try {
+        // Determine secure/insecure protocol dynamically
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        
+        // 1. Get CSRF Token for Ticket Request
+        const csrfToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("csrf_token="))
+          ?.split("=")[1];
 
-      ws.onopen = () => {
-        setIsConnected(true);
-        setSocket(ws);
-        wsRef.current = ws;
-      };
+        // 2. Get a short-lived WS ticket
+        const ticketRes = await fetch("/api/ws/ticket", { 
+          method: "POST",
+          headers: { "X-CSRF-Token": csrfToken || "" },
+          credentials: "include" 
+        });
+        
+        if (!ticketRes.ok) throw new Error("Could not get global WS ticket");
+        const { ticket } = await ticketRes.json();
 
-      ws.onmessage = (event) => {
-        try {
-          console.log("WS RAW RECEIVED:", event.data);
-          const parsed = JSON.parse(event.data);
-          let eventData: RealtimeEvent | null = null;
-          console.log("WS PARSED:", parsed);
+        // 3. Connect with ticket directly to 8080 in dev
+        const host = window.location.hostname === "localhost" ? "localhost:8080" : window.location.host;
+        const wsUrl = `${protocol}//${host}/api/ws?ticket=${ticket}`;
+        
+        const ws = new WebSocket(wsUrl);
 
-          // Omega-Sync: Universal Master Pulse
-          if (parsed.type === "StatusPulse" && parsed.data) {
-             console.log("Omega-Sync: RECEIVED OMEGA PULSE", parsed.data);
-             eventData = { type: "StatusPulse", ...parsed.data };
-             window.dispatchEvent(new CustomEvent('global-ticket-update'));
-          }
+        ws.onopen = () => {
+          setIsConnected(true);
+          setSocket(ws);
+          wsRef.current = ws;
+        };
 
-          // Omega-Sync: Read Synchronization Pulse
-          if (parsed.type === "ReadSync") {
-            console.log("Omega-Sync: RECEIVED READ SYNC", parsed.data);
-            eventData = { type: "ReadSync", request_id: parsed.data.request_id };
-            // Refetch global count
-            fetch("/api/comments/unread")
-              .then(res => res.json())
-              .then(data => {
-                if (data.count !== undefined) setUnreadCount(data.count);
-              });
-            // Update ticket lists
-            window.dispatchEvent(new CustomEvent('global-ticket-update'));
-          }
+        ws.onmessage = (event) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            let eventData: RealtimeEvent | null = null;
 
-          // Rust Serde using tag='type' and content='data'
-          if (parsed.type === "TicketStatusUpdate" && parsed.data) {
-            eventData = { type: "TicketStatusUpdate", ...parsed.data };
-            
-            // Diagnostic signal
-            console.log("Omega-Sync: Status Signal Received", parsed.data);
+            // Omega-Sync: Universal Master Pulse
+            if (parsed.type === "StatusPulse" && parsed.data) {
+               eventData = { type: "StatusPulse", ...parsed.data };
+               window.dispatchEvent(new CustomEvent('global-ticket-update'));
+            }
 
-            // GLOBAL SIGNAL: Tell everyone to refresh
-            window.dispatchEvent(new CustomEvent('global-ticket-update'));
-          } else if (parsed.type === "NewComment" && parsed.data) {
-            eventData = { type: "NewComment", ...parsed.data };
-            setUnreadCount(prev => prev + 1);
-            
-            // If it's a system message, also trigger global refresh
-            if (parsed.data.comment?.message?.includes("[SYSTEM]")) {
+            // Omega-Sync: Read Synchronization Pulse
+            if (parsed.type === "ReadSync") {
+              eventData = { type: "ReadSync", request_id: parsed.data.request_id };
+              // Refetch global count
+              fetch("/api/comments/unread")
+                .then(res => res.json())
+                .then(data => {
+                  if (data.count !== undefined) setUnreadCount(data.count);
+                });
+              // Update ticket lists
               window.dispatchEvent(new CustomEvent('global-ticket-update'));
             }
-          } else if (parsed.type === "Ping" || parsed === "Ping") {
-            eventData = { type: "Ping" };
+
+            // Rust Serde using tag='type' and content='data'
+            if (parsed.type === "TicketStatusUpdate" && parsed.data) {
+              eventData = { type: "TicketStatusUpdate", ...parsed.data };
+              window.dispatchEvent(new CustomEvent('global-ticket-update'));
+            } else if (parsed.type === "NewComment" && parsed.data) {
+              eventData = { type: "NewComment", ...parsed.data };
+              setUnreadCount(prev => prev + 1);
+              
+              if (parsed.data.comment?.message?.includes("[SYSTEM]")) {
+                window.dispatchEvent(new CustomEvent('global-ticket-update'));
+              }
+            } else if (parsed.type === "NewProject") {
+              eventData = { type: "NewProject", data: parsed.data };
+            } else if (parsed.type === "ProjectPermissionUpdate") {
+              eventData = { type: "ProjectPermissionUpdate", data: parsed.data };
+            } else if (parsed.type === "ProjectDataUpdate") {
+              eventData = { type: "ProjectDataUpdate", data: parsed.data };
+            } else if (parsed.type === "Ping" || parsed === "Ping") {
+              eventData = { type: "Ping" };
+            }
+
+            if (eventData) {
+              setLastEvent(eventData);
+            }
+          } catch (e) {
+            console.error("WebSocket parsing error:", e);
           }
+        };
 
-          if (eventData) {
-            setLastEvent(eventData);
-          }
-        } catch (e) {
-          console.error("WebSocket parsing error:", e);
-        }
-      };
+        ws.onclose = () => {
+          setIsConnected(false);
+          setSocket(null);
+          wsRef.current = null;
+          // Auto-reconnect after 5 seconds
+          reconnectTimer = setTimeout(connect, 5000);
+        };
 
-      ws.onclose = () => {
-        setIsConnected(false);
-        setSocket(null);
-        wsRef.current = null;
-        // Auto-reconnect after 3 seconds
-        reconnectTimer = setTimeout(connect, 3000);
-      };
-
-      ws.onerror = () => {
-        ws.close();
-      };
+        ws.onerror = () => {
+          ws.close();
+        };
+      } catch (err) {
+        console.error("WS Global Setup Error:", err);
+        // Retry connection after 10s if ticket fetch or setup fails
+        reconnectTimer = setTimeout(connect, 10000);
+      }
     };
 
     if (isProtectedRoute) {

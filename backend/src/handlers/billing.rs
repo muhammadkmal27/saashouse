@@ -175,7 +175,10 @@ pub async fn toggle_auto_renew(
     sqlx::query!("UPDATE subscriptions SET cancel_at_period_end = $1 WHERE id = $2", payload.cancel_at_period_end, sub.id)
         .execute(pool).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
-    Ok(Json(AuthResponse { message: format!("Auto-renewal updated successfully") }))
+    Ok(Json(AuthResponse { 
+        message: format!("Auto-renewal updated successfully"),
+        csrf_token: None
+    }))
 }
 
 pub async fn handle_stripe_webhook(

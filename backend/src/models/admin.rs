@@ -5,6 +5,7 @@ use crate::models::project::ProjectStatus;
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct AdminStats {
     pub total_mrr: f64,
+    pub total_revenue: f64,
     pub total_clients: i64,
     pub active_projects: i64,
 }
@@ -21,16 +22,25 @@ pub struct AdminUpdateProjectRequest {
     pub prod_url: Option<String>,
 }
 
-#[derive(Deserialize, ToSchema)]
+use validator::Validate;
+
+#[derive(Deserialize, ToSchema, Validate)]
 pub struct CreateAdminRequest {
+    #[validate(email(message = "Format emel tidak sah"))]
     pub email: String,
+    
+    #[validate(length(min = 3, message = "Nama penuh terlalu pendek"))]
     pub full_name: String,
+    
+    #[validate(length(min = 8, message = "Kata laluan mestilah sekurang-kurangnya 8 aksara"))]
+    #[validate(custom(function = "crate::utils::validation::validate_password_complexity", message = "Kata laluan mesti mengandungi sekurang-kurangnya satu nombor dan satu simbol"))]
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, sqlx::FromRow)]
 pub struct ClientLedgerRow {
     pub id: uuid::Uuid,
+    pub row_id: Option<i64>,
     pub full_name: String,
     pub email: String,
     pub project_id: Option<uuid::Uuid>,
@@ -40,9 +50,12 @@ pub struct ClientLedgerRow {
     pub subscription_id: Option<uuid::Uuid>,
     pub subscription_status: Option<String>,
     pub amount: Option<f64>,
+    pub payment_source: Option<String>,
+    pub description: Option<String>,
     pub created_at: Option<chrono::DateTime<chrono::Utc>>,
 }
-#[derive(Serialize, Deserialize, ToSchema)]
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AdminProjectRow {
     pub id: uuid::Uuid,
     pub title: String,

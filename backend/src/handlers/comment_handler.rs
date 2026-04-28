@@ -1,9 +1,10 @@
 use axum::{
-    extract::{State, Path, ws::{WebSocket, WebSocketUpgrade, Message}},
+    extract::{State, Path, ws::{WebSocket, WebSocketUpgrade, Message}, Query},
     response::Response,
     Json,
     Extension,
 };
+use redis::AsyncCommands;
 use uuid::Uuid;
 use serde_json::Value;
 use futures_util::{SinkExt, StreamExt};
@@ -165,13 +166,60 @@ pub async fn get_unread_count(
     Ok(Json(serde_json::json!({"count": count.unwrap_or(0)})))
 }
 
-pub async fn ws_handler(
+#[derive(serde::Deserialize)]
+pub struct WsQuery {
+    ticket: Option<String>,
+}
 
-    ws: WebSocketUpgrade,
+pub async fn get_ws_ticket(
     State(state): State<AppState>,
     Extension(claims): Extension<Claims>,
+) -> Result<Json<Value>, ApiError> {
+    let ticket = Uuid::new_v4().to_string();
+    let mut con = state.redis.get_async_connection().await
+        .map_err(|e| ApiError::Internal(format!("Redis Error: {}", e)))?;
+    
+    let claims_json = serde_json::to_string(&claims)
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    // Store ticket for 60 seconds
+    let _: () = con.set_ex(format!("ws_ticket:{}", ticket), claims_json, 60).await
+        .map_err(|e| ApiError::Internal(format!("Redis Set Error: {}", e)))?;
+
+    Ok(Json(serde_json::json!({ "ticket": ticket })))
+}
+
+pub async fn ws_handler(
+    ws: WebSocketUpgrade,
+    State(state): State<AppState>,
+    Query(query): Query<WsQuery>,
+    claims_opt: Option<Extension<Claims>>,
 ) -> Response {
-    ws.on_upgrade(move |socket| handle_socket(socket, state, claims))
+    // 1. Try to get claims from Extension (if auth middleware succeeded)
+    if let Some(Extension(claims)) = claims_opt {
+        return ws.on_upgrade(move |socket| handle_socket(socket, state, claims));
+    }
+
+    // 2. Try to get claims from Ticket
+    if let Some(ticket_id) = query.ticket {
+        let mut con_res = state.redis.get_async_connection().await;
+        if let Ok(mut con) = con_res {
+            let key = format!("ws_ticket:{}", ticket_id);
+            let claims_json_res: redis::RedisResult<Option<String>> = con.get(&key).await;
+            
+            if let Ok(Some(json)) = claims_json_res {
+                // Delete ticket after use (single use)
+                let _: () = con.del(&key).await.unwrap_or(());
+
+                if let Ok(claims) = serde_json::from_str::<Claims>(&json) {
+                    return ws.on_upgrade(move |socket| handle_socket(socket, state, claims));
+                }
+            }
+        }
+    }
+
+    // 3. Fallback: Unauthorized
+    axum::response::IntoResponse::into_response(ApiError::Unauthorized)
 }
 
 async fn handle_socket(socket: WebSocket, state: AppState, claims: Claims) {
@@ -213,7 +261,33 @@ async fn handle_socket(socket: WebSocket, state: AppState, claims: Claims) {
                                     Err(_) => false,
                                 }
                              },
-                             RealtimeEvent::TicketStatusUpdate { .. } => true, 
+                             RealtimeEvent::TicketStatusUpdate { request_id, .. } => {
+                                let res = sqlx::query!("SELECT created_by FROM requests WHERE id = $1", request_id)
+                                    .fetch_one(&state.pool).await;
+                                match res {
+                                    Ok(r) => r.created_by == Some(claims.sub),
+                                    Err(_) => false,
+                                }
+                             },
+                             RealtimeEvent::ProjectPermissionUpdate { project_id, .. } => {
+                                 let res = sqlx::query!("SELECT client_id FROM projects WHERE id = $1", project_id)
+                                     .fetch_one(&state.pool).await;
+                                 match res {
+                                     Ok(r) => r.client_id == Some(claims.sub),
+                                     Err(_) => false,
+                                 }
+                             },
+                             RealtimeEvent::ProjectDataUpdate { project_id, .. } => {
+                                 let res = sqlx::query!("SELECT client_id FROM projects WHERE id = $1", project_id)
+                                     .fetch_one(&state.pool).await;
+                                 match res {
+                                     Ok(r) => r.client_id == Some(claims.sub),
+                                     Err(_) => false,
+                                 }
+                             },
+                             RealtimeEvent::NewProject { .. } => {
+                                 claims.role == "ADMIN"
+                             },
                              RealtimeEvent::Ping => true,
                         }
                     };
@@ -250,8 +324,26 @@ async fn handle_socket(socket: WebSocket, state: AppState, claims: Claims) {
         }
     };
 
+    // Task C: Heartbeat (Keep connection alive & detect dead clients)
+    let heartbeat_sender = state.hub.tx.clone();
+    let heartbeat_task = async {
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
+            if heartbeat_sender.send(RealtimeEvent::Ping).is_err() {
+                break;
+            }
+        }
+    };
+
     tokio::select! {
-        _ = send_task => {},
-        _ = recv_task => {},
+        _ = send_task => {
+            println!("WS TRACE: Sender task finished for {}", claims.sub);
+        },
+        _ = recv_task => {
+            println!("WS TRACE: Receiver task finished for {}", claims.sub);
+        },
+        _ = heartbeat_task => {
+            println!("WS TRACE: Heartbeat task finished for {}", claims.sub);
+        },
     }
 }

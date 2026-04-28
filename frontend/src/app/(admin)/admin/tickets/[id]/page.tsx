@@ -24,6 +24,8 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useSocket } from "@/components/providers/SocketProvider";
 
+import { getCookie } from "@/utils/cookies";
+
 type Comment = {
     id: string;
     request_id: string;
@@ -98,8 +100,10 @@ export default function AdminTicketDetailPage() {
             fetchTicketData();
             fetchComments();
             // Omega-Sync: Mark as read on mount
+            const csrfToken = getCookie("csrf_token") || "";
             fetch(`/api/requests/${id}/comments/read`, { 
                 method: "PATCH",
+                headers: { "X-CSRF-Token": csrfToken },
                 credentials: "include"
             }).catch(console.error);
         }
@@ -130,7 +134,12 @@ export default function AdminTicketDetailPage() {
             });
 
             // Omega-Sync: Auto-mark as read if we are on the page
-            fetch(`/api/requests/${id}/comments/read`, { method: "PATCH", credentials: "include" }).catch(console.error);
+            const csrfToken = getCookie("csrf_token") || "";
+            fetch(`/api/requests/${id}/comments/read`, { 
+                method: "PATCH", 
+                headers: { "X-CSRF-Token": csrfToken },
+                credentials: "include" 
+            }).catch(console.error);
         }
     }, [lastEvent, id]);
 
@@ -147,10 +156,14 @@ export default function AdminTicketDetailPage() {
     const handleUpdateStatus = async (newStatus: string) => {
         try {
             setUpdatingStatus(true);
+            const csrfToken = getCookie("csrf_token") || "";
             console.log("Admin: Requesting status update to", newStatus);
             const res = await fetch(`/api/admin/requests/${id}/status`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
                 body: JSON.stringify({ status: newStatus }),
                 credentials: "include"
             });
@@ -187,10 +200,12 @@ export default function AdminTicketDetailPage() {
         setUploading(true);
         const formData = new FormData();
         formData.append("file", file);
+        const csrfToken = getCookie("csrf_token") || "";
         try {
             const res = await fetch(`/api/assets/upload`, { 
                 method: "POST", 
                 body: formData, 
+                headers: { "X-CSRF-Token": csrfToken },
                 credentials: "include" 
             });
             const data = await res.json();
@@ -212,10 +227,14 @@ export default function AdminTicketDetailPage() {
         e.preventDefault();
         if (!commentData.message.trim() && commentData.attachment_urls.length === 0) return;
         setSubmitting(true);
+        const csrfToken = getCookie("csrf_token") || "";
         try {
             const res = await fetch(`/api/requests/${id}/comments`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
                 body: JSON.stringify(commentData),
                 credentials: "include"
             });

@@ -14,6 +14,8 @@ pub enum ApiError {
     Forbidden(String),
     BadRequest(String),
     NotFound(String),
+    Validation(validator::ValidationErrors),
+    TooManyRequests(String),
 }
 
 impl std::fmt::Display for ApiError {
@@ -26,6 +28,8 @@ impl std::fmt::Display for ApiError {
             ApiError::Forbidden(msg) => write!(f, "Forbidden: {}", msg),
             ApiError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
             ApiError::NotFound(msg) => write!(f, "Not Found: {}", msg),
+            ApiError::Validation(err) => write!(f, "Validation Error: {}", err),
+            ApiError::TooManyRequests(msg) => write!(f, "Too Many Requests: {}", msg),
         }
     }
 }
@@ -55,9 +59,20 @@ impl IntoResponse for ApiError {
                 println!("ERROR [NotFound]: {}", msg);
                 (StatusCode::NOT_FOUND, msg)
             }
+            ApiError::Validation(err) => {
+                println!("ERROR [Validation]: {}", err);
+                (StatusCode::BAD_REQUEST, format!("Validation failed: {}", err))
+            }
+            ApiError::TooManyRequests(msg) => {
+                println!("ERROR [RateLimit]: {}", msg);
+                (StatusCode::TOO_MANY_REQUESTS, "Terlalu banyak permintaan. Sila cuba sebentar lagi.".to_string())
+            }
         };
 
-        let body = Json(json!({ "error": error_message }));
+        let body = Json(json!({ 
+            "error": error_message,
+            "message": error_message 
+        }));
         (status, body).into_response()
     }
 }

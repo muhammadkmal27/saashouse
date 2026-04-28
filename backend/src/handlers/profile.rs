@@ -1,10 +1,10 @@
 use axum::{extract::State, Json, Extension};
 use crate::AppState;
 use crate::models::{user::{User, UserProfile, UserRole, UserPreferences}, auth::AuthResponse};
-use crate::utils::{error::ApiError, jwt::Claims};
+use crate::utils::{error::ApiError, jwt::Claims, security_logger::{log_security_event, SecurityEvent}};
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct UpdatePreferencesRequest {
     pub project_updates: Option<bool>,
     pub billing_alerts: Option<bool>,
@@ -14,16 +14,22 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
+use validator::Validate;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct UpdatePasswordRequest {
+    // We allow current_password to be empty for OAuth users setting their first password
     pub current_password: String,
+    #[validate(length(min = 8, message = "Kata laluan baru terlalu pendek"))]
+    #[validate(custom(function = "crate::utils::validation::validate_password_complexity", message = "Kata laluan mesti mengandungi sekurang-kurangnya satu nombor dan satu simbol"))]
     pub new_password: String,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct UpdateProfileRequest {
+    #[validate(length(min = 3))]
     pub full_name: Option<String>,
     pub company_name: Option<String>,
+    #[validate(length(min = 10, max = 15))]
     pub phone_number: Option<String>,
     pub bio: Option<String>,
 }
@@ -53,6 +59,7 @@ pub async fn update_my_profile(
     Extension(claims): Extension<Claims>,
     Json(payload): Json<UpdateProfileRequest>,
 ) -> Result<Json<AuthResponse>, ApiError> {
+    payload.validate().map_err(ApiError::Validation)?;
     let pool = &state.pool;
     sqlx::query!(
         r#"UPDATE user_profiles SET 
@@ -69,7 +76,10 @@ pub async fn update_my_profile(
         claims.sub
     ).execute(pool).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
-    Ok(Json(AuthResponse { message: "Profile updated successfully".to_owned() }))
+    Ok(Json(AuthResponse { 
+        message: "Profile updated successfully".to_owned(),
+        csrf_token: None 
+    }))
 }
 
 pub async fn update_password(
@@ -77,6 +87,7 @@ pub async fn update_password(
     Extension(claims): Extension<Claims>,
     Json(payload): Json<UpdatePasswordRequest>,
 ) -> Result<Json<AuthResponse>, ApiError> {
+    payload.validate().map_err(ApiError::Validation)?;
     let pool = &state.pool;
 
     // Fetch user current password_hash
@@ -89,12 +100,12 @@ pub async fn update_password(
     .map_err(|e| ApiError::Internal(e.to_string()))?
     .ok_or(ApiError::NotFound("User not found".to_owned()))?;
 
-    let hash_str = user.password_hash.ok_or(ApiError::BadRequest("Oauth user cannot set password".to_owned()))?;
-
-    // Verify current password
-    let parsed_hash = PasswordHash::new(&hash_str).map_err(|_| ApiError::Internal("Invalid hash format".to_owned()))?;
-    if Argon2::default().verify_password(payload.current_password.as_bytes(), &parsed_hash).is_err() {
-        return Err(ApiError::Unauthorized);
+    // If user has a password, verify it. If not (Oauth), allow setting it for the first time.
+    if let Some(hash_str) = user.password_hash {
+        let parsed_hash = PasswordHash::new(&hash_str).map_err(|_| ApiError::Internal("Invalid hash format".to_owned()))?;
+        if Argon2::default().verify_password(payload.current_password.as_bytes(), &parsed_hash).is_err() {
+            return Err(ApiError::Unauthorized);
+        }
     }
 
     // Hash new password
@@ -114,7 +125,12 @@ pub async fn update_password(
     .await
     .map_err(|e| ApiError::Internal(e.to_string()))?;
 
-    Ok(Json(AuthResponse { message: "Password updated successfully".to_owned() }))
+    log_security_event(pool, SecurityEvent::PasswordChange { user_id: claims.sub }, None, None).await;
+
+    Ok(Json(AuthResponse { 
+        message: "Password updated successfully".to_owned(),
+        csrf_token: None 
+    }))
 }
 
 pub async fn get_preferences(
@@ -153,6 +169,7 @@ pub async fn update_preferences(
     Extension(claims): Extension<Claims>,
     Json(payload): Json<UpdatePreferencesRequest>,
 ) -> Result<Json<AuthResponse>, ApiError> {
+    payload.validate().map_err(ApiError::Validation)?;
     let pool = &state.pool;
     sqlx::query!(
         r#"UPDATE user_preferences SET 
@@ -170,5 +187,8 @@ pub async fn update_preferences(
     .await
     .map_err(|e| ApiError::Internal(e.to_string()))?;
 
-    Ok(Json(AuthResponse { message: "Preferences updated successfully".to_owned() }))
+    Ok(Json(AuthResponse { 
+        message: "Preferences updated successfully".to_owned(),
+        csrf_token: None 
+    }))
 }

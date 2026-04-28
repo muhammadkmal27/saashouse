@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .connect(&database_url)
         .await?;
 
-    let tables = vec!["users", "subscriptions", "billings"];
+    let tables = vec!["users", "password_resets"];
 
     for table in tables {
         println!("\nColumns for table '{}':", table);

@@ -9,6 +9,8 @@ pub mod profile;
 pub mod request_handler;
 pub mod comment_handler;
 pub mod settings;
+pub mod toyyibpay;
+pub mod agreement;
 
 #[cfg(test)]
 mod ownership_tests;
@@ -32,3 +34,7 @@ mod assets_tests;
 mod project_tests;
 #[cfg(test)]
 mod profile_tests;
+#[cfg(test)]
+mod blueprint_tests;
+#[cfg(test)]
+mod pricing_tests;

@@ -17,7 +17,11 @@ mod tests {
         let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env.test");
         let pool = PgPool::connect(&db_url).await.unwrap();
         let hub = Arc::new(RealtimeHub::new());
-        AppState { pool, hub }
+        AppState { 
+            pool, 
+            redis: redis::Client::open("redis://127.0.0.1/").unwrap(),
+            hub 
+        }
     }
 
     #[tokio::test]
