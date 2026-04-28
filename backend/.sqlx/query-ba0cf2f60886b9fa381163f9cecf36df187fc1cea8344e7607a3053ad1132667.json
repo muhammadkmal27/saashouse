@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT COUNT(*)::BIGINT as \"count!\" FROM projects WHERE status::TEXT IN ('PAID', 'UNDER_DEVELOPMENT', 'LIVE') AND ($1 = 0 OR created_at >= NOW() - (CAST($1 AS TEXT) || ' days')::INTERVAL)",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ba0cf2f60886b9fa381163f9cecf36df187fc1cea8344e7607a3053ad1132667"
+}

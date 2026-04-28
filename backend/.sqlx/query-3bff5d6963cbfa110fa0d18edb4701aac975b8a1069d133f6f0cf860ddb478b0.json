@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT status as \"status!: ProjectStatus\", dev_url, prod_url FROM projects WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "status!: ProjectStatus",
+        "type_info": {
+          "Custom": {
+            "name": "project_status",
+            "kind": {
+              "Enum": [
+                "DRAFT",
+                "ONBOARDING",
+                "PAYMENT_PENDING",
+                "PAID",
+                "UNDER_DEVELOPMENT",
+                "REVIEW",
+                "LIVE"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "dev_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "prod_url",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "3bff5d6963cbfa110fa0d18edb4701aac975b8a1069d133f6f0cf860ddb478b0"
+}

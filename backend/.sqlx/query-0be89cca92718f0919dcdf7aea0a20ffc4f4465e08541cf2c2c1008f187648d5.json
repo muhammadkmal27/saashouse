@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO billings (id, project_id, amount, status, description)\n        VALUES ($1, $2, $3, 'PENDING', $4)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Numeric",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0be89cca92718f0919dcdf7aea0a20ffc4f4465e08541cf2c2c1008f187648d5"
+}

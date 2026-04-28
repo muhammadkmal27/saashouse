@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE projects \n        SET \n            selected_plan = COALESCE(NULLIF(selected_plan, ''), $1::jsonb->>'selected_plan', requirements->>'selected_plan'),\n            requirements = $1::jsonb - CAST('selected_plan' AS TEXT), \n            updated_at = NOW() \n        WHERE id = $2\n        RETURNING id, client_id as \"client_id!\", title, description, whatsapp_number, requirements, status as \"status!: _\", \n                  dev_url, prod_url, NULL::TEXT as subscription_status, selected_plan, client_edit_allowed as \"client_edit_allowed!\", created_at, updated_at\n        ",
+  "query": "\n        UPDATE projects \n        SET \n            selected_plan = COALESCE(NULLIF(selected_plan, ''), $1::jsonb->>'selected_plan', requirements->>'selected_plan'),\n            requirements = $1::jsonb - CAST('selected_plan' AS TEXT), \n            updated_at = NOW() \n        WHERE id = $2\n        RETURNING \n            id, \n            COALESCE(client_id, '00000000-0000-0000-0000-000000000000'::uuid) as \"client_id!\", \n            title, \n            description, \n            whatsapp_number, \n            requirements, \n            COALESCE(status, 'DRAFT'::project_status) as \"status!: _\", \n            dev_url, \n            prod_url, \n            NULL::TEXT as subscription_status, \n            selected_plan, \n            COALESCE(client_edit_allowed, FALSE) as \"client_edit_allowed!\", \n            created_at, \n            updated_at\n        ",
   "describe": {
     "columns": [
       {
@@ -97,20 +97,20 @@
     },
     "nullable": [
       false,
-      true,
+      null,
       false,
       true,
       false,
-      true,
-      true,
-      true,
       true,
       null,
       true,
       true,
+      null,
+      true,
+      null,
       true,
       true
     ]
   },
-  "hash": "8688be6dedc3d3cae8263b2dea0ec64d97b0d1e4c313713e66c92ddf4bc4d46b"
+  "hash": "7827a109b8d5d440cbc175f861835c304ae4035fbdcf5b7ccebaa9db0788e69b"
 }

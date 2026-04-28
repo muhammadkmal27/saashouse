@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT COALESCE(SUM(amount), 0)::FLOAT8 as \"sum!\" FROM billings WHERE status::TEXT = 'PAID' AND ($1 = 0 OR created_at >= NOW() - (CAST($1 AS TEXT) || ' days')::INTERVAL)",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sum!",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c78d2bee0d171e06007b3bc1d313f5d0b17289fa7a3818962e1e89fe9782e5f4"
+}

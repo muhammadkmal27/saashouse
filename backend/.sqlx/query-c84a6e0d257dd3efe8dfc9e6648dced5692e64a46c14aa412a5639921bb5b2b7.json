@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT title, requirements FROM projects WHERE id = $1",
+  "query": "SELECT title, requirements FROM projects WHERE id = $1 FOR UPDATE",
   "describe": {
     "columns": [
       {
@@ -24,5 +24,5 @@
       true
     ]
   },
-  "hash": "7dcaf03b7f4131b96eb923ae9b427c39a57b4f9b1f37b70a84c3dd7f7a999c28"
+  "hash": "c84a6e0d257dd3efe8dfc9e6648dced5692e64a46c14aa412a5639921bb5b2b7"
 }
