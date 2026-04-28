@@ -1,6 +1,6 @@
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, AsyncSmtpTransport, AsyncTransport, Tokio1Executor};
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use std::env;
 
 #[tokio::main]

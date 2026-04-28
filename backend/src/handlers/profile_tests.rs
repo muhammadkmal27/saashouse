@@ -16,7 +16,7 @@ mod tests {
     };
 
     async fn setup_test_state() -> AppState {
-        dotenv::dotenv().ok();
+        dotenvy::dotenv().ok();
         let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env.test");
         let pool = PgPool::connect(&db_url).await.unwrap();
         let hub = Arc::new(RealtimeHub::new());

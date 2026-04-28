@@ -1,5 +1,5 @@
 use sqlx::postgres::PgPoolOptions;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use std::env;
 use std::fs;
 

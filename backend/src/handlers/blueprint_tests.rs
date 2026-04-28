@@ -13,7 +13,7 @@ mod tests {
     use std::sync::Arc;
 
     async fn setup_test_state() -> AppState {
-        dotenv::dotenv().ok();
+        dotenvy::dotenv().ok();
         let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env.test");
         let pool = PgPool::connect(&db_url).await.unwrap();
         let hub = Arc::new(RealtimeHub::new());
@@ -26,7 +26,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_reproduce_blueprint_sync_error_via_router() {
-        dotenv::dotenv().ok();
+        dotenvy::dotenv().ok();
         let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
         let pool = PgPool::connect(&db_url).await.unwrap();
         

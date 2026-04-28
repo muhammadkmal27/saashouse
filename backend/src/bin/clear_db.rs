@@ -1,6 +1,6 @@
 use sqlx::postgres::PgPoolOptions;
 use std::env;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

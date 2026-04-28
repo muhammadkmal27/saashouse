@@ -1,5 +1,5 @@
 use sqlx::postgres::PgPoolOptions;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use argon2::{
     password_hash::{PasswordHasher, SaltString},
     Argon2
