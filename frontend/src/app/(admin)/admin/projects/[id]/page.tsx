@@ -99,6 +99,7 @@ interface ServiceAgreement {
   signed_at: string;
   signature_data?: string;
   provider_signature?: string;
+  plan_name?: string;
 }
 
 
