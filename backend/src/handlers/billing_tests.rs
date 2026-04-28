@@ -10,7 +10,7 @@ mod tests {
     use crate::utils::realtime::RealtimeHub;
 
     async fn setup_test_state() -> AppState {
-        dotenv::from_filename(".env.test").ok();
+        dotenvy::from_filename(".env.test").ok();
         let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL in .env.test");
         let pool = PgPoolOptions::new()
             .max_connections(1)
