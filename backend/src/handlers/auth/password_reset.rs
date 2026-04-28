@@ -1,4 +1,4 @@
-use ax_extra::extract::cookie::CookieJar;
+use axum_extra::extract::cookie::CookieJar;
 use axum::{extract::State, Json, response::{IntoResponse, Response}};
 use sqlx::{PgPool, Postgres};
 use crate::AppState;
@@ -116,4 +116,3 @@ pub async fn reset_password(
     }))
 }
 
-use axum_extra as ax_extra;
