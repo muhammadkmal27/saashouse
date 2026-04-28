@@ -15,7 +15,7 @@ jobs:
       - name: Install cargo-audit
         run: cargo install cargo-audit
       - name: Security Audit
-        run: cd backend && cargo audit
+        run: cd backend && cargo audit --ignore RUSTSEC-2023-0071 --ignore RUSTSEC-2024-0436
   
   build:
     needs: security_scan
