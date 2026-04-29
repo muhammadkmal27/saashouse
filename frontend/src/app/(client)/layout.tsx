@@ -13,7 +13,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <header className="sticky top-0 z-40 bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/app/dashboard" className="text-xl font-bold tracking-tight px-2">
+            <Link href="/app/dashboard" className="flex items-center gap-2 text-xl font-bold tracking-tight px-2">
+              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+              </div>
               SaaS House
             </Link>
             <nav className="hidden md:flex items-center gap-1">

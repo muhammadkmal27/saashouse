@@ -10,9 +10,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <nav className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-[#09090b]/80 backdrop-blur-md px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group relative">
-            <div className="absolute inset-0 bg-blue-500 blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
-            <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.5)] relative z-10">
-              <Sparkles className="w-5 h-5 fill-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tight ml-1">SaaS House</span>
           </Link>
@@ -53,8 +52,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           {/* Column 1: Info */}
           <div className="col-span-2 lg:col-span-1 space-y-6">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                <Sparkles className="w-4 h-4 fill-white" />
+              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-lg font-black tracking-tight text-white">SaaS House</span>
             </div>

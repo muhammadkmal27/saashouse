@@ -33,7 +33,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Mobile Header */}
             <header className="md:hidden flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-40">
                 <div className="flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-emerald-500" />
+                    <div className="w-6 h-6 rounded-lg overflow-hidden flex items-center justify-center">
+                        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                    </div>
                     <span className="font-bold text-lg">Admin OS</span>
                 </div>
                 <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2">
@@ -49,8 +51,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             `}>
                 <div className="h-full flex flex-col p-6">
                     <div className="flex items-center gap-3 mb-10 px-2 mt-4 md:mt-0">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                            <Sparkles className="w-6 h-6" />
+                        <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
+                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex flex-col">
                             <span className="font-bold text-lg leading-tight uppercase tracking-widest text-emerald-600 dark:text-emerald-400">SaaS House</span>
