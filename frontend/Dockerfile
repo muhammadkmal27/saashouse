@@ -1,5 +1,6 @@
 # Stage 1: Install dependencies and build the app
 FROM node:20-alpine AS builder
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
@@ -18,6 +19,7 @@ RUN npm run build
 
 # Stage 2: Serve the application
 FROM node:20-alpine AS runner
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 ENV NODE_ENV production
