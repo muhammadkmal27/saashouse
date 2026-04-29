@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { User, Settings, Shield, Bell } from "lucide-react";
 
-export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+import { Suspense } from "react";
+
+function SettingsLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const currentTab = searchParams.get("tab") || "profile";
@@ -65,5 +67,15 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <Suspense fallback={null}>
+            <SettingsLayoutContent>
+                {children}
+            </SettingsLayoutContent>
+        </Suspense>
     );
 }
