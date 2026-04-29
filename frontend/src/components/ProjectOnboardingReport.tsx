@@ -107,7 +107,7 @@ const ProjectOnboardingReport: React.FC<ProjectOnboardingReportProps> = ({ proje
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                            <div style={{ width: '32px', height: '32px', backgroundColor: '#111827', display: 'flex', alignItems: 'center', justifyCenter: 'center', borderRadius: '8px' }}>
+                            <div style={{ width: '32px', height: '32px', backgroundColor: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
                                 <Terminal size={20} style={{ color: '#ffffff', margin: 'auto' }} />
                             </div>
                             <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.4em', color: '#1f2937' }}>SaaS House Technical Blueprint</span>
