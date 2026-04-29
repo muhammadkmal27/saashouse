@@ -438,7 +438,7 @@ export default function AdminSettingsPage() {
         <AgreementSettings 
           otpTemplate={otpTemplate}
           saasTemplate={saasTemplate}
-          onSave={handleSave}
+          onSave={(key, value) => handleSave(key, value, "Agreement Template")}
           saving={saving}
         />
       )}
