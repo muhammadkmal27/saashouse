@@ -11,7 +11,7 @@ mod tests {
     use crate::utils::realtime::RealtimeHub;
     use sqlx::postgres::PgPoolOptions;
     use std::sync::Arc;
-    use dotenv::dotenv;
+    use dotenvy::dotenv;
     use std::env;
 
     async fn setup_test_app() -> axum::Router {
