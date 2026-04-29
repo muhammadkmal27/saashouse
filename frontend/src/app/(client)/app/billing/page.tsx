@@ -445,7 +445,7 @@ export default function BillingPage() {
           isOTP={isOTP}
           template={isOTP ? status?.agreement_template_otp : status?.agreement_template_saas}
           monthlyPrice={Number(currentPlan.price)}
-          planName={currentPlan.name}
+          planName={currentPlan.label}
           costs={{ 
               deposit: Number(otpDeposit), 
               final: Number(otpFinal) 
