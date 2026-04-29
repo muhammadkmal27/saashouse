@@ -13,7 +13,7 @@ use argon2::{
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
+    dotenv::dotenv().ok();
     
     // Connect to PostgreSQL
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
