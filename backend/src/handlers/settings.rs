@@ -62,7 +62,8 @@ pub async fn update_setting(
         "service_provider_name",
         "service_provider_signature",
         "agreement_template_otp",
-        "agreement_template_saas"
+        "agreement_template_saas",
+        "saas_deposit_price"
     ];
     if !allowed_keys.contains(&key.as_str()) {
         return Err(ApiError::BadRequest(format!("Unknown setting key: {}", key)));
@@ -150,11 +151,31 @@ pub async fn get_public_status(
         .await
         .unwrap_or(serde_json::json!([]));
 
+    let saas_deposit = get_setting_value(&state.pool, "saas_deposit_price")
+        .await
+        .and_then(|v| {
+            v.as_str().map(|s| s.to_string())
+             .or_else(|| v.as_u64().map(|n| n.to_string()))
+             .or_else(|| v.as_f64().map(|n| n.to_string()))
+        })
+        .unwrap_or_else(|| "250".to_string());
+
+    let package_prices = get_setting_value(&state.pool, "package_prices")
+        .await
+        .unwrap_or_else(|| serde_json::json!({
+            "Standard": "165",
+            "Growth": "240",
+            "Enterprise": "410",
+            "Platinum": "750"
+        }));
+
     Json(serde_json::json!({
         "maintenance_mode": maintenance,
         "otp_mode_active": otp_mode,
         "otp_deposit_price": otp_deposit,
         "otp_final_price": otp_final,
+        "saas_deposit_price": saas_deposit,
+        "package_prices": package_prices,
         "service_provider_name": service_provider,
         "service_provider_signature": provider_signature,
         "agreement_template_otp": agreement_otp,

@@ -53,7 +53,8 @@ export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState("");
-  const [filter, setFilter]     = useState<"all" | "active">("all");
+  const [filter, setFilter]               = useState<"all" | "active" | "inactive">("all");
+  const [paymentFilter, setPaymentFilter] = useState<"all" | "paid" | "unpaid">("all");
 
   useEffect(() => {
     fetch("/api/admin/projects", { credentials: "include" })
@@ -95,7 +96,22 @@ export default function AdminProjects() {
 
   const filtered = useMemo(() => {
     let list = projects;
-    if (filter === "active") list = list.filter(p => p.subscription_status === "active");
+    
+    // 1. Subscription Filter
+    if (filter === "active") {
+      list = list.filter(p => p.subscription_status === "active");
+    } else if (filter === "inactive") {
+      list = list.filter(p => p.subscription_status !== "active");
+    }
+
+    // 2. Payment Filter
+    if (paymentFilter === "paid") {
+      list = list.filter(p => p.status === "PAID" || p.status === "LIVE");
+    } else if (paymentFilter === "unpaid") {
+      list = list.filter(p => p.status !== "PAID" && p.status !== "LIVE");
+    }
+
+    // 3. Search Filter
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(p =>
@@ -106,7 +122,7 @@ export default function AdminProjects() {
       );
     }
     return list;
-  }, [projects, search, filter]);
+  }, [projects, search, filter, paymentFilter]);
 
   if (loading) {
     return (
@@ -128,34 +144,59 @@ export default function AdminProjects() {
       </div>
 
       {/* ─── Search + Filter ─── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
         {/* Search */}
-        <div className="relative w-full sm:w-80">
+        <div className="relative w-full lg:w-80">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by project, owner or ID..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-emerald-400 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-emerald-400 transition-colors shadow-sm"
           />
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex items-center bg-zinc-100 rounded-full p-1">
-          {(["all", "active"] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all ${
-                filter === f
-                  ? "bg-zinc-900 text-white shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-700"
-              }`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-6">
+          {/* Subscription Filter */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Subscription</span>
+            <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner">
+              {(["all", "active", "inactive"] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                    filter === f
+                      ? "bg-zinc-900 text-white shadow-md"
+                      : "text-zinc-500 hover:text-zinc-700"
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment Filter */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Payment</span>
+            <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner">
+              {(["all", "paid", "unpaid"] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setPaymentFilter(f)}
+                  className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                    paymentFilter === f
+                      ? "bg-violet-600 text-white shadow-md"
+                      : "text-zinc-500 hover:text-zinc-700"
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -165,7 +206,7 @@ export default function AdminProjects() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-100">
-                {["Project", "Owner", "Plan", "Sync Mode", "Status", "Actions"].map(h => (
+                {["Project", "Owner", "Plan", "Sync Mode", "Subscription", "Status", "Actions"].map(h => (
                   <th key={h} className="text-left py-3.5 px-5 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                     {h}
                   </th>
@@ -175,7 +216,7 @@ export default function AdminProjects() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-16 text-zinc-400 text-sm italic">
+                  <td colSpan={7} className="text-center py-16 text-zinc-400 text-sm italic">
                     No projects found.
                   </td>
                 </tr>
@@ -215,9 +256,21 @@ export default function AdminProjects() {
                     </div>
                   </td>
 
+                  {/* Subscription Status */}
+                  <td className="py-4 px-5">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap border ${
+                      project.subscription_status === "active" 
+                        ? "bg-emerald-500 text-white border-emerald-600" 
+                        : "bg-zinc-100 text-zinc-400 border-zinc-200"
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${project.subscription_status === "active" ? "bg-white/70" : "bg-zinc-300"}`} />
+                      {project.subscription_status ? project.subscription_status.replace(/_/g, " ") : "No Sub"}
+                    </span>
+                  </td>
+
                   {/* Status */}
                   <td className="py-4 px-5">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 text-white rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap">
                       <span className="w-1.5 h-1.5 rounded-full bg-white/70 shrink-0" />
                       {getStatusLabel(project.status)}
                     </span>

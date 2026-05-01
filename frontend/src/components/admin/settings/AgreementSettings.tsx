@@ -158,7 +158,9 @@ export default function AgreementSettings({
                 { key: "{{client_name}}", label: "Client Full Name" },
                 { key: "{{provider_name}}", label: "Your Company Name" },
                 { key: "{{total_cost}}", label: "Total Project Cost" },
-                { key: "{{deposit_amount}}", label: "Deposit / Monthly Fee" },
+                { key: "{{deposit_amount}}", label: "Deposit Amount" },
+                { key: "{{monthly_price}}", label: "SaaS Monthly Fee" },
+                { key: "{{saas_setup_fee}}", label: "SaaS Setup Fee" },
                 { key: "{{balance_amount}}", label: "Final Balance Owed" },
                 { key: "{{today}}", label: "Today's Date" },
               ].map((p) => (

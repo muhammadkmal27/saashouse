@@ -46,18 +46,25 @@ pub async fn create_toyyibpay_bill(
     )
     .fetch_one(pool).await.map_err(|_| ApiError::NotFound("Project not found".into()))?;
 
-    let deposit_price = crate::handlers::settings::get_setting_value(pool, "otp_deposit_price").await
-        .and_then(|v| v.as_str().map(|s| s.parse::<f64>().ok()).flatten().or_else(|| v.as_f64()))
-        .unwrap_or(200.0);
-
-    let final_price = crate::handlers::settings::get_setting_value(pool, "otp_final_price").await
-        .and_then(|v| v.as_str().map(|s| s.parse::<f64>().ok()).flatten().or_else(|| v.as_f64()))
-        .unwrap_or(500.0);
+    let otp_mode = crate::handlers::settings::get_setting_value(pool, "otp_mode_active")
+        .await
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
 
     let amount = if payload.payment_type.to_uppercase() == "DEPOSIT" {
-        deposit_price
+        if otp_mode {
+            crate::handlers::settings::get_setting_value(pool, "otp_deposit_price").await
+                .and_then(|v| v.as_str().map(|s| s.parse::<f64>().ok()).flatten().or_else(|| v.as_f64()))
+                .unwrap_or(200.0)
+        } else {
+            crate::handlers::settings::get_setting_value(pool, "saas_deposit_price").await
+                .and_then(|v| v.as_str().map(|s| s.parse::<f64>().ok()).flatten().or_else(|| v.as_f64()))
+                .unwrap_or(250.0)
+        }
     } else {
-        final_price
+        crate::handlers::settings::get_setting_value(pool, "otp_final_price").await
+            .and_then(|v| v.as_str().map(|s| s.parse::<f64>().ok()).flatten().or_else(|| v.as_f64()))
+            .unwrap_or(500.0)
     };
 
     // 2. Create Billing entry in DB

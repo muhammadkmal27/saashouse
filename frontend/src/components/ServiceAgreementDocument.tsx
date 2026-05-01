@@ -83,12 +83,14 @@ export default function ServiceAgreementDocument({
 
     const data = {
         project_name: project.title || "Projek",
-        project_title: project.title || "Projek", // Support both project_name and project_title
+        project_title: project.title || "Projek",
         client_name: project.client_name || "Pelanggan",
         provider_name: project.provider_name || "Penyedia Perkhidmatan",
         total_cost: (project.total_cost || 0).toFixed(2),
         deposit_amount: (project.deposit_amount || 0).toFixed(2),
         balance_amount: (project.balance_amount || 0).toFixed(2),
+        monthly_price: (project.total_cost || 0).toFixed(2), // Fallback to total_cost if no specific monthly_price
+        saas_setup_fee: (project.deposit_amount || 0).toFixed(2),
         today: today
     };
 

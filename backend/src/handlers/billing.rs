@@ -51,8 +51,22 @@ pub async fn create_subscription_session(
     let user = sqlx::query!("SELECT stripe_customer_id, email FROM users WHERE id = $1", claims.sub)
         .fetch_one(pool).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
-    let project = sqlx::query!("SELECT selected_plan FROM projects WHERE id = $1 AND client_id = $2", payload.project_id, claims.sub)
-        .fetch_one(pool).await.map_err(|e| ApiError::NotFound("Project not found".into()))?;
+    let project = sqlx::query!(
+        "SELECT selected_plan, status::text as \"status!\" FROM projects WHERE id = $1 AND client_id = $2", 
+        payload.project_id, claims.sub
+    )
+    .fetch_one(pool).await.map_err(|_| ApiError::NotFound("Project not found".into()))?;
+
+    // Verify deposit payment for SaaS if configured
+    let saas_deposit = crate::handlers::settings::get_setting_value(pool, "saas_deposit_price")
+        .await
+        .and_then(|v| v.as_str().map(|s| s.parse::<f64>().ok()).flatten().or_else(|| v.as_f64()))
+        .unwrap_or(0.0);
+
+    let status_str = format!("{:?}", project.status);
+    if saas_deposit > 0.0 && status_str == "ONBOARDING" {
+        return Err(ApiError::BadRequest("Please pay the onboarding deposit fee first".into()));
+    }
 
     let selected_plan = project.selected_plan.as_deref().unwrap_or("Standard");
 

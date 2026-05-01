@@ -24,7 +24,8 @@ interface ServiceAgreementModalProps {
     providerName?: string;
     providerSignature?: string;
     isOTP?: boolean;
-    monthlyPrice?: number;
+    saasMonthlyPrice?: number;
+    saasSetupFee?: number;
     planName?: string;
     template?: Section[];
 }
@@ -80,7 +81,8 @@ export default function ServiceAgreementModal({
     providerName,
     providerSignature,
     isOTP = true,
-    monthlyPrice = 0,
+    saasMonthlyPrice = 0,
+    saasSetupFee = 0,
     planName,
     template = []
 }: ServiceAgreementModalProps) {
@@ -91,7 +93,9 @@ export default function ServiceAgreementModal({
     const [hasSignature, setHasSignature] = useState(false);
     const [liveSignature, setLiveSignature] = useState<string | null>(null);
 
-    const totalCost = (costs?.deposit || 0) + (costs?.final || 0);
+    const totalCost = isOTP ? (costs?.deposit || 0) + (costs?.final || 0) : saasMonthlyPrice;
+    const finalDeposit = isOTP ? (costs?.deposit || 0) : saasSetupFee;
+
     const today = new Date().toLocaleDateString('ms-MY', {
         year: 'numeric',
         month: 'long',
@@ -101,12 +105,14 @@ export default function ServiceAgreementModal({
     const data = {
         project_name: project.title,
         client_name: clientName || "Pelanggan",
-        provider_name: providerName || "Penyedia Perkhidmatan",
+        provider_name: providerName || "Mohamad Akmal Bin Sis",
         total_cost: totalCost.toFixed(2),
-        deposit_amount: (isOTP ? (costs?.deposit || 0) : monthlyPrice).toFixed(2),
+        deposit_amount: finalDeposit.toFixed(2),
+        monthly_price: saasMonthlyPrice.toFixed(2),
         balance_amount: (costs?.final || 0).toFixed(2),
         today: today
     };
+
 
     useEffect(() => {
         if (isOpen && canvasRef.current) {

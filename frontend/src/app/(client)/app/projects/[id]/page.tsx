@@ -47,8 +47,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Script from "next/script";
-import ServiceAgreementDocument from "@/components/ServiceAgreementDocument";
 import { getAssetUrl } from "@/utils/url";
+import ServiceAgreementDocument from "@/components/ServiceAgreementDocument";
 import { toast } from "sonner";
 import { useSocket } from "@/components/providers/SocketProvider";
 import { useRouter } from "next/navigation";
@@ -183,6 +183,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
     };
 
     useEffect(() => {
+        if (!id) return;
+        
         fetch(`/api/projects/${id}`, { credentials: "include" })
             .then(async (res) => {
                 if (!res.ok) throw new Error("Project not found or unauthorized");
@@ -214,11 +216,18 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             .then(data => setAgreement(data));
 
         fetch(`/api/status`, { credentials: "include" })
-            .then(res => res.json())
+            .then(res => {
+                console.log("DIAGNOSTIC: /api/status Response Status:", res.status);
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 setSystemSettings(data);
                 setOtpTemplate(data.agreement_template_otp || []);
                 setSaasTemplate(data.agreement_template_saas || []);
+            })
+            .catch(err => {
+                console.error("API status fetch failed:", err);
             });
     }, [id]);
     
@@ -253,9 +262,9 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
         }
     }, [lastEvent, id]);
 
-    const handleToyyibpayCheckout = async (type: "DEPOSIT" | "FINAL") => {
+    const handleToyyibpayCheckout = async (type: "DEPOSIT" | "FINAL", bypassAgreement = false) => {
         // Intercept for Agreement
-        if (type === "DEPOSIT" && !agreement) {
+        if (type === "DEPOSIT" && !agreement && !bypassAgreement) {
             setPendingPaymentType(type);
             setIsAgreementOpen(true);
             return;
@@ -787,11 +796,11 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <CreditCard className="w-3 h-3" /> <T en="PROJECT BILLING" bm="PENGEBILAN PROJEK" />
                             </div>
                             
-                            {project.status === "REVIEW" && (
+                            {(project.status === "REVIEW" || project.status === "PAYMENT_PENDING") && (
                                 <div className="space-y-4">
                                     <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                                         <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1"><T en="Deposit Required" bm="Deposit Diperlukan" /></p>
-                                        <p className="text-xl font-black text-zinc-900">RM 200.00</p>
+                                        <p className="text-xl font-black text-zinc-900">RM {systemSettings?.otp_deposit_price || "200.00"}</p>
                                     </div>
                                     <button 
                                         onClick={() => handleToyyibpayCheckout("DEPOSIT")}
@@ -816,7 +825,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="space-y-4">
                                     <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                                         <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">Final Payment</p>
-                                        <p className="text-xl font-black text-zinc-900">RM 500.00</p>
+                                        <p className="text-xl font-black text-zinc-900">RM {systemSettings?.otp_final_price || "500.00"}</p>
                                     </div>
                                     <button 
                                         onClick={() => handleToyyibpayCheckout("FINAL")}
@@ -834,6 +843,61 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Fully Paid</p>
                                         <p className="text-xs font-bold text-zinc-600">All installments completed</p>
                                     </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* SaaS Onboarding Billing */}
+                    {planName !== "One-Time Purchase" && (
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100/80">
+                             <div className="flex items-center gap-2 text-zinc-400 text-[10px] uppercase font-bold tracking-widest mb-4 ml-1">
+                                <CreditCard className="w-3 h-3" /> <T en="ONBOARDING BILLING" bm="PENGEBILAN ONBOARDING" />
+                            </div>
+
+                            {(project.status === "REVIEW" || project.status === "PAYMENT_PENDING") && (
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1"><T en="Setup Deposit" bm="Deposit Persediaan" /></p>
+                                        <p className="text-xl font-black text-zinc-900">RM {systemSettings?.saas_deposit_price || "250.00"}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleToyyibpayCheckout("DEPOSIT")}
+                                        className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                                    >
+                                        <T en="Pay Deposit to Start" bm="Bayar Deposit untuk Mula" />
+                                    </button>
+                                    <p className="text-[10px] text-zinc-400 font-medium text-center italic">
+                                        <T en="Recurring subscription will begin after project goes live." bm="Langganan berulang akan bermula selepas projek diaktifkan." />
+                                    </p>
+                                </div>
+                            )}
+
+                            {project.status === "PAID" && (
+                                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Setup Paid</p>
+                                        <p className="text-xs font-bold text-zinc-600">Waiting for development to start</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {(project.status === "UNDER_DEVELOPMENT" || project.status === "LIVE") && (
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                        <div>
+                                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Onboarding Complete</p>
+                                            <p className="text-xs font-bold text-zinc-600">Infrastructure is ready</p>
+                                        </div>
+                                    </div>
+                                    <Link 
+                                        href="/app/billing"
+                                        className="w-full py-4 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        <T en="Manage Subscription" bm="Urus Langganan" /> <ArrowRight className="w-3 h-3" />
+                                    </Link>
                                 </div>
                             )}
                         </div>
@@ -1359,17 +1423,21 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                 isOpen={isAgreementOpen}
                 onClose={() => setIsAgreementOpen(false)}
                 project={{ id: project.id, title: project.title }}
-                providerName={systemSettings?.provider_name || "SaaS House Development"}
-                providerSignature={systemSettings?.provider_signature ? getAssetUrl(systemSettings.provider_signature) : undefined}
+                providerName={systemSettings?.service_provider_name || "SaaS House Development"}
+                providerSignature={systemSettings?.service_provider_signature ? getAssetUrl(systemSettings.service_provider_signature) : undefined}
                 costs={{ 
                     deposit: systemSettings?.otp_deposit_price ? Number(systemSettings.otp_deposit_price) : 200, 
                     final: systemSettings?.otp_final_price ? Number(systemSettings.otp_final_price) : 500 
                 }}
-                isOTP={!project.selected_plan?.toLowerCase().includes("standard") && 
-                       !project.selected_plan?.toLowerCase().includes("growth") && 
-                       !project.selected_plan?.toLowerCase().includes("enterprise") && 
-                       !project.selected_plan?.toLowerCase().includes("platinum")}
-                monthlyPrice={systemSettings?.pricing?.[project.selected_plan?.toLowerCase() || ""]?.monthly || 0}
+                isOTP={project.selected_plan === "One-Time Purchase"}
+                saasMonthlyPrice={(() => {
+                    const plan = (project.selected_plan || "").toLowerCase();
+                    const prices = systemSettings?.package_prices || {};
+                    const priceKey = Object.keys(prices).find(k => k.toLowerCase() === plan);
+                    const val = priceKey ? prices[priceKey] : 0;
+                    return Number(val);
+                })()}
+                saasSetupFee={Number(systemSettings?.saas_deposit_price || 0)}
                 planName={project.selected_plan}
                 template={
                     (project.selected_plan?.toLowerCase() || "").includes("standard") || 
@@ -1383,7 +1451,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     setAgreement(newAgreement);
                     setIsAgreementOpen(false);
                     if (pendingPaymentType) {
-                        handleToyyibpayCheckout(pendingPaymentType);
+                        handleToyyibpayCheckout(pendingPaymentType, true);
                     }
                 }}
             />

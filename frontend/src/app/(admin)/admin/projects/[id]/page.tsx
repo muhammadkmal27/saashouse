@@ -133,6 +133,7 @@ export default function AdminProjectDetails() {
   const [signatureGap, setSignatureGap] = useState(20);
   const [otpTemplate, setOtpTemplate] = useState<any[]>([]);
   const [saasTemplate, setSaasTemplate] = useState<any[]>([]);
+  const [status, setStatus] = useState<any>(null);
 
   const resetAgreementLayout = () => {
     setSectionGap(8);
@@ -174,6 +175,7 @@ export default function AdminProjectDetails() {
     fetch("/api/status", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
+        setStatus(data);
         setOtpTemplate(data.agreement_template_otp || []);
         setSaasTemplate(data.agreement_template_saas || []);
       })
@@ -390,24 +392,48 @@ export default function AdminProjectDetails() {
       {/* PRINT VIEWS */}
       <div className="hidden print:block">
         {printTarget === 'REPORT' && <ProjectOnboardingReport project={project} />}
-        {printTarget === 'AGREEMENT' && agreement && (
-            <ServiceAgreementDocument 
-                project={agreement as any} 
-                fontSize={fontSize}
-                sectionGap={sectionGap}
-                signatureGap={signatureGap}
-                lineSpacing={lineSpacing}
-                padding={pageMargin}
-                template={
-                  (agreement.plan_name?.toLowerCase() || "").includes("standard") || 
-                  (agreement.plan_name?.toLowerCase() || "").includes("growth") || 
-                  (agreement.plan_name?.toLowerCase() || "").includes("enterprise") || 
-                  (agreement.plan_name?.toLowerCase() || "").includes("platinum")
-                  ? saasTemplate
-                  : otpTemplate
-                }
-            />
-        )}
+        {printTarget === 'AGREEMENT' && (project) && ((() => {
+            const plan = (project.selected_plan || "").toLowerCase();
+            const prices = (status as any)?.package_prices || {};
+            const priceKey = Object.keys(prices).find(k => k.toLowerCase() === plan);
+            const currentMonthlyPrice = Number(priceKey ? prices[priceKey] : 0);
+            const currentSetupFee = Number((status as any)?.saas_deposit_price || 0);
+
+            const printAgreement = agreement ? {
+                ...agreement,
+                total_cost: currentMonthlyPrice,
+                deposit_amount: currentSetupFee,
+                balance_amount: 0,
+                provider_name: (status as any)?.service_provider_name || agreement.provider_name
+            } : {
+                client_name: "PELANGGAN CONTOH",
+                provider_name: (status as any)?.service_provider_name || "SaaS House Development",
+                title: project.title,
+                total_cost: currentMonthlyPrice,
+                deposit_amount: currentSetupFee,
+                balance_amount: 0,
+                plan_name: project.selected_plan
+            };
+
+            return (
+                <ServiceAgreementDocument 
+                    project={printAgreement as any} 
+                    fontSize={fontSize}
+                    sectionGap={sectionGap}
+                    signatureGap={signatureGap}
+                    lineSpacing={lineSpacing}
+                    padding={pageMargin}
+                    template={
+                      (project.selected_plan?.toLowerCase() || "").includes("standard") || 
+                      (project.selected_plan?.toLowerCase() || "").includes("growth") || 
+                      (project.selected_plan?.toLowerCase() || "").includes("enterprise") || 
+                      (project.selected_plan?.toLowerCase() || "").includes("platinum")
+                      ? saasTemplate
+                      : otpTemplate
+                    }
+                />
+            );
+        })())}
       </div>
 
       {/* Main Container (Hidden in Print to show only Onboarding Report) */}
@@ -1117,22 +1143,49 @@ export default function AdminProjectDetails() {
                     </div>
                 </button>
                 
-                    <ServiceAgreementDocument 
-                        project={agreement as any} 
-                        fontSize={fontSize}
-                        sectionGap={sectionGap}
-                        signatureGap={signatureGap}
-                        lineSpacing={lineSpacing}
-                        padding={pageMargin}
-                        template={
-                          (agreement.plan_name?.toLowerCase() || "").includes("standard") || 
-                          (agreement.plan_name?.toLowerCase() || "").includes("growth") || 
-                          (agreement.plan_name?.toLowerCase() || "").includes("enterprise") || 
-                          (agreement.plan_name?.toLowerCase() || "").includes("platinum")
-                          ? saasTemplate
-                          : otpTemplate
-                        }
-                    />
+                    {(() => {
+                        const plan = (project.selected_plan || "").toLowerCase();
+                        const prices = (status as any)?.package_prices || {};
+                        const priceKey = Object.keys(prices).find(k => k.toLowerCase() === plan);
+                        const currentMonthlyPrice = Number(priceKey ? prices[priceKey] : 0);
+                        const currentSetupFee = Number((status as any)?.saas_deposit_price || 0);
+
+                        // If not signed yet, create a dummy agreement for preview
+                        const previewAgreement = agreement ? {
+                            ...agreement,
+                            total_cost: currentMonthlyPrice,
+                            deposit_amount: currentSetupFee,
+                            balance_amount: 0,
+                            provider_name: (status as any)?.service_provider_name || agreement.provider_name
+                        } : {
+                            client_name: "PELANGGAN CONTOH",
+                            provider_name: (status as any)?.service_provider_name || "SaaS House Development",
+                            title: project.title,
+                            total_cost: currentMonthlyPrice,
+                            deposit_amount: currentSetupFee,
+                            balance_amount: 0,
+                            plan_name: project.selected_plan
+                        };
+
+                        return (
+                            <ServiceAgreementDocument 
+                                project={previewAgreement as any} 
+                                fontSize={fontSize}
+                                sectionGap={sectionGap}
+                                signatureGap={signatureGap}
+                                lineSpacing={lineSpacing}
+                                padding={pageMargin}
+                                template={
+                                  (project.selected_plan?.toLowerCase() || "").includes("standard") || 
+                                  (project.selected_plan?.toLowerCase() || "").includes("growth") || 
+                                  (project.selected_plan?.toLowerCase() || "").includes("enterprise") || 
+                                  (project.selected_plan?.toLowerCase() || "").includes("platinum")
+                                  ? saasTemplate
+                                  : otpTemplate
+                                }
+                            />
+                        );
+                    })()}
             </div>
         )}
     </div>

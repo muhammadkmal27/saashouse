@@ -15,7 +15,7 @@ type SettingMap = Record<string, any>;
 const TABS = [
   { id: "general",     label: "General",     icon: Settings },
   { id: "pricing",     label: "Pricing",     icon: Server },
-  { id: "otp",         label: "OTP Mode",    icon: Zap },
+  { id: "otp",         label: "Payments & OTP", icon: Zap },
   { id: "agreement",   label: "Agreement",   icon: FileText },
   { id: "maintenance", label: "Maintenance",  icon: Wrench },
 ] as const;
@@ -59,6 +59,7 @@ export default function AdminSettingsPage() {
   const [otpMode, setOtpMode]       = useState(false);
   const [otpDeposit, setOtpDeposit] = useState("200");
   const [otpFinal, setOtpFinal]     = useState("500");
+  const [saasDeposit, setSaasDeposit] = useState("250");
   const [providerName, setProviderName] = useState("SaaS House Development");
   const [providerSignature, setProviderSignature] = useState("");
   const [otpTemplate, setOtpTemplate] = useState<any[]>([]);
@@ -85,6 +86,7 @@ export default function AdminSettingsPage() {
         setOtpMode(map["otp_mode_active"] === true || map["otp_mode_active"] === "true");
         setOtpDeposit(map["otp_deposit_price"] ?? "200");
         setOtpFinal(map["otp_final_price"] ?? "500");
+        setSaasDeposit(map["saas_deposit_price"] ?? "250");
         setProviderName(map["service_provider_name"] ?? "SaaS House Development");
         setProviderSignature(map["service_provider_signature"] ?? "");
         setOtpTemplate(map["agreement_template_otp"] ?? []);
@@ -356,11 +358,11 @@ export default function AdminSettingsPage() {
             <div>
               <h2 className="text-lg font-black text-zinc-900 mb-1 flex items-center gap-2">
                 <Zap className="w-5 h-5 text-indigo-500" />
-                One Time Purchase Mode
+                Payments & OTP Mode
               </h2>
               <p className="text-sm text-zinc-400 max-w-lg">
-                If enabled, all recurring subscription packages will be hidden on the public site. 
-                Clients will only see the One Time Purchase package at the price set below.
+                Manage deposit settings for both SaaS and One-Time Purchase modes. 
+                If OTP Mode is enabled, subscription packages will be hidden.
               </p>
             </div>
             <button
@@ -426,9 +428,32 @@ export default function AdminSettingsPage() {
 
           <div className="p-6 bg-zinc-50 rounded-2xl border border-zinc-100">
              <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-zinc-500">Total Project Value:</span>
+                <span className="text-sm font-bold text-zinc-500">OTP Total Value:</span>
                 <span className="text-xl font-black text-zinc-900">RM {Number(otpDeposit) + Number(otpFinal)}</span>
              </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-zinc-50">
+            <div className="space-y-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-emerald-500">
+                SaaS Onboarding Deposit (RM)
+              </label>
+              <p className="text-[10px] text-zinc-400 font-medium">One-time setup fee for SaaS clients before subscription starts.</p>
+              <input
+                type="number"
+                value={saasDeposit}
+                onChange={(e) => setSaasDeposit(e.target.value)}
+                className="w-full px-5 py-3.5 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black text-zinc-900 outline-none focus:ring-2 ring-emerald-300 transition-all"
+              />
+              <button
+                onClick={() => handleSave("saas_deposit_price", saasDeposit, "SaaS Deposit")}
+                disabled={saving === "saas_deposit_price"}
+                className="mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:underline flex items-center gap-1"
+              >
+                {saving === "saas_deposit_price" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                Update SaaS Deposit
+              </button>
+            </div>
           </div>
         </div>
       )}

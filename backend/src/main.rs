@@ -161,11 +161,11 @@ async fn seed_settings(pool: &PgPool) -> Result<(), Box<dyn std::error::Error>> 
         },
         {
             "title": "MODEL PEMBAYARAN & FASA PEMBANGUNAN",
-            "content": "- **Bayaran Pendahuluan:** Pelanggan wajib mula melanggan sebelum fasa pembangunan dimulakan.\n- **Fasa Pembangunan:** Pembangunan website hanya akan dimulakan secara rasmi selepas bayaran bulan pertama berjaya disahkan melalui sistem.\n- **Unlimited Revisions:** Dalam tempoh 30 hari pembangunan, Pelanggan berhak meminta pindaan atau penambahan ciri (feature) tanpa had dan tanpa cas tambahan selagi tidak mengubah struktur/kategori asal projek yang telah dipersetujui."
+            "content": "- **Bayaran Deposit (Setup Fee):** Pelanggan wajib menjelaskan bayaran pendahuluan sebanyak **RM {{deposit_amount}}** sebelum fasa pembangunan dimulakan. Bayaran ini adalah untuk kos pembinaan sistem dan bersifat non-refundable (tidak akan dipulangkan) sekiranya Pelanggan membatalkan projek selepas kerja bermula.\n- **Fasa Pembangunan (Offline/Staging):** Laman web akan dibangunkan di dalam persekitaran pembangunan (staging) Penyedia Perkhidmatan dalam tempoh 30 hari bekerja. Pelanggan berhak meminta pindaan tanpa had dalam tempoh ini selagi tidak mengubah struktur asal projek.\n- **Pengaktifan & Go-Live (SaaS Mode):** Laman web hanya akan dipindahkan ke hos (hosting live) dan diaktifkan untuk akses awam selepas Pelanggan mula melanggan yuran bulanan (**RM {{monthly_price}}**) melalui sistem Stripe. Akses penuh kepada sistem hanya akan diberikan setelah langganan bulanan pertama disahkan."
         },
         {
             "title": "YURAN LANGGANAN & PENYELENGGARAAN (SAAS)",
-            "content": "- **Yuran Bulanan:** **RM {{deposit_amount}}** sebulan (Auto-billing melalui sistem Stripe).\n- **Merangkumi:** Sewaan Server (VPS), Nama Domain, Sijil SSL (Security), Penyelenggaraan Sistem, dan Pemantauan Keselamatan.\n- **Jaminan Ralat (Bugs):** Penyedia Perkhidmatan bertanggungjawab sepenuhnya ke atas pembetulan ralat teknikal (bugs) tanpa sebarang cas tambahan dan tanpa had tempoh selagi langganan masih aktif."
+            "content": "- **Yuran Bulanan:** **RM {{monthly_price}}** sebulan (Auto-billing melalui sistem Stripe).\n- **Merangkumi:** Sewaan Server (VPS), Nama Domain, Sijil SSL (Security), Penyelenggaraan Sistem, dan Pemantauan Keselamatan.\n- **Jaminan Ralat (Bugs):** Penyedia Perkhidmatan bertanggungjawab sepenuhnya ke atas pembetulan ralat teknikal (bugs) tanpa sebarang cas tambahan dan tanpa had tempoh selagi langganan masih aktif."
         },
         {
             "title": "PINDAAN SELEPAS TEMPOH PEMBANGUNAN (CHANGE REQUEST)",
@@ -188,13 +188,20 @@ async fn seed_settings(pool: &PgPool) -> Result<(), Box<dyn std::error::Error>> 
     let settings = vec![
         ("agreement_template_otp", otp_template),
         ("agreement_template_saas", saas_template),
+        ("saas_deposit_price", serde_json::json!("250.00")),
+        ("package_prices", serde_json::json!({
+            "Standard": "165.00",
+            "Growth": "240.00",
+            "Enterprise": "410.00",
+            "Platinum": "750.00"
+        })),
     ];
 
     for (key, value) in settings {
         sqlx::query(
             "INSERT INTO system_settings (key, value, updated_at) 
              VALUES ($1, $2, NOW()) 
-             ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()"
+             ON CONFLICT (key) DO NOTHING"
         )
         .bind(key)
         .bind(value)

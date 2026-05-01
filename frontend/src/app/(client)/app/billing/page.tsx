@@ -6,6 +6,7 @@ import { CreditCard, Zap, CheckCircle2, AlertCircle, Loader2, ArrowLeft, LayoutG
 import { fetchPrices, DEFAULT_PRICES } from "@/utils/pricing";
 import ServiceAgreementModal from "@/components/modals/ServiceAgreementModal";
 import { T } from "@/components/Translate";
+import { getAssetUrl } from "@/utils/url";
 
 export default function BillingPage() {
   const [loading, setLoading] = useState(true);
@@ -49,19 +50,29 @@ export default function BillingPage() {
     } else {
       displayPrice = otpTotal;
     }
+  } else {
+    // SaaS Mode
+    if (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING") {
+      displayPrice = status?.saas_deposit_price || "0";
+    } else {
+      displayPrice = ""; 
+    }
   }
+  
+  const needsDeposit = (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING");
+  const isSaaSDeposit = !isOTP && needsDeposit;
 
   const PLAN_DETAILS: Record<string, { label: string; price: string; isOTP?: boolean; priceLabel?: string }> = {
-    STANDARD: { label: "Standard Pack", price: dynamicPrices.Standard || "165" },
-    GROWTH: { label: "Growth Accelerate", price: dynamicPrices.Growth || "240" },
-    ENTERPRISE: { label: "Enterprise Managed", price: dynamicPrices.Enterprise || "410" },
-    PLATINUM: { label: "Platinum Elite", price: dynamicPrices.Platinum || "750" },
     "ONE-TIME PURCHASE": { 
       label: "One-Time Purchase", 
       price: displayPrice || otpTotal, 
       isOTP: true,
       priceLabel: (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING") ? "Deposit" : selectedProject?.status === "UNDER_DEVELOPMENT" ? "Final Payment" : "Total"
     },
+    STANDARD: { label: "Standard Pack", price: displayPrice || dynamicPrices.Standard || "0", priceLabel: (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING") ? "Setup Deposit" : undefined },
+    GROWTH: { label: "Growth Accelerate", price: displayPrice || dynamicPrices.Growth || "0", priceLabel: (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING") ? "Setup Deposit" : undefined },
+    ENTERPRISE: { label: "Enterprise Managed", price: displayPrice || dynamicPrices.Enterprise || "0", priceLabel: (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING") ? "Setup Deposit" : undefined },
+    PLATINUM: { label: "Platinum Elite", price: displayPrice || dynamicPrices.Platinum || "0", priceLabel: (selectedProject?.status === "REVIEW" || selectedProject?.status === "PAYMENT_PENDING") ? "Setup Deposit" : undefined },
   };
 
   const planKey = (selectedProject?.selected_plan || selectedProject?.requirements?.selected_plan || "STANDARD").toUpperCase();
@@ -176,9 +187,9 @@ export default function BillingPage() {
         .find((row) => row.startsWith("csrf_token="))
         ?.split("=")[1];
 
-      // Route to ToyyibPay if it's an OTP project
-      const endpoint = isOTPLocal ? "/api/billing/toyyibpay/checkout" : "/api/billing/checkout";
-      const body = isOTPLocal ? { project_id: projectId, payment_type: paymentTypeLocal } : { project_id: projectId };
+      // Route to ToyyibPay if it's an OTP project OR if it's a SaaS project that hasn't paid the deposit
+      const endpoint = (isOTPLocal || isSaaSDeposit) ? "/api/billing/toyyibpay/checkout" : "/api/billing/checkout";
+      const body = (isOTPLocal || isSaaSDeposit) ? { project_id: projectId, payment_type: paymentTypeLocal } : { project_id: projectId };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -320,8 +331,13 @@ export default function BillingPage() {
                         <div className="text-right">
                             <div className="text-5xl font-black text-slate-900 tracking-tighter">
                                 RM {currentPlan.price} 
-                                {currentPlan.isOTP ? (
-                                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-2"><T en={currentPlan.priceLabel || "Package"} bm={currentPlan.priceLabel === "Deposit" ? "Deposit" : currentPlan.priceLabel === "Final Payment" ? "Bayaran Akhir" : "Pakej"} /></span>
+                                {(currentPlan.isOTP || isSaaSDeposit) ? (
+                                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-2">
+                                        <T 
+                                            en={currentPlan.priceLabel || "Package"} 
+                                            bm={currentPlan.priceLabel === "Deposit" || currentPlan.priceLabel === "Setup Deposit" ? "Deposit" : currentPlan.priceLabel === "Final Payment" ? "Bayaran Akhir" : "Pakej"} 
+                                        />
+                                    </span>
                                 ) : (
                                     <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">/ <T en="mth" bm="bln" /></span>
                                 )}
@@ -360,7 +376,12 @@ export default function BillingPage() {
                                 disabled={actionLoading || (isOTP && (selectedProject?.status === 'PAID' || selectedProject?.status === 'LIVE'))}
                                 className="w-full md:w-auto px-12 py-6 bg-violet-600 text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-violet-700 hover:-translate-y-1 transition-all shadow-xl shadow-violet-600/30 flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0"
                             >
-                                {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><CreditCard className="w-6 h-6" /> <T en="Activate Now" bm="Aktifkan Sekarang" /></>}
+                                {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                                    <>
+                                        <CreditCard className="w-6 h-6" /> 
+                                        {isSaaSDeposit ? <T en="Pay Deposit" bm="Bayar Deposit" /> : <T en="Activate Now" bm="Aktifkan Sekarang" />}
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>
@@ -404,15 +425,25 @@ export default function BillingPage() {
                         <div className="w-14 h-14 bg-violet-600 text-white rounded-2xl flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(124,58,237,0.4)]">
                         <ShieldCheck className="w-8 h-8" />
                     </div>
-                    <h3 className="font-black text-2xl mb-4 tracking-tight leading-tight"><T en={`Secured via ${isOTP ? "ToyyibPay" : "Stripe"}`} bm={`Djamin oleh ${isOTP ? "ToyyibPay" : "Stripe"}`} /></h3>
+                    <h3 className="font-black text-2xl mb-4 tracking-tight leading-tight">
+                        <T 
+                            en={`Secured via ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"}`} 
+                            bm={`Dijamin oleh ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"}`} 
+                        />
+                    </h3>
                     <p className="text-slate-400 font-medium mb-8 leading-relaxed">
-                        <T en={`We partner with ${isOTP ? "ToyyibPay" : "Stripe"} to ensure every transaction is 100% secure with ${isOTP ? "Bank-grade security" : "AES-256 encryption"}.`} bm={`Kami bekerjasama bersama ${isOTP ? "ToyyibPay" : "Stripe"} untuk jamin keberkesanan setiap aliran bayar.`} />
+                        <T 
+                            en={`We partner with ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"} to ensure every transaction is 100% secure with ${(isOTP || isSaaSDeposit) ? "Bank-grade security" : "AES-256 encryption"}.`} 
+                            bm={`Kami bekerjasama bersama ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"} untuk jamin keberkesanan setiap aliran bayar.`} 
+                        />
                     </p>
                     <div className="space-y-4">
                         {[
                             { en: "Military Grade", bm: "Gred Ketenteraan" },
                             { en: "No Credit Card Stored", bm: "Tiada Kad Kredit Disimpan" },
-                            { en: "Auto-Billing Protection", bm: "Perlindungan Pengebilan Auto" }
+                            (isOTP || isSaaSDeposit) 
+                                ? { en: "Secure FPX Checkout", bm: "Pembayaran FPX Selamat" }
+                                : { en: "Auto-Billing Protection", bm: "Perlindungan Pengebilan Auto" }
                         ].map((tip) => (
                             <div key={tip.en} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-violet-400">
                                 <div className="w-1.5 h-1.5 rounded-full bg-violet-400" /> <T en={tip.en} bm={tip.bm} />
@@ -441,10 +472,16 @@ export default function BillingPage() {
           onClose={() => setIsAgreementOpen(false)}
           project={{ id: selectedProject?.id || "", title: selectedProject?.title || "" }}
           providerName={status?.service_provider_name || "SaaS House Development"}
-          providerSignature={status?.service_provider_signature}
+          providerSignature={status?.service_provider_signature ? getAssetUrl(status.service_provider_signature) : undefined}
           isOTP={isOTP}
           template={isOTP ? status?.agreement_template_otp : status?.agreement_template_saas}
-          monthlyPrice={Number(currentPlan.price)}
+          saasMonthlyPrice={(() => {
+              const plan = (selectedProject?.selected_plan || selectedProject?.requirements?.selected_plan || "").toLowerCase();
+              const prices = status?.package_prices || {};
+              const priceKey = Object.keys(prices).find(k => k.toLowerCase() === plan);
+              return Number(priceKey ? prices[priceKey] : currentPlan.price);
+          })()}
+          saasSetupFee={Number(status?.saas_deposit_price || 0)}
           planName={currentPlan.label}
           costs={{ 
               deposit: Number(otpDeposit), 
