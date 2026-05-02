@@ -8,8 +8,7 @@ use crate::utils::error::ApiError;
 use crate::utils::email::send_notification_email;
 use crate::AppState;
 use redis::AsyncCommands;
-use hickory_resolver::AsyncResolver;
-use hickory_resolver::config::*;
+use hickory_resolver::Resolver;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct DomainAvailabilityResponse {
@@ -184,16 +183,20 @@ async fn raw_whois_check(domain: &str) -> Result<bool, String> {
 }
 
 async fn dns_check(domain: &str) -> Result<bool, String> {
-    let resolver = AsyncResolver::tokio(ResolverConfig::default(), ResolverOpts::default());
+    // 0.26.1 Resolver builder with full error handling
+    let resolver = Resolver::builder_tokio()
+        .map_err(|e| format!("Failed to create DNS builder: {}", e))?
+        .build()
+        .map_err(|e| format!("Failed to build DNS resolver: {}", e))?;
     
-    // Check A Record
-    let a_check = resolver.lookup_ip(domain).await;
+    // Check A Record with explicit type
+    let a_check: Result<hickory_resolver::lookup_ip::LookupIp, _> = resolver.lookup_ip(domain).await;
     if a_check.is_ok() {
         return Ok(false); // Found A records -> Taken
     }
     
-    // Check NS Record
-    let ns_check = resolver.lookup(domain, hickory_resolver::proto::rr::RecordType::NS).await;
+    // Check NS Record with explicit type
+    let ns_check: Result<hickory_resolver::lookup::Lookup, _> = resolver.lookup(domain, hickory_resolver::proto::rr::RecordType::NS).await;
     if ns_check.is_ok() {
         return Ok(false); // Found NS records -> Taken
     }
