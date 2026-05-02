@@ -37,43 +37,18 @@ image = "0.25.10"
 redis = { version = "0.27", features = ["tokio-comp", "aio"] }
 regex = "1.12.3"
 bigdecimal = "0.4"
-hickory-resolver = "0.26"
+hickory-resolver = "0.24"
 
 [dev-dependencies]
 mockall = "0.13"
 pretty_assertions = "1"
 tokio-test = "0.4"
 
+[patch.crates-io]
+# Memaksa penggunaan versi yang telah dibetulkan keselamatannya
+hickory-proto = { git = "https://github.com/hickory-dns/hickory-dns", tag = "v0.26.1" }
+hickory-resolver = { git = "https://github.com/hickory-dns/hickory-dns", tag = "v0.26.1" }
+
 [[bin]]
 name = "backend"
 path = "src/main.rs"
-
-[[bin]]
-name = "check_user"
-path = "scratch/check_user.rs"
-
-[[bin]]
-name = "check_table"
-path = "scratch/check_table.rs"
-
-[[bin]]
-name = "reset_admin"
-path = "scratch/reset_admin.rs"
-
-[[bin]]
-name = "create_test_db"
-path = "scratch/create_test_db.rs"
-
-[[bin]]
-name = "test_smtp"
-path = "scratch/test_smtp.rs"
-
-[[bin]]
-name = "debug_stats"
-path = "scratch/debug_stats.rs"
-
-[[bin]]
-name = "run_migration"
-path = "scratch/run_migration.rs"
-
-
