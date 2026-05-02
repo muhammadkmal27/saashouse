@@ -77,16 +77,16 @@ export default function HomeSubscription() {
 
         <div className="max-w-4xl mx-auto mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-zinc-800/0 md:divide-zinc-800">
            <div className="text-center space-y-2">
-             <h4 className="text-4xl font-black text-white">50+</h4>
-             <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold"><T en="Projects" bm="Projek"/></p>
+             <h4 className="text-2xl md:text-3xl font-black text-white italic tracking-tighter uppercase"><T en="Modern UI" bm="UI Moden"/></h4>
+             <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold"><T en="Design" bm="Reka Bentuk"/></p>
            </div>
            <div className="text-center space-y-2">
              <h4 className="text-4xl font-black text-white">99.9%</h4>
              <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold"><T en="Uptime" bm="Masa Aktif"/></p>
            </div>
            <div className="text-center space-y-2">
-             <h4 className="text-4xl font-black text-white">RM0</h4>
-             <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold"><T en="Upfront" bm="Pendahuluan"/></p>
+             <h4 className="text-2xl md:text-3xl font-black text-white italic tracking-tighter uppercase"><T en="Secure" bm="Selamat"/></h4>
+             <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold"><T en="Architecture" bm="Seni Bina"/></p>
            </div>
            <div className="text-center space-y-2">
              <h4 className="text-4xl font-black text-white">24/7</h4>
