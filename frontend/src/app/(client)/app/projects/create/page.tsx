@@ -71,9 +71,9 @@ function DomainChecker({ value, onChange, label, lang }: { value: string, onChan
         <input 
           type="text"
           className={`w-full bg-white border rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none shadow-sm transition-all ${
-            status === "available" ? "border-emerald-500 ring-4 ring-emerald-500/5" : 
+            status === "available" ? "border-violet-500 ring-4 ring-violet-500/5" : 
             status === "unavailable" ? "border-red-500 ring-4 ring-red-500/5" : 
-            "border-zinc-200 focus:border-emerald-500"
+            "border-zinc-200 focus:border-violet-500"
           }`}
           placeholder={lang === "BM" ? "cth., namajenama.com atau namajenama.my" : "e.g., brandname.com or brandname.my"}
           value={value}
@@ -90,14 +90,14 @@ function DomainChecker({ value, onChange, label, lang }: { value: string, onChan
           }}
         />
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-          {status === "checking" && <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />}
-          {status === "available" && <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100"><T en="Available" bm="Boleh Diguna" /></span>}
+          {status === "checking" && <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />}
+          {status === "available" && <span className="text-[10px] font-black uppercase tracking-widest text-violet-600 bg-violet-50 px-2 py-1 rounded-md border border-violet-100"><T en="Available" bm="Boleh Diguna" /></span>}
           {status === "unavailable" && <span className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100"><T en="Unavailable" bm="Tidak Tersedia" /></span>}
           {status === "idle" && value.length > 3 && (
              <button 
                type="button"
                onClick={() => checkDomain(value)}
-               className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-emerald-600 transition-colors"
+               className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-violet-600 transition-colors"
              >
                <T en="Check" bm="Semak" />
              </button>
@@ -295,14 +295,14 @@ function CreateProjectForm({ lang }: { lang: string }) {
     return (
       <div className="relative flex flex-col items-center justify-center min-h-[80vh] overflow-hidden">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-purple-50/40 to-emerald-50/60 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-purple-50/40 to-violet-50/60 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-violet-100/40 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-100/30 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-lg px-4">
           {/* Circular icon with ripple */}
           <div className="relative">
-            <div className="absolute inset-0 scale-125 bg-emerald-200/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-0 scale-125 bg-violet-200/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
             <div className="absolute inset-0 scale-110 bg-purple-200/20 rounded-full" />
             <div className="w-24 h-24 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl shadow-purple-500/30 relative">
               <svg className="w-11 h-11 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -339,8 +339,8 @@ function CreateProjectForm({ lang }: { lang: string }) {
             </div>
             <p className="text-sm text-zinc-700 leading-relaxed">
               <T
-                en={<>A developer will contact you via <span className="text-emerald-600 font-semibold">WhatsApp</span> once the review is complete. Please <span className="underline decoration-2 underline-offset-2 font-semibold text-zinc-900">do not make any payments</span> until you have been officially contacted by our developer via WhatsApp.</>}
-                bm={<>Pembangun akan menghubungi anda melalui <span className="text-emerald-600 font-semibold">WhatsApp</span> sebaik sahaja semakan selesai. Sila <span className="underline decoration-2 underline-offset-2 font-semibold text-zinc-900">jangan buat sebarang pembayaran</span> sehingga anda dihubungi secara rasmi oleh pembangun kami melalui WhatsApp.</>}
+                en={<>A developer will contact you via <span className="text-violet-600 font-semibold">WhatsApp</span> once the review is complete. Please <span className="underline decoration-2 underline-offset-2 font-semibold text-zinc-900">do not make any payments</span> until you have been officially contacted by our developer via WhatsApp.</>}
+                bm={<>Pembangun akan menghubungi anda melalui <span className="text-violet-600 font-semibold">WhatsApp</span> sebaik sahaja semakan selesai. Sila <span className="underline decoration-2 underline-offset-2 font-semibold text-zinc-900">jangan buat sebarang pembayaran</span> sehingga anda dihubungi secara rasmi oleh pembangun kami melalui WhatsApp.</>}
               />
             </p>
           </div>
@@ -371,7 +371,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
         {/* Progress Bar (0-6) */}
         <div className="flex gap-2 mt-8">
           {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className={`h-2 flex-1 rounded-full ${step >= i ? 'bg-emerald-500' : 'bg-zinc-200'}`} />
+            <div key={i} className={`h-2 flex-1 rounded-full ${step >= i ? 'bg-violet-500' : 'bg-zinc-200'}`} />
           ))}
         </div>
       </div>
@@ -386,18 +386,18 @@ function CreateProjectForm({ lang }: { lang: string }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {status === null ? (
                 <div className="col-span-full py-20 text-center">
-                  <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Loading protocol configuration..." bm="Memuatkan konfigurasi protokol..." /></p>
                 </div>
               ) : otpMode ? (
                 <button
                   key="otp-package"
                   onClick={() => setFormData(p => ({ ...p, selected_plan: "One-Time Purchase" }))}
-                  className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === "One-Time Purchase" ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500/50 shadow-lg shadow-indigo-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
+                  className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === "One-Time Purchase" ? 'border-violet-500 bg-violet-50 ring-1 ring-violet-500/50 shadow-lg shadow-violet-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
                 >
                   <div className="flex justify-between items-center mb-4">
-                    <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === "One-Time Purchase" ? 'text-indigo-600' : 'text-zinc-900'}`}><T en="One-Time Purchase" bm="Pembelian Sekali" /></span>
-                    {formData.selected_plan === "One-Time Purchase" && <CheckCircle2 className="w-6 h-6 text-indigo-500" />}
+                    <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === "One-Time Purchase" ? 'text-violet-600' : 'text-zinc-900'}`}><T en="One-Time Purchase" bm="Pembelian Sekali" /></span>
+                    {formData.selected_plan === "One-Time Purchase" && <CheckCircle2 className="w-6 h-6 text-violet-500" />}
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-zinc-400 text-xs font-bold font-mono">RM</span>
@@ -415,11 +415,11 @@ function CreateProjectForm({ lang }: { lang: string }) {
                   <button
                     key={plan.name}
                     onClick={() => setFormData(p => ({ ...p, selected_plan: plan.name }))}
-                    className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === plan.name ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
+                    className={`p-8 rounded-3xl border text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${formData.selected_plan === plan.name ? 'border-violet-500 bg-violet-50 ring-1 ring-violet-500/50 shadow-lg shadow-violet-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-300 hover:bg-white text-zinc-900'}`}
                   >
                     <div className="flex justify-between items-center mb-4">
-                      <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === plan.name ? 'text-emerald-600' : 'text-zinc-900'}`}>{plan.name}</span>
-                      {formData.selected_plan === plan.name && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                      <span className={`font-black text-xl uppercase tracking-widest ${formData.selected_plan === plan.name ? 'text-violet-600' : 'text-zinc-900'}`}>{plan.name}</span>
+                      {formData.selected_plan === plan.name && <CheckCircle2 className="w-6 h-6 text-violet-500" />}
                     </div>
                     <div className="flex items-baseline gap-1">
                       <span className="text-zinc-400 text-xs font-bold font-mono">RM</span>
@@ -443,13 +443,13 @@ function CreateProjectForm({ lang }: { lang: string }) {
             <div className="flex gap-4">
               <button 
                 onClick={() => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, has_toyyibpay: true } }))}
-                className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs border transition-all ${formData.payment_setup.has_toyyibpay ? 'bg-emerald-50 border-emerald-500 text-emerald-600 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 border-zinc-200 text-zinc-400 hover:border-zinc-300'}`}
+                className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs border transition-all ${formData.payment_setup.has_toyyibpay ? 'bg-violet-50 border-violet-500 text-violet-600 shadow-lg shadow-violet-500/10' : 'bg-zinc-50 border-zinc-200 text-zinc-400 hover:border-zinc-300'}`}
               >
                 <T en="Yes, I have ToyyibPay" bm="Ya, saya mempunyai ToyyibPay" />
               </button>
               <button 
                 onClick={() => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, has_toyyibpay: false } }))}
-                className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs border transition-all ${!formData.payment_setup.has_toyyibpay ? 'bg-emerald-50 border-emerald-500 text-emerald-600 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 border-zinc-200 text-zinc-400 hover:border-zinc-300'}`}
+                className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs border transition-all ${!formData.payment_setup.has_toyyibpay ? 'bg-violet-50 border-violet-500 text-violet-600 shadow-lg shadow-violet-500/10' : 'bg-zinc-50 border-zinc-200 text-zinc-400 hover:border-zinc-300'}`}
               >
                 <T en="No, help me register" bm="Tidak, bantu saya mendaftar" />
               </button>
@@ -461,7 +461,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                   <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Secret Key" bm="Kunci Rahsia" /></label>
                   <input 
                     type="password"
-                    className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
+                    className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all"
                     placeholder={lang === "BM" ? "Masukkan Kunci Rahsia ToyyibPay" : "Enter ToyyibPay Secret Key"}
                     value={formData.payment_setup.secret_key || ""}
                     onChange={(e) => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, secret_key: e.target.value } }))}
@@ -471,7 +471,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                   <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Category Code" bm="Kod Kategori" /></label>
                   <input 
                     type="text"
-                    className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all"
+                    className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all"
                     placeholder={lang === "BM" ? "Masukkan Kod Kategori" : "Enter Category Code"}
                     value={formData.payment_setup.category_code || ""}
                     onChange={(e) => setFormData(p => ({ ...p, payment_setup: { ...p.payment_setup, category_code: e.target.value } }))}
@@ -517,7 +517,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                  { title: "User Engagement", items: ["Blog / News Engine", "FAQ Hub", "Floating Chat Support", "Lead Generation Forms"] }
                ].map((cat, idx) => (
                  <div key={idx} className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all">
-                    <h3 className="font-black italic uppercase tracking-widest text-xs text-emerald-600 mb-6">
+                    <h3 className="font-black italic uppercase tracking-widest text-xs text-violet-600 mb-6">
                       {cat.title === "Commercial" ? <T en="Commercial" bm="Komersial" /> : 
                        cat.title === "Service & Bookings" ? <T en="Service & Bookings" bm="Perkhidmatan & Tempahan" /> : 
                        cat.title === "Brand Identity" ? <T en="Brand Identity" bm="Identiti Jenama" /> : 
@@ -530,7 +530,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                             type="checkbox" 
                             checked={formData.features.includes(item)}
                             onChange={() => toggleFeature(item)}
-                            className="w-5 h-5 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500/20 bg-white"
+                            className="w-5 h-5 rounded border-zinc-300 text-violet-500 focus:ring-violet-500/20 bg-white"
                           />
                           <span className="text-sm font-bold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">
                             {item === "Shopping Cart & Checkout" ? <T en="Shopping Cart & Checkout" bm="Troli Belah & Daftar Keluar" /> :
@@ -566,7 +566,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                                 type="text" 
                                 value={feature}
                                 onChange={(e) => handleCustomFeatureChange(idx, e.target.value)}
-                                className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 focus:outline-none focus:border-emerald-500"
+                                className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 focus:outline-none focus:border-violet-500"
                                 placeholder={lang === "BM" ? "cth. Kawasan Ahli, Penyediaan berbilang vendor..." : "e.g. Member Area, Multi-vendor setup..."}
                             />
                         </div>
@@ -574,7 +574,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                     <button 
                         type="button"
                         onClick={() => setFormData(p => ({ ...p, custom_features: [...p.custom_features, ""] }))}
-                        className="text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
+                        className="text-violet-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
                     >
                         <span className="text-lg">+</span> <T en="Add Extra Feature" bm="Tambah Ciri Tambahan" />
                     </button>
@@ -587,7 +587,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
             <div>
               <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3"><T en="Additional Project Notes" bm="Nota Projek Tambahan" /></label>
               <textarea 
-                className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all min-h-[140px]"
+                className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-medium focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all min-h-[140px]"
                 placeholder={lang === "BM" ? "Kongsi sebarang keperluan teknikal atau aliran kerja khusus lain yang perlu kami ketahui..." : "Share any other specific technical requirements or workflows we should know about..."}
                 value={formData.custom_needs}
                 onChange={(e) => setFormData(p => ({ ...p, custom_needs: e.target.value }))}
@@ -611,7 +611,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                          type="text" 
                          value={page}
                          onChange={(e) => handleSitemapChange(idx, e.target.value)}
-                         className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 focus:outline-none focus:border-emerald-500 transition-all shadow-sm"
+                         className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-700 focus:outline-none focus:border-violet-500 transition-all shadow-sm"
                        />
                        <button 
                          onClick={() => setFormData(p => ({ ...p, sitemap: p.sitemap.filter((_, i) => i !== idx) }))}
@@ -623,7 +623,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                    ))}
                    <button 
                      onClick={() => setFormData(p => ({ ...p, sitemap: [...p.sitemap, "New Page"] }))}
-                     className="text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
+                     className="text-violet-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
                    >
                      <span className="text-lg">+</span> <T en="Add Page" bm="Tambah Halaman" />
                    </button>
@@ -638,7 +638,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         type="url" 
                         value={formData.competitor_ref}
                         onChange={(e) => setFormData(p => ({ ...p, competitor_ref: e.target.value }))}
-                        className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm font-bold text-zinc-700 focus:outline-none focus:border-emerald-500 shadow-sm"
+                        className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm font-bold text-zinc-700 focus:outline-none focus:border-violet-500 shadow-sm"
                         placeholder={lang === "BM" ? "https://contoh-pesaing.com" : "https://example.com"}
                     />
                  </div>
@@ -718,7 +718,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                   <input 
                     type="text"
                     required
-                    className="w-full bg-white border border-zinc-200 rounded-2xl pl-16 pr-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-emerald-500 transition-all font-mono text-lg shadow-inner"
+                    className="w-full bg-white border border-zinc-200 rounded-2xl pl-16 pr-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-violet-500 transition-all font-mono text-lg shadow-inner"
                     placeholder={lang === "BM" ? "No. Telefon WhatsApp" : "WhatsApp Number"}
                     value={formData.whatsapp_number}
                     onChange={(e) => {
@@ -822,12 +822,12 @@ function CreateProjectForm({ lang }: { lang: string }) {
                 />
              </div>
 
-             <div className="mt-8 p-8 bg-emerald-50 border border-emerald-100 rounded-3xl flex items-start gap-6 shadow-sm">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0 border border-emerald-100">
-                  <Shield className="w-8 h-8 text-emerald-500" />
+             <div className="mt-8 p-8 bg-violet-50 border border-violet-100 rounded-3xl flex items-start gap-6 shadow-sm">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0 border border-violet-100">
+                  <Shield className="w-8 h-8 text-violet-500" />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-xs font-black text-emerald-700 uppercase tracking-widest italic"><T en="Secure Staging Protocol" bm="Protokol Pementasan Selamat" /></h4>
+                  <h4 className="text-xs font-black text-violet-700 uppercase tracking-widest italic"><T en="Secure Staging Protocol" bm="Protokol Pementasan Selamat" /></h4>
                   <p className="text-sm text-zinc-600 font-medium leading-relaxed">
                     <T en={<>Once submitted, our team explores these domains while building your Staging environment. <strong className="text-zinc-900">No payment is required today.</strong> Subscription officially starts only after your final approval.</>} 
                        bm={<>Setelah dihantar, pasukan kami melayari domain ini semasa membina persekitaran Pementasan anda. <strong className="text-zinc-900">Tiada bayaran diperlukan hari ini.</strong> Langganan bermula secara rasmi hanya selepas kelulusan akhir anda.</>} />
@@ -840,8 +840,8 @@ function CreateProjectForm({ lang }: { lang: string }) {
          {step === 6 && (
             <div className="space-y-8 animate-fade-in">
                 <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center">
-                        <CheckCircle2 className="w-6 h-6 text-indigo-500" />
+                    <div className="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center">
+                        <CheckCircle2 className="w-6 h-6 text-violet-500" />
                     </div>
                     <h2 className="text-2xl font-black text-zinc-900 uppercase italic">6. <T en="Project Vision" bm="Visi Projek" /></h2>
                 </div>
@@ -852,7 +852,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         <input 
                             type="text"
                             required
-                            className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-indigo-500 text-lg shadow-inner"
+                            className="w-full bg-white border border-zinc-200 rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none focus:border-violet-500 text-lg shadow-inner"
                             placeholder={lang === "BM" ? "cth. Portal Perniagaan Acme Corporation" : "e.g. Acme Corporation Business Portal"}
                             value={formData.project_title}
                             onChange={(e) => setFormData(p => ({ ...p, project_title: e.target.value }))}
@@ -862,12 +862,12 @@ function CreateProjectForm({ lang }: { lang: string }) {
                     <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-[2.5rem] shadow-sm">
                         <label className="block text-xs font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono"><T en="The Big Idea (Describe Your Vision)" bm="Idea Besar (Terangkan Visi Anda)" /></label>
                         <textarea 
-                            className="w-full bg-white border border-zinc-200 rounded-2xl px-8 py-6 text-zinc-900 font-bold focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all min-h-[300px] text-lg leading-relaxed shadow-inner"
+                            className="w-full bg-white border border-zinc-200 rounded-2xl px-8 py-6 text-zinc-900 font-bold focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all min-h-[300px] text-lg leading-relaxed shadow-inner"
                             placeholder={lang === "BM" ? "Ceritakan segalanya kepada kami. Apakah perniagaan anda? Siapakah khalayak sasaran anda? Apakah getaran khusus atau pengalaman unik yang anda inginkan untuk pengguna?" : "Tell us everything. What is your business about? Who is your target audience? What specific vibe or unique experience do you want users to have?"}
                             value={formData.project_vision}
                             onChange={(e) => setFormData(p => ({ ...p, project_vision: e.target.value }))}
                         />
-                        <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                        <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-violet-400">
                             <CheckCircle2 className="w-4 h-4" /> <T en="This vision will be prioritized in our development roadmap." bm="Visi ini akan diutamakan dalam pelan hala tuju pembangunan kami." />
                         </div>
                     </div>
@@ -878,7 +878,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
          <div className="mt-12 flex items-end justify-between pt-8 border-t border-zinc-100">
           <div className="flex flex-col items-start gap-3">
             {step === 0 && (
-                <Link href="/pricing" target="_blank" className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-indigo-600 hover:text-indigo-800 transition-all group border border-indigo-100 rounded-xl bg-indigo-50/50 hover:bg-indigo-50">
+                <Link href="/pricing" target="_blank" className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-violet-600 hover:text-violet-800 transition-all group border border-violet-100 rounded-xl bg-violet-50/50 hover:bg-violet-50">
                   <Search className="w-3.5 h-3.5" /> <T en="View Full Plan Details & Features" bm="Lihat Butiran Pelan & Ciri Penuh" />
                 </Link>
             )}
@@ -915,7 +915,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
             <button 
               onClick={submitForm}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-10 py-4 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-emerald-500 transition-all disabled:opacity-50 hover:scale-105 shadow-xl shadow-emerald-500/20"
+              className="flex items-center gap-2 px-10 py-4 bg-violet-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-violet-500 transition-all disabled:opacity-50 hover:scale-105 shadow-xl shadow-violet-500/20"
             >
               {isSubmitting ? <T en="Syncing Logic..." bm="Menyegerakkan Logik..." /> : <T en="Deploy Requirements" bm="Hantar Keperluan" />}
             </button>

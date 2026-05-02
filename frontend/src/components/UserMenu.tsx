@@ -40,7 +40,7 @@ export default function UserMenu() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
-                <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-800 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-white font-bold text-xs">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-violet-600 to-purple-800 border border-purple-200 dark:border-purple-900 flex items-center justify-center text-white font-black text-xs shadow-sm">
                     M {/* Can fetch initials later */}
                 </div>
                 <ChevronDown className="w-4 h-4 text-zinc-500" />
