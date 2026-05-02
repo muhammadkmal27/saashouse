@@ -350,7 +350,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
             href="/app/dashboard"
             className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:translate-y-0"
           >
-            <T en="Return to Dashboard" bm="Kembali ke Papan Pemuka" />
+            <T en="Return to Dashboard" bm="Kembali ke Laman Utama" />
           </Link>
         </div>
       </div>
@@ -359,29 +359,25 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-6">
-      <div className="mb-12">
-        <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2"><T en="Project Onboarding" bm="Kemasukan Projek" /></h1>
-        <p className="text-zinc-500">
-          {otpMode 
-            ? <T en="Complete one-time purchase package. Submit your vision to start." bm="Lengkapkan pakej pembelian sekali. Hantar visi anda untuk bermula." /> 
-            : <T en="Provide your vision and we will build it. 0 upfront cost." bm="Berikan visi anda dan kami akan binanya. 0 kos pendahuluan." />
-          }
-        </p>
-        
-        {/* Progress Bar (0-6) */}
-        <div className="flex gap-2 mt-8">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className={`h-2 flex-1 rounded-full ${step >= i ? 'bg-violet-500' : 'bg-zinc-200'}`} />
-          ))}
-        </div>
+      <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2"><T en="Project Onboarding" bm="Kemasukan Projek" /></h1>
+      {otpMode 
+          ? <p className="text-zinc-500 font-medium"><T en="Complete one-time purchase package. Submit your vision to start." bm="Lengkapkan pakej pembelian sekali. Hantar visi anda untuk bermula." /></p>
+          : <p className="text-zinc-500 font-medium"><T en="Share your vision and we'll build it." bm="Berikan visi anda dan kami akan membinanya." /></p>
+      }
+      
+      {/* Progress Bar (0-6) */}
+      <div className="flex gap-2 mt-8 mb-12">
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className={`h-2 flex-1 rounded-full ${step >= i ? 'bg-violet-500' : 'bg-zinc-200'}`} />
+        ))}
       </div>
 
       <div className="bg-white border border-zinc-200 p-10 rounded-[2.5rem] shadow-2xl shadow-zinc-200/50 overflow-hidden relative">
         <div className="relative z-10 text-zinc-900">
         {step === 0 && (
           <div className="space-y-8 animate-fade-in">
-            <h2 className="text-3xl font-black text-zinc-900 tracking-tight italic uppercase">0. <T en="Select Your Plan" bm="Pilih Pelan Anda" /></h2>
-            <p className="text-zinc-600 font-medium leading-relaxed"><T en="Please select a package for your new project. You will only be billed once your staging site is ready." bm="Sila pilih pakej untuk projek baru anda. Anda hanya akan dibilkan setelah tapak pementasan anda siap." /></p>
+            <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">1. <T en="Select Your Plan" bm="Pilih Pakej Anda" /></h2>
+            <p className="text-zinc-600 font-medium leading-relaxed"><T en="Please select your plan. The monthly subscription includes premium hosting, security, and bug fixes." bm="Sila pilih pakej anda. Langganan bulanan merangkumi hosting premium, sekuriti, dan pembetulan bug." /></p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {status === null ? (
@@ -437,8 +433,8 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
         {step === 1 && (
           <div className="space-y-8 animate-fade-in">
-            <h2 className="text-2xl font-black text-zinc-900 uppercase italic">1. <T en="Payment Integration (Optional)" bm="Integrasi Pembayaran (Pilihan)" /></h2>
-            <p className="text-zinc-600 font-medium"><T en="If you want to sell online, you need a payment gateway. Do you already have a ToyyibPay account?" bm="Jika anda ingin menjual dalam talian, anda memerlukan gerbang pembayaran. Adakah anda sudah mempunyai akaun ToyyibPay?" /></p>
+            <h2 className="text-2xl font-bold text-zinc-900">2. <T en="Online Payment Integration for your website (Optional)" bm="Integrasi Pembayaran Online dalam website anda (Pilihan)" /></h2>
+            <p className="text-zinc-600 font-medium"><T en="If you want to sell online, you need a payment gateway. Do you already have a ToyyibPay account?" bm="Jika anda ingin menjual dalam talian, anda memerlukan sistem pembayaran. Adakah anda sudah mempunyai akaun ToyyibPay?" /></p>
             
             <div className="flex gap-4">
               <button 
@@ -506,8 +502,8 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
         {step === 2 && (
           <div className="space-y-8 animate-fade-in">
-            <h2 className="text-2xl font-black text-zinc-900 uppercase italic">2. <T en="Feature Specification" bm="Spesifikasi Ciri" /></h2>
-            <p className="text-zinc-600 font-medium"><T en="Select the core functionalities for your site. All systems are included in your tier." bm="Pilih fungsi teras untuk tapak anda. Semua sistem disertakan dalam pelan anda." /></p>
+            <h2 className="text-2xl font-bold text-zinc-900">3. <T en="System Feature Options" bm="Pilihan Fungsi Sistem" /></h2>
+            <p className="text-zinc-600 font-medium"><T en="Choose the functions you want to activate. All these systems can be used immediately according to your project needs." bm="Pilih fungsi yang ingin anda aktifkan. Semua sistem ini boleh digunakan terus mengikut keperluan projek anda." /></p>
             
             <div className="grid md:grid-cols-2 gap-6">
                {[
@@ -533,22 +529,22 @@ function CreateProjectForm({ lang }: { lang: string }) {
                             className="w-5 h-5 rounded border-zinc-300 text-violet-500 focus:ring-violet-500/20 bg-white"
                           />
                           <span className="text-sm font-bold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">
-                            {item === "Shopping Cart & Checkout" ? <T en="Shopping Cart & Checkout" bm="Troli Belah & Daftar Keluar" /> :
-                             item === "Payment Gateway Sync" ? <T en="Payment Gateway Sync" bm="Sinkronasi Gerbang Pembayaran" /> :
-                             item === "Promo Code System" ? <T en="Promo Code System" bm="Sistem Kod Promo" /> :
+                            {item === "Shopping Cart & Checkout" ? <T en="Shopping Cart & Checkout" bm="Sistem Kedai Online" /> :
+                             item === "Payment Gateway Sync" ? <T en="Payment Gateway Sync" bm="Pembayaran Online (FPX/Kad)" /> :
+                             item === "Promo Code System" ? <T en="Promo Code System" bm="Sistem Kod Diskaun" /> :
                              item === "Order Notifications" ? <T en="Order Notifications" bm="Notifikasi Pesanan" /> :
-                             item === "Appointment Scheduler" ? <T en="Appointment Scheduler" bm="Penjadual Temujanji" /> :
-                             item === "Service Catalog" ? <T en="Service Catalog" bm="Katalog Perkhidmatan" /> :
-                             item === "Location Mapping" ? <T en="Location Mapping" bm="Pemetaan Lokasi" /> :
-                             item === "Staff Directory" ? <T en="Staff Directory" bm="Direktori Kakitangan" /> :
-                             item === "Interactive Gallery" ? <T en="Interactive Gallery" bm="Galeri Interaktif" /> :
+                             item === "Appointment Scheduler" ? <T en="Appointment Scheduler" bm="Sistem Temujanji" /> :
+                             item === "Service Catalog" ? <T en="Service Catalog" bm="Senarai Perkhidmatan" /> :
+                             item === "Location Mapping" ? <T en="Location Mapping" bm="Lokasi Kedai (Google Maps)" /> :
+                             item === "Staff Directory" ? <T en="Staff Directory" bm="Senarai Kakitangan" /> :
+                             item === "Interactive Gallery" ? <T en="Interactive Gallery" bm="Galeri Gambar" /> :
                              item === "Customer Testimonials" ? <T en="Customer Testimonials" bm="Testimoni Pelanggan" /> :
-                             item === "Company Timeline" ? <T en="Company Timeline" bm="Garis Masa Syarikat" /> :
-                             item === "Partner Showcase" ? <T en="Partner Showcase" bm="Pameran Rakan Kongsi" /> :
-                             item === "Blog / News Engine" ? <T en="Blog / News Engine" bm="Enjin Blog / Berita" /> :
-                             item === "FAQ Hub" ? <T en="FAQ Hub" bm="Hab Soalan Lazim" /> :
-                             item === "Floating Chat Support" ? <T en="Floating Chat Support" bm="Sokongan Sembang Terapung" /> :
-                             item === "Lead Generation Forms" ? <T en="Lead Generation Forms" bm="Borang Penjanaan Prospek" /> : item}
+                             item === "Company Timeline" ? <T en="Company Timeline" bm="Sejarah Syarikat" /> :
+                             item === "Partner Showcase" ? <T en="Partner Showcase" bm="Senarai Rakan Kongsi" /> :
+                             item === "Blog / News Engine" ? <T en="Blog / News Engine" bm="Sistem Blog / Berita" /> :
+                             item === "FAQ Hub" ? <T en="FAQ Hub" bm="Soalan Lazim (FAQ)" /> :
+                             item === "Floating Chat Support" ? <T en="Floating Chat Support" bm="Sembang Langsung (Live Chat)" /> :
+                             item === "Lead Generation Forms" ? <T en="Lead Generation Forms" bm="Borang Hubungi / Lead" /> : item}
                           </span>
                         </label>
                       ))}
@@ -576,10 +572,10 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         onClick={() => setFormData(p => ({ ...p, custom_features: [...p.custom_features, ""] }))}
                         className="text-violet-600 text-[10px] font-black uppercase tracking-widest hover:underline pt-2 flex items-center gap-2"
                     >
-                        <span className="text-lg">+</span> <T en="Add Extra Feature" bm="Tambah Ciri Tambahan" />
+                        <span className="text-lg">+</span> <T en="Add Extra Feature" bm="Tambah fungsi Tambahan" />
                     </button>
                     {formData.custom_features.length === 0 && (
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"><T en="No extra features added yet." bm="Tiada ciri tambahan ditambah lagi." /></p>
+                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest"><T en="No extra features added yet." bm="Tiada fungsi sistem tambahan ditambah lagi." /></p>
                     )}
                 </div>
             </div>
@@ -598,8 +594,8 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
         {step === 3 && (
            <div className="space-y-8 animate-fade-in">
-             <h2 className="text-2xl font-black text-zinc-900 uppercase italic">3. <T en="Brand & Visuals" bm="Jenama & Visual" /></h2>
-             <p className="text-zinc-600 font-medium leading-relaxed"><T en="Let's define your website's look and feel. Provide your brand assets and structural preferences." bm="Mari tentukan rupa dan rasa laman web anda. Berikan aset jenama dan pilihan struktur anda." /></p>
+             <h2 className="text-2xl font-bold text-zinc-900">4. <T en="Brand & Visuals" bm="Jenama & Visual" /></h2>
+             <p className="text-zinc-600 font-medium leading-relaxed"><T en="Let's define your website design. Provide details about your logo, color preferences, and the page structure (sitemap) you want." bm="Jom tentukan reka bentuk laman web anda. Berikan maklumat tentang logo, pilihan warna, dan susunan halaman (sitemap) yang anda inginkan." /></p>
              
              <div className="grid md:grid-cols-2 gap-8">
                <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm">
@@ -706,7 +702,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
         {step === 4 && (
            <div className="space-y-8 animate-fade-in">
-              <h2 className="text-2xl font-black text-zinc-900 uppercase italic">4. <T en="Business Identity" bm="Identiti Perniagaan" /></h2>
+              <h2 className="text-2xl font-bold text-zinc-900">5. <T en="Business Identity" bm="Identiti Perniagaan" /></h2>
               <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide your official business details for the footer, contact page, and social links." bm="Berikan butiran perniagaan rasmi anda untuk footer, halaman kenalan dan pautan sosial." /></p>
               
               <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-[2.5rem] shadow-sm">
@@ -798,7 +794,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
         {step === 5 && (
            <div className="space-y-8 animate-fade-in">
-             <h2 className="text-2xl font-black text-zinc-900 uppercase italic">5. <T en="Domain Request" bm="Permintaan Domain" /></h2>
+             <h2 className="text-2xl font-bold text-zinc-900">6. <T en="Domain Request" bm="Permintaan Domain" /></h2>
              <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide up to 3 choices for your website domain in order of preference. We will verify and register the best option." bm="Berikan sehingga 3 pilihan untuk domain laman web anda mengikut urutan pilihan. Kami akan mengesahkan dan mendaftarkan pilihan terbaik." /></p>
              
               <div className="space-y-6">
@@ -843,7 +839,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                     <div className="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center">
                         <CheckCircle2 className="w-6 h-6 text-violet-500" />
                     </div>
-                    <h2 className="text-2xl font-black text-zinc-900 uppercase italic">6. <T en="Project Vision" bm="Visi Projek" /></h2>
+                    <h2 className="text-2xl font-bold text-zinc-900">7. <T en="Project Vision" bm="Visi Projek" /></h2>
                 </div>
 
                 <div className="space-y-6">
@@ -879,7 +875,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
           <div className="flex flex-col items-start gap-3">
             {step === 0 && (
                 <Link href="/pricing" target="_blank" className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-violet-600 hover:text-violet-800 transition-all group border border-violet-100 rounded-xl bg-violet-50/50 hover:bg-violet-50">
-                  <Search className="w-3.5 h-3.5" /> <T en="View Full Plan Details & Features" bm="Lihat Butiran Pelan & Ciri Penuh" />
+                  <Search className="w-3.5 h-3.5" /> <T en="View Full Plan Details & Features" bm="Lihat Butiran Pakej & Fungsi Sistem Penuh" />
                 </Link>
             )}
             {step === 0 ? (
@@ -891,7 +887,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                   }}
                   className="flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest text-[11px] text-red-600 hover:text-red-800 transition-all group border border-red-100 rounded-xl bg-red-50/50 hover:bg-red-50"
                 >
-                  <span>←</span> <T en="Cancel & Return to Dashboard" bm="Batal & Kembali ke Papan Pemuka" />
+                  <span>←</span> <T en="Cancel & Return to Dashboard" bm="Batal & Kembali ke Laman Utama" />
                 </button>
             ) : (
               <button 

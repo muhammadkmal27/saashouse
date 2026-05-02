@@ -22,7 +22,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <nav className="hidden md:flex items-center gap-1">
               <Link href="/app/dashboard" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-900 bg-zinc-100 dark:text-zinc-50 dark:bg-zinc-900">
                 <LayoutDashboard className="w-4 h-4" />
-                <T en="Dashboard" bm="Papan Pemuka" />
+                <T en="Dashboard" bm="Laman Utama" />
               </Link>
               <Link href="/app/projects" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <Briefcase className="w-4 h-4" />
@@ -30,7 +30,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               </Link>
               <Link href="/app/billing" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <Receipt className="w-4 h-4" />
-                <T en="Billing" bm="Pengebilan" />
+                <T en="Billing" bm="Pembayaran" />
               </Link>
               <Link href="/app/tickets" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <FileText className="w-4 h-4" />

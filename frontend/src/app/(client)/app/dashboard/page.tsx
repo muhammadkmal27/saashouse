@@ -71,7 +71,7 @@ export default function DashboardPage() {
 
                                 <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1 block"><T en="Welcome back" bm="Selamat kembali" /></h4>
                                 <h1 className="text-[2.75rem] font-extrabold tracking-tight text-slate-900 mb-5 leading-[1.05] max-w-[90%]">
-                                    <T en="A sharper dashboard for tracking projects without visual clutter." bm="Papan pemuka yang lebih jelas untuk menjejak projek tanpa gangguan visual." />
+                                    <T en="A sharper dashboard for tracking projects without visual clutter." bm="Laman utama yang lebih jelas untuk menjejak projek tanpa gangguan visual." />
                                 </h1>
                                 <p className="text-[15px] font-medium text-slate-500 mb-10 max-w-lg leading-relaxed">
                                     <T en="Everything important is surfaced in one place with clearer hierarchy, calmer spacing, and a more premium layout." bm="Sekaligus penting dipusatkan di satu tempat dengan hierarki yang lebih jelas, jarak yang lebih selesa, dan susun atur yang premium." />

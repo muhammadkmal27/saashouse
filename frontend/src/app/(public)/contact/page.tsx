@@ -74,7 +74,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm text-zinc-500 uppercase font-bold tracking-widest"><T en="Email Us" bm="E-mel Kami" /></p>
-                    <p className="text-xl font-bold text-zinc-300">hello@saashouse.com</p>
+                    <p className="text-xl font-bold text-zinc-300">saashouse.mail@gmail.com</p>
                   </div>
                 </div>
 
@@ -84,7 +84,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm text-zinc-500 uppercase font-bold tracking-widest"><T en="WhatsApp Business" bm="WhatsApp Perniagaan" /></p>
-                    <p className="text-xl font-bold text-zinc-300">+60 12-345 6789</p>
+                    <p className="text-xl font-bold text-zinc-300">+60 11-35523788</p>
                   </div>
                 </div>
 
@@ -161,7 +161,7 @@ export default function ContactPage() {
                       className="w-full bg-[#09090b] text-white border border-zinc-800 rounded-2xl px-5 py-4 focus:border-cyan-400 transition-colors outline-none appearance-none cursor-pointer"
                     >
                       <option value="New Project Inquiry">{lang === "EN" ? "New Project Inquiry" : "Pertanyaan Projek Baru"}</option>
-                      <option value="Bug Fix / Maintenance">{lang === "EN" ? "Bug Fix / Maintenance" : "Pembaikan Pepijat / Penyelenggaraan"}</option>
+                      <option value="Bug Fix / Maintenance">{lang === "EN" ? "Bug Fix / Maintenance" : "Pembaikan Ralat Sistem / Penyelenggaraan"}</option>
                       <option value="Custom Partnership">{lang === "EN" ? "Custom Partnership" : "Perkongsian Khas"}</option>
                       <option value="Other">{lang === "EN" ? "Other" : "Lain-lain"}</option>
                     </select>
@@ -227,9 +227,9 @@ export default function ContactPage() {
             <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-violet-500/50 via-cyan-500/50 to-emerald-500/50" />
 
             {[
-              { step: "01", title: <T en="Reach Out" bm="Berhubung" />, desc: <T en="Fill out the contact form or message us on WhatsApp. We typically respond within 2 hours." bm="Isi borang laluan pantas atau mesej pihak kami via WhatsApp. Kami balas dalam masa dua jam!" />, icon: MessageSquare, color: "text-violet-400 bg-violet-400/10 border-violet-400/20" },
-              { step: "02", title: <T en="Requirements Call" bm="Panggilan Rundingan" />, desc: <T en="A 30-minute discovery call to understand your business goals, target audience, and technical needs." bm="Panggilan kajian 30-minit untuk kami kenal dan menelusuri kehendak matlamat perniagaan anda." />, icon: Phone, color: "text-blue-400 bg-blue-400/10 border-blue-400/20" },
-              { step: "03", title: <T en="Build & Preview" bm="Bina & Semak Semula" />, desc: <T en="We build your project in 5-7 days. You get a private staging link to review every detail before going live." bm="Projek dibina dan diserah dalam masa sesingkat 5 hari, diringi sesi ujian persendirian untuk jaminan kepuasan." />, icon: Globe, color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20" },
+              { step: "01", title: <T en="Start Project" bm="Bina Projek" />, desc: <T en="Fill out the project submission form to get started. Our team will review your requirements and contact you shortly." bm="Isi borang penyerahan projek untuk bermula. Pasukan kami akan menyemak keperluan anda dan menghubungi anda segera." />, icon: MessageSquare, color: "text-violet-400 bg-violet-400/10 border-violet-400/20" },
+              { step: "02", title: <T en="Features" bm="Fungsi Sistem" />, desc: <T en="Define your unique requirements and additional features. Any changes can be requested through our dedicated ticket system." bm="Tetapkan keperluan unik dan fungsi sistem tambahan anda. Sebarang perubahan boleh diminta melalui sistem tiket khas kami." />, icon: Phone, color: "text-blue-400 bg-blue-400/10 border-blue-400/20" },
+              { step: "03", title: <T en="Build & Preview" bm="Bina & Semak Semula" />, desc: <T en="We build your project within 1 to 2 months. You get a private staging link to review every detail before going live." bm="Projek dibina dalam tempoh 1 hingga 2 bulan, diiringi sesi ujian persendirian untuk jaminan kepuasan anda." />, icon: Globe, color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20" },
               { step: "04", title: <T en="Go Live" bm="Pelancaran Segera" />, desc: <T en="Once approved, we deploy to production. DNS, SSL, and security — all handled by us automatically." bm="Sebaik diluluskan, kami mula memuat naik kod anda ke produksi (DNS, SSL dilindungi)." />, icon: Zap, color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
             ].map((item, idx) => (
               <div key={idx} className="relative text-center space-y-5">
@@ -259,10 +259,10 @@ export default function ContactPage() {
 
             <div className="p-10 rounded-3xl bg-[#0e0e11] border border-zinc-800 text-center space-y-4 hover:border-zinc-700 transition-colors">
               <div className="w-16 h-16 rounded-2xl bg-violet-400/10 border border-violet-400/20 flex items-center justify-center text-violet-400 mx-auto">
-                <Users className="w-8 h-8" />
+                <Headphones className="w-8 h-8" />
               </div>
-              <h4 className="text-3xl font-extrabold text-white">150+ <T en="Clients" bm="Pelanggan" /></h4>
-              <p className="text-zinc-500 text-sm"><T en="Trusted by businesses across Malaysia, from startups to established enterprises." bm="Dipercayai oleh perniagaan di seluruh Malaysia, dari syarikat permulaan hingga perusahaan besar." /></p>
+              <h4 className="text-3xl font-extrabold text-white"><T en="Expert Support" bm="Sokongan Pakar" /></h4>
+              <p className="text-zinc-500 text-sm"><T en="Direct access to the engineers who built your platform. No middlemen, no chatbots." bm="Akses terus kepada jurutera yang membina platform anda. Tiada orang tengah, tiada chatbot." /></p>
             </div>
 
             <div className="p-10 rounded-3xl bg-[#0e0e11] border border-zinc-800 text-center space-y-4 hover:border-zinc-700 transition-colors">
@@ -289,25 +289,21 @@ export default function ContactPage() {
               {
                 quote: "SaaS House transformed our online presence completely. The managed hosting means I never worry about server issues — I just focus on running my business.",
                 name: "Ahmad Razif",
-                role: "CEO, Razif Holdings",
                 initial: "A"
               },
               {
-                quote: "The onboarding process was incredibly smooth. From requirements to a live website in just 6 days. The speed optimization they did was phenomenal.",
+                quote: "The transition to a managed platform was seamless. They delivered a high-performance site that exceeded our expectations in both speed and reliability.",
                 name: "Nurul Aisyah",
-                role: "Founder, Aisyah Boutique",
                 initial: "N"
               },
               {
                 quote: "We moved from a shared hosting provider and immediately saw a 3x improvement in page load speed. Their enterprise infrastructure is no joke.",
                 name: "Daniel Lim",
-                role: "CTO, Finova Solutions",
                 initial: "D"
               },
               {
-                quote: "Having a dedicated manager who understands our project inside out has been invaluable. It's like having an in-house dev team without the overhead.",
+                quote: "Having direct access to the lead engineers has been invaluable. They understand our project inside out and provide support that is both fast and personal.",
                 name: "Siti Mariam",
-                role: "Director, EduPlatform MY",
                 initial: "S"
               },
             ].map((testimonial, idx) => (
@@ -320,10 +316,10 @@ export default function ContactPage() {
                   ))}
                 </div>
                 <p className="text-zinc-300 leading-relaxed italic">&ldquo;
-                  {testimonial.quote === "SaaS House transformed our online presence completely. The managed hosting means I never worry about server issues — I just focus on running my business." ? <T en="SaaS House transformed our online presence completely. The managed hosting means I never worry about server issues — I just focus on running my business." bm="SaaS House telah mengubah kehadiran dalam talian kami sepenuhnya. Pengehosan terurus bermakna saya tidak perlu bimbang tentang masalah pelayan." /> : 
-                   testimonial.quote === "The onboarding process was incredibly smooth. From requirements to a live website in just 6 days. The speed optimization they did was phenomenal." ? <T en="The onboarding process was incredibly smooth. From requirements to a live website in just 6 days. The speed optimization they did was phenomenal." bm="Proses kemasukan sangat lancar. Dari penetapan sehingga pelancaran hanya dalam masa 6 hari. Pengoptimuman kelajuan mereka sangat hebat." /> :
-                   testimonial.quote === "We moved from a shared hosting provider and immediately saw a 3x improvement in page load speed. Their enterprise infrastructure is no joke." ? <T en="We moved from a shared hosting provider and immediately saw a 3x improvement in page load speed. Their enterprise infrastructure is no joke." bm="Kami bertukar daripada pengehosan kongsi dan segera melihat peningkatan kelajuan 3 kali ganda. Infrastruktur perusahaan mereka sangat mantap." /> :
-                   testimonial.quote === "Having a dedicated manager who understands our project inside out has been invaluable. It's like having an in-house dev team without the overhead." ? <T en="Having a dedicated manager who understands our project inside out has been invaluable. It's like having an in-house dev team without the overhead." bm="Mempunyai pengurus khas yang memahami projek sangat berharga. Ia seperti mempunyai pasukan pembangun dalaman sendiri." /> : testimonial.quote}
+                  {testimonial.quote === "SaaS House transformed our online presence completely. The managed hosting means I never worry about server issues — I just focus on running my business." ? <T en="SaaS House transformed our online presence completely. The managed hosting means I never worry about server issues — I just focus on running my business." bm="SaaS House memang ubah habis cara kami niaga online. Dengan hosting terurus ni, saya dah tak payah pening kepala fikir pasal masalah server." /> : 
+                   testimonial.quote === "The transition to a managed platform was seamless. They delivered a high-performance site that exceeded our expectations in both speed and reliability." ? <T en="The transition to a managed platform was seamless. They delivered a high-performance site that exceeded our expectations in both speed and reliability." bm="Proses nak tukar ke platform ni memang smooth gila. Laman web yang dorang buat ni laju dan stabil, memang puas hati sangat." /> :
+                   testimonial.quote === "We moved from a shared hosting provider and immediately saw a 3x improvement in page load speed. Their enterprise infrastructure is no joke." ? <T en="We moved from a shared hosting provider and immediately saw a 3x improvement in page load speed. Their enterprise infrastructure is no joke." bm="Dulu pakai shared hosting, bila tukar je terus nampak laju 3 kali ganda. Memang mantap infrastruktur dorang ni." /> :
+                   testimonial.quote === "Having direct access to the lead engineers has been invaluable. They understand our project inside out and provide support that is both fast and personal." ? <T en="Having direct access to the lead engineers has been invaluable. They understand our project inside out and provide support that is both fast and personal." bm="Dapat bincang terus dengan developer dorang memang best. Dorang faham setiap inci projek kami dan support pun memang laju." /> : testimonial.quote}
                 &rdquo;</p>
                 <div className="flex items-center gap-4 pt-2">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-black text-lg">
@@ -331,7 +327,6 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="font-bold text-white">{testimonial.name}</p>
-                    <p className="text-zinc-500 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -352,8 +347,8 @@ export default function ContactPage() {
                 <div className="space-y-4">
                   {[
                     { day: <T en="Monday - Friday" bm="Isnin - Jumaat" />, time: "9:00 AM — 6:00 PM MYT", active: true },
-                    { day: <T en="Saturday" bm="Sabtu" />, time: "10:00 AM — 2:00 PM MYT", active: true },
-                    { day: <T en="Sunday & Public Holiday" bm="Ahad & Cuti Umum" />, time: <T en="Closed" bm="Tutup" />, active: false },
+                    { day: <T en="Saturday - Sunday" bm="Sabtu - Ahad" />, time: <T en="Closed" bm="Tutup" />, active: false },
+                    { day: <T en="Public Holiday" bm="Cuti Umum" />, time: <T en="Closed" bm="Tutup" />, active: false },
                   ].map((schedule, idx) => (
                     <div key={idx} className="flex items-center justify-between py-4 border-b border-zinc-800 last:border-b-0">
                       <span className="text-zinc-300 font-medium">{schedule.day}</span>
@@ -367,9 +362,9 @@ export default function ContactPage() {
                 <h3 className="text-2xl md:text-3xl font-extrabold text-white"><T en="Support Channels" bm="Saluran Sokongan" /></h3>
                 <div className="space-y-4">
                   {[
-                    { channel: <T en="Email Support" bm="Sokongan E-mel" />, desc: <T en="For general inquiries and project discussions" bm="Untuk pertanyaan umum dan perbincangan projek" />, badge: <T en="All Plans" bm="Semua Pelan" />, icon: Mail },
-                    { channel: <T en="WhatsApp Business" bm="WhatsApp Perniagaan" />, desc: <T en="Quick questions and urgent requests" bm="Soalan pantas dan permintaan kecemasan" />, badge: "Growth+", icon: MessageSquare },
-                    { channel: <T en="Priority Hotline" bm="Talian Utama" />, desc: <T en="Direct line to your dedicated manager" bm="Talian terus kepada pengurus khas anda" />, badge: "Enterprise+", icon: Headphones },
+                    { channel: <T en="Email Support" bm="Sokongan E-mel" />, desc: <T en="For general inquiries and project discussions" bm="Untuk pertanyaan umum dan perbincangan projek" />, badge: <T en="All Plans" bm="Semua Pakej" />, icon: Mail },
+                    { channel: <T en="WhatsApp Business" bm="WhatsApp Perniagaan" />, desc: <T en="Quick questions and urgent requests" bm="Soalan pantas dan permintaan kecemasan" />, badge: <T en="All Plans" bm="Semua Pakej" />, icon: MessageSquare },
+                    { channel: <T en="Priority Hotline" bm="Talian Utama" />, desc: <T en="Direct line to your dedicated manager" bm="Talian terus kepada pengurus khas anda" />, badge: <T en="All Plans" bm="Semua Pakej" />, icon: Headphones },
                   ].map((item, idx) => (
                     <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5">
                       <div className="w-10 h-10 rounded-xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
@@ -400,7 +395,7 @@ export default function ContactPage() {
             <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
               <T 
                 en={<>Not sure which plan<br />fits your business?</>} 
-                bm={<>Tidak pasti pelan mana<br />yang sesuai?</>} 
+                bm={<>Tidak pasti pakej mana<br />yang sesuai?</>} 
               />
             </h2>
             <p className="text-zinc-400 text-lg max-w-xl mx-auto">
@@ -411,7 +406,7 @@ export default function ContactPage() {
                 href="/pricing"
                 className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-black uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-violet-600/20 text-lg"
               >
-                <T en="View Plans" bm="Lihat Pelan" /> <ArrowRight className="w-5 h-5" />
+                <T en="View Plans" bm="Lihat Pakej" /> <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 href="/showcase"

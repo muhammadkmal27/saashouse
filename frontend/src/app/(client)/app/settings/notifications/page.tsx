@@ -101,7 +101,7 @@ export default function NotificationsSettingsPage() {
                             
                             {[
                                 { key: 'project_updates', label: <T en="Project Updates" bm="Kemas Kini Projek" />, desc: <T en="Get notified when your project status changes or milestones are hit." bm="Dapatkan notifikasi apabila status projek berubah atau pencapaian dicapai." /> },
-                                { key: 'billing_alerts', label: <T en="Billing Alerts" bm="Amaran Pengebilan" />, desc: <T en="Invoices, payment failures, and major renewal reminders." bm="Invois, kegagalan pembayaran, dan peringatan pembaharuan utama." /> },
+                                { key: 'billing_alerts', label: <T en="Billing Alerts" bm="Amaran Pembayaran" />, desc: <T en="Invoices, payment failures, and major renewal reminders." bm="Invois, kegagalan pembayaran, dan peringatan pembaharuan utama." /> },
                                 { key: 'security_alerts', label: <T en="Security Alerts" bm="Amaran Keselamatan" />, desc: <T en="Get notified of password changes and account-wide security events." bm="Dapatkan notifikasi tentang pertukaran kata laluan dan acara keselamatan akaun." /> }
                             ].map((item) => (
                                 <div key={item.key} className="p-8 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-all group">

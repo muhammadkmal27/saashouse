@@ -110,14 +110,14 @@ export default function TicketsPage() {
                                 className="flex items-center justify-center gap-2.5 h-[50px] px-7 rounded-full bg-white text-orange-600 font-bold text-[13px] hover:bg-orange-50 transition-all border border-slate-200 shadow-sm hover:-translate-y-0.5"
                             >
                                 <Bug className="w-[18px] h-[18px] text-orange-500" />
-                                <T en="Report Bug" bm="Lapor Pepijat" />
+                                <T en="Report Bug" bm="Lapor Ralat Sistem" />
                             </Link>
                             <Link 
                                 href="/app/tickets/new?type=FEATURE" 
                                 className="flex items-center justify-center gap-2.5 h-[50px] px-8 rounded-full bg-violet-600 text-white font-semibold text-[14px] shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:bg-violet-700 transition-all hover:-translate-y-0.5 border border-violet-500"
                             >
                                 <Zap className="w-[18px] h-[18px]" strokeWidth={2.5} />
-                                <T en="Request Feature" bm="Mohon Ciri" />
+                                <T en="Request Feature" bm="Mohon Fungsi Sistem" />
                             </Link>
                         </div>
                     </div>
@@ -143,7 +143,7 @@ export default function TicketsPage() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{openBugs}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Open Bugs" bm="Pepijat Terbuka" /></div>
+                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Open Bugs" bm="Ralat Sistem Terbuka" /></div>
                             </div>
                         </div>
 
@@ -154,7 +154,7 @@ export default function TicketsPage() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{featureReqs}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Feature Requests" bm="Permohonan Ciri" /></div>
+                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Feature Requests" bm="Permohonan Fungsi Sistem" /></div>
                             </div>
                         </div>
 
@@ -199,7 +199,7 @@ export default function TicketsPage() {
                                     : 'text-slate-500 hover:text-slate-800'
                             }`}
                         >
-                            {f === 'ALL' ? <T en="All" bm="Semua" /> : f === 'BUG' ? <T en="Bug" bm="Pepijat" /> : <T en="Feature" bm="Ciri" />}
+                            {f === 'ALL' ? <T en="All" bm="Semua" /> : f === 'BUG' ? <T en="Bug" bm="Ralat Sistem" /> : <T en="Feature" bm="Fungsi Sistem" />}
                         </button>
                     ))}
                 </div>
@@ -237,11 +237,11 @@ export default function TicketsPage() {
                                     <div className="flex items-center justify-between mb-6">
                                         {isBug ? (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50/80 text-orange-600 text-[9px] font-black uppercase tracking-widest border border-orange-100/50 rounded-full">
-                                                <Bug className="w-3 h-3" /> <T en="BUG" bm="PEPIJAT" />
+                                                <Bug className="w-3 h-3" /> <T en="BUG" bm="RALAT SISTEM" />
                                             </div>
                                         ) : (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 text-[9px] font-black uppercase tracking-widest border border-violet-100/50 rounded-full">
-                                                <Hash className="w-3 h-3 text-violet-500" /> <T en="FEATURE" bm="CIRI" />
+                                                <Hash className="w-3 h-3 text-violet-500" /> <T en="FEATURE" bm="FUNGSI SISTEM" />
                                             </div>
                                         )}
 

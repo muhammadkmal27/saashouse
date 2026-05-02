@@ -27,21 +27,21 @@ export default function HomeSubscription() {
           </h1>
           
           <p className="text-lg md:text-xl text-zinc-400 leading-relaxed max-w-2xl mx-auto font-medium">
-            <T en="Stop paying massive developer retainers. We build, host, and maintain your platform — you pay only a flat monthly subscription." bm="Berhenti membayar kos pembangun yang mahal. Kami bina, hos, dan selenggara platform anda — anda hanya perlu bayar yuran langganan bulanan yang tetap."/>
+            <T en="Professional platform for a RM550 deposit. Flat monthly fee covers premium hosting and continuous bug-fix support. No hidden costs." bm="Miliki platform profesional dengan deposit RM550. Yuran bulanan tetap untuk hosting premium dan sokongan 'bug-fix' berterusan. Tanpa kos tersembunyi."/>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link 
-              href="/auth/register" 
+              href="/pricing" 
               className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white font-bold text-sm shadow-[0_0_40px_rgba(168,85,247,0.3)] transition-all flex items-center justify-center gap-2 group active:scale-95"
             >
-              <T en="Start Your Free Trial" bm="Mulakan Percubaan Percuma"/> <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <T en="See Plans" bm="Lihat Pakej"/> <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 
               href="/contact"
               className="w-full sm:w-auto px-8 py-4 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-sm transition-all flex items-center justify-center"
             >
-              <T en="Get A Demo" bm="Dapatkan Demo"/>
+              <T en="Get in Touch" bm="Ada Soalan?"/>
             </Link>
           </div>
         </div>

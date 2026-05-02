@@ -127,12 +127,12 @@ export default function LandingPage() {
               },
               {
                 icon: Command,
-                title: <T en="Modern Stack" bm="Timbunan Moden" />,
+                title: <T en="Modern Stack" bm="Stack Moden" />,
                 desc: <T en="Blazing fast loading performance with enterprise-grade server architecture." bm="Prestasi masa muat yang pantas dengan seni bina pelayan bertaraf perusahaan." />
               },
               {
                 icon: Users,
-                title: <T en="Human Support" bm="Sokongan Manusia" />,
+                title: <T en="Human Support" bm="Sokongan" />,
                 desc: <T en="No bots. Talk directly to the engineers building your platform." bm="Tiada robot. Bercakap terus dengan jurutera yang membina platform anda." />
               },
               {

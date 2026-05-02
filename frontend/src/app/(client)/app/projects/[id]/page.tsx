@@ -771,7 +771,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     {/* Active Plan Card */}
                     <div className="bg-gradient-to-br from-violet-600 to-fuchsia-500 rounded-2xl p-7 text-white shadow-sm relative overflow-hidden h-auto flex flex-col">
                         <div className="flex items-center gap-2 text-white/80 text-[10px] uppercase font-bold tracking-widest w-full mb-3 relative z-10">
-                            <Star className="w-3 h-3 text-white" /> <T en="ACTIVE PLAN" bm="PELAN AKTIF" />
+                            <Star className="w-3 h-3 text-white" /> <T en="ACTIVE PLAN" bm="PAKEJ AKTIF" />
                         </div>
                         <h2 className="text-2xl font-extrabold mb-5 tracking-tight relative z-10">{planName}</h2>
                         <div className="space-y-2 relative z-10">
@@ -793,7 +793,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     {planName === "One-Time Purchase" && (
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100/80">
                             <div className="flex items-center gap-2 text-zinc-400 text-[10px] uppercase font-bold tracking-widest mb-4 ml-1">
-                                <CreditCard className="w-3 h-3" /> <T en="PROJECT BILLING" bm="PENGEBILAN PROJEK" />
+                                <CreditCard className="w-3 h-3" /> <T en="PROJECT BILLING" bm="PEMBAYARAN PROJEK" />
                             </div>
                             
                             {(project.status === "REVIEW" || project.status === "PAYMENT_PENDING") && (
@@ -852,7 +852,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     {planName !== "One-Time Purchase" && (
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100/80">
                              <div className="flex items-center gap-2 text-zinc-400 text-[10px] uppercase font-bold tracking-widest mb-4 ml-1">
-                                <CreditCard className="w-3 h-3" /> <T en="ONBOARDING BILLING" bm="PENGEBILAN ONBOARDING" />
+                                <CreditCard className="w-3 h-3" /> <T en="ONBOARDING BILLING" bm="PEMBAYARAN ONBOARDING" />
                             </div>
 
                             {(project.status === "REVIEW" || project.status === "PAYMENT_PENDING") && (

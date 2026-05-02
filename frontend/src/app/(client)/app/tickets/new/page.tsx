@@ -126,7 +126,7 @@ function NewTicketForm() {
                 href="/app/tickets"
                 className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 font-black uppercase tracking-widest text-[10px] mb-8 group"
             >
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Back to Dashboard" bm="Kembali ke Papan Pemuka" />
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Back to Dashboard" bm="Kembali ke Laman Utama" />
             </Link>
 
             <div className="bg-white/80 bg-gradient-to-br from-white to-violet-50/20 rounded-[3rem] p-10 lg:p-12 border border-violet-100/50 shadow-xl shadow-violet-100/30 relative overflow-hidden group">
@@ -138,7 +138,7 @@ function NewTicketForm() {
                     </div>
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">
-                            {type === 'BUG' ? <T en="Report Issue (Bug)" bm="Lapor Isu (Pepijat)" /> : <T en="Request Feature" bm="Mohon Ciri" />}
+                            {type === 'BUG' ? <T en="Report Issue (Bug)" bm="Lapor Isu (Ralat Sistem)" /> : <T en="Request Feature" bm="Mohon Fungsi Sistem" />}
                         </h1>
                         <p className="text-slate-500 font-medium"><T en="Please provide details to help us take action." bm="Sila berikan butiran untuk membantu kami mengambil tindakan." /></p>
                     </div>

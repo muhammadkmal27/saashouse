@@ -130,8 +130,8 @@ export default function MiniCreateTicket({
             <div>
               <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 block"><T en="Issue Category" bm="Kategori Isu" /></label>
               <div className="flex gap-3 bg-zinc-50 dark:bg-zinc-900/30 p-1.5 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
-                <button type="button" onClick={() => setType('BUG')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'BUG' ? 'bg-white dark:bg-zinc-800 text-red-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}><T en="Report Bug" bm="Lapor Pepigat" /></button>
-                <button type="button" onClick={() => setType('FEATURE')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'FEATURE' ? 'bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}><T en="Request Feature" bm="Mohon Ciri" /></button>
+                <button type="button" onClick={() => setType('BUG')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'BUG' ? 'bg-white dark:bg-zinc-800 text-red-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}><T en="Report Bug" bm="Lapor Ralat Sistem" /></button>
+                <button type="button" onClick={() => setType('FEATURE')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${type === 'FEATURE' ? 'bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm border border-zinc-200/50 dark:border-zinc-700' : 'text-zinc-400 hover:text-zinc-600'}`}><T en="Request Feature" bm="Mohon Fungsi Sistem" /></button>
               </div>
             </div>
 

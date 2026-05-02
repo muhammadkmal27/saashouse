@@ -61,7 +61,7 @@ export default function LoginPage() {
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2"><T en="Welcome back" bm="Selamat kembali" /></h1>
         <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
-          <T en="Sign in to access your enterprise dashboard" bm="Log masuk untuk mengakses papan pemuka perusahaan anda" />
+          <T en="Sign in to access your enterprise dashboard" bm="Log masuk untuk mengakses laman utama perusahaan anda" />
         </p>
       </div>
 

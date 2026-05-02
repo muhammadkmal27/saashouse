@@ -239,15 +239,15 @@ export default function BillingPage() {
                 </button>
             ) : (
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-violet-700 shadow-sm border border-violet-200/50 mb-7 backdrop-blur-md">
-                    <CreditCard className="w-3.5 h-3.5 text-violet-600" /> <T en="Billing Management" bm="Pengurusan Pengebilan" />
+                    <CreditCard className="w-3.5 h-3.5 text-violet-600" /> <T en="Billing Management" bm="Pembayaran" />
                 </span>
             )}
             
             <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 mb-4 leading-[1.05]">
-                <T en={<>Billing & <span className="text-violet-600">Subscriptions</span></>} bm={<>Pengebilan & <span className="text-violet-600">Langganan</span></>} />
+                <T en={<>Billing & <span className="text-violet-600">Subscriptions</span></>} bm={<>Pembayaran & <span className="text-violet-600">Langganan</span></>} />
             </h1>
             <p className="text-[15px] font-medium text-slate-500 max-w-xl leading-relaxed">
-                {selectedProjectId ? <T en={`Securely managing payment options and automated renewals for ${selectedProject?.title}.`} bm={`Menguruskan pilihan pembayaran dan pembaharuan automatik dengan selamat untuk ${selectedProject?.title}.`} /> : <T en="Select a platform to manage your infrastructure services and premium subscription plan." bm="Pilih platform untuk mengurus perkhidmatan infrastruktur dan pelan langganan premium anda." />}
+                {selectedProjectId ? <T en={`Securely managing payment options and automated renewals for ${selectedProject?.title}.`} bm={`Menguruskan pilihan pembayaran dan pembaharuan automatik dengan selamat untuk ${selectedProject?.title}.`} /> : <T en="Select a platform to manage your infrastructure services and premium subscription plan." bm="Pilih platform untuk mengurus perkhidmatan infrastruktur dan pakej langganan premium anda." />}
             </p>
         </div>
       </div>
@@ -295,7 +295,7 @@ export default function BillingPage() {
                         <p className="text-sm text-slate-400 font-medium line-clamp-2 mb-8">{proj.description || <T en="No project description." bm="Tiada penerangan projek." />}</p>
                         
                         <div className="flex items-center justify-between mt-auto">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-violet-700"><T en="Manage Billing" bm="Urus Pengebilan" /></span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-violet-700"><T en="Manage Billing" bm="Urus Pembayaran" /></span>
                             <div className="w-10 h-10 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-colors">
                                 <ArrowLeft className="w-4 h-4 rotate-180" />
                             </div>
@@ -323,7 +323,7 @@ export default function BillingPage() {
                             </div>
                             <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2"><span className="text-violet-600">
                                 {planKey.split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
-                            </span> <T en="Plan" bm="Pelan" /></h2>
+                            </span> <T en="Plan" bm="Pakej" /></h2>
                             <p className="text-slate-500 font-medium max-w-md">
                                 <T en="Automated managed service covers server maintenance, SSL security, and daily data backups." bm="Perkhidmatan terurus automatik kami termasuk jaminan pelayan, SSL kebal, bersama sandaran peribadi." />
                             </p>
@@ -443,7 +443,7 @@ export default function BillingPage() {
                             { en: "No Credit Card Stored", bm: "Tiada Kad Kredit Disimpan" },
                             (isOTP || isSaaSDeposit) 
                                 ? { en: "Secure FPX Checkout", bm: "Pembayaran FPX Selamat" }
-                                : { en: "Auto-Billing Protection", bm: "Perlindungan Pengebilan Auto" }
+                                : { en: "Auto-Billing Protection", bm: "Perlindungan Pembayaran Auto" }
                         ].map((tip) => (
                             <div key={tip.en} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-violet-400">
                                 <div className="w-1.5 h-1.5 rounded-full bg-violet-400" /> <T en={tip.en} bm={tip.bm} />
@@ -458,7 +458,7 @@ export default function BillingPage() {
                         <User className="w-5 h-5 text-violet-600" /> <T en="Business Details" bm="Butiran Bisnes" />
                     </h3>
                     <div className="space-y-6">
-                        <DetailItem label={<T en="Plan" bm="Kategori Pelan" />} value={currentPlan.label} />
+                        <DetailItem label={<T en="Plan" bm="Kategori Pakej" />} value={currentPlan.label} />
                         <DetailItem label={<T en={isOTP ? "Stage Charge" : "Monthly Charge"} bm={isOTP ? "Caj Serahan" : "Kitaran Bilan"} />} value={`RM ${currentPlan.price}.00`} />
                         <DetailItem label={<T en="Currency" bm="Mata Wang" />} value="MYR" />
                     </div>

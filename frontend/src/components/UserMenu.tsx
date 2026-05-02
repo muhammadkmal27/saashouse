@@ -59,7 +59,7 @@ export default function UserMenu() {
                             onClick={() => setIsOpen(false)}
                             className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 dark:hover:text-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-colors"
                         >
-                            <User className="w-4 h-4" /> <T en="Edit Profile" bm="Sunting Profil" />
+                            <User className="w-4 h-4" /> <T en="Edit Profile" bm="Edit Profil" />
                         </Link>
                         <Link 
                             href="/app/settings/account" 

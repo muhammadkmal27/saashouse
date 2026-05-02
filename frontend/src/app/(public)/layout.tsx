@@ -103,10 +103,10 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div>
               <h4 className="font-black mb-5 text-zinc-600 text-[10px] uppercase tracking-widest"><T en="Client Portal" bm="Portal Pelanggan" /></h4>
               <ul className="space-y-3.5 text-[13px] font-medium text-cyan-500">
-                <li><Link href="/app" className="hover:text-cyan-400"><T en="Dashboard" bm="Papan Pemuka" /></Link></li>
+                <li><Link href="/app" className="hover:text-cyan-400"><T en="Dashboard" bm="Laman Utama" /></Link></li>
                 <li><Link href="/app/projects" className="hover:text-cyan-400"><T en="Projects" bm="Projek" /></Link></li>
                 <li><Link href="/app/tickets" className="hover:text-cyan-400"><T en="Requests" bm="Permintaan" /></Link></li>
-                <li><Link href="/app/billing" className="hover:text-cyan-400"><T en="Billing" bm="Pengebilan" /></Link></li>
+                <li><Link href="/app/billing" className="hover:text-cyan-400"><T en="Billing" bm="Pembayaran" /></Link></li>
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Assets" bm="Aset" /></Link></li>
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Notifications" bm="Notifikasi" /></Link></li>
               </ul>
@@ -125,7 +125,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           {/* Column 4: Billing & Admin */}
           <div className="space-y-12">
             <div>
-              <h4 className="font-black mb-5 text-zinc-600 text-[10px] uppercase tracking-widest"><T en="Billing" bm="Pengebilan" /></h4>
+              <h4 className="font-black mb-5 text-zinc-600 text-[10px] uppercase tracking-widest"><T en="Billing" bm="Pembayaran" /></h4>
               <ul className="space-y-3.5 text-[13px] font-medium text-cyan-500">
                 <li><Link href="/app/billing" className="hover:text-cyan-400"><T en="Subscription" bm="Langganan" /></Link></li>
                 <li><Link href="/app/billing?tab=invoices" className="hover:text-cyan-400"><T en="Invoices" bm="Invois" /></Link></li>
@@ -135,11 +135,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div>
               <h4 className="font-black mb-5 text-zinc-600 text-[10px] uppercase tracking-widest">Admin</h4>
               <ul className="space-y-3.5 text-[13px] font-medium text-cyan-500">
-                <li><Link href="/admin" className="hover:text-cyan-400"><T en="Dashboard" bm="Papan Pemuka" /></Link></li>
+                <li><Link href="/admin" className="hover:text-cyan-400"><T en="Dashboard" bm="Laman Utama" /></Link></li>
                 <li><Link href="/admin/projects" className="hover:text-cyan-400"><T en="Projects" bm="Projek" /></Link></li>
                 <li><Link href="/admin/tickets" className="hover:text-cyan-400"><T en="Requests" bm="Permintaan" /></Link></li>
                 <li><Link href="/admin/clients" className="hover:text-cyan-400"><T en="Clients" bm="Pelanggan" /></Link></li>
-                <li><Link href="/admin/billing" className="hover:text-cyan-400"><T en="Billing" bm="Pengebilan" /></Link></li>
+                <li><Link href="/admin/billing" className="hover:text-cyan-400"><T en="Billing" bm="Pembayaran" /></Link></li>
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Infrastructure" bm="Infrastruktur" /></Link></li>
                 <li><Link href="/admin/settings" className="hover:text-cyan-400"><T en="Settings" bm="Tetapan" /></Link></li>
               </ul>
@@ -178,7 +178,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Cookies Policy" bm="Dasar Kuki" /></Link></li>
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Accessibility" bm="Kebolehcapaian" /></Link></li>
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Security Tips" bm="Tips Keselamatan" /></Link></li>
-                <li><Link href="#" className="hover:text-cyan-400"><T en="Bug Bounty" bm="Ganjaran Pepijat" /></Link></li>
+                <li><Link href="#" className="hover:text-cyan-400"><T en="Bug Bounty" bm="Ganjaran Ralat Sistem" /></Link></li>
                 <li><Link href="#" className="hover:text-cyan-400"><T en="Status Page" bm="Status Sistem" /></Link></li>
               </ul>
             </div>

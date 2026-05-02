@@ -97,7 +97,7 @@ export default function ProjectsListPage() {
                                 <T en={<>My <span className="text-violet-600">Platforms</span></>} bm={<><span className="text-violet-600">Platform</span> Saya</>} />
                             </h1>
                             <p className="text-[14px] text-slate-500 max-w-sm leading-relaxed font-medium">
-                                <T en="A curated overview of every platform across your infrastructure — track lifecycle, plans, and progress in one place." bm="Ringkasan khusus untuk setiap platform merentasi infrastruktur anda — jejak kitaran hayat, pelan, dan kemajuan di satu tempat." />
+                                <T en="A curated overview of every platform across your infrastructure — track lifecycle, plans, and progress in one place." bm="Ringkasan khusus untuk setiap platform merentasi infrastruktur anda — jejak kitaran hayat, pakej, dan kemajuan di satu tempat." />
                             </p>
                         </div>
                         <Link 
@@ -166,7 +166,7 @@ export default function ProjectsListPage() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input 
                         type="text" 
-                        placeholder={lang === "EN" ? "Search platforms, IDs, plans..." : "Cari platform, ID, pelan..."} 
+                        placeholder={lang === "EN" ? "Search platforms, IDs, plans..." : "Cari platform, ID, pakej..."} 
                         className="w-full h-[42px] pl-11 pr-5 rounded-full bg-white border border-slate-200/70 text-[13px] focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all font-medium placeholder:text-slate-400 shadow-sm"
                     />
                 </div>
@@ -236,7 +236,7 @@ export default function ProjectsListPage() {
                             {/* Meta Grid */}
                             <div className="grid grid-cols-2 gap-4 mb-7">
                                 <div>
-                                    <h4 className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1.5"><T en="Plan" bm="Pelan" /></h4>
+                                    <h4 className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1.5"><T en="Plan" bm="Pakej" /></h4>
                                     <p className={`text-[12px] truncate ${getPlanTheme(planText)}`}>
                                         <T en={planText} bm={planText === 'Platinum' ? 'Platinum' : planText === 'Enterprise' ? 'Enterprise' : planText} />
                                     </p>

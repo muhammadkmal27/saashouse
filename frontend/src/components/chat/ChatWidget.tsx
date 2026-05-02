@@ -112,7 +112,7 @@ export default function ChatWidget() {
              <div className="w-full pr-4 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-wider text-blue-600 mb-1">
-                    <T en={t.type_} bm={t.type_ === 'BUG' ? 'PEPIGAT' : 'CIRI'} />
+                    <T en={t.type_} bm={t.type_ === 'BUG' ? 'RALAT SISTEM' : 'FUNGSI SISTEM'} />
                   </p>
                   <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{t.title}</h4>
                 </div>

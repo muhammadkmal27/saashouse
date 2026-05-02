@@ -59,24 +59,24 @@ export default function PricingPage() {
     },
     {
       question: <T en="Is the domain included for free?" bm="Adakah domain disertakan percuma?" />,
-      answer: <T en="Yes, we include one .com or .com.my domain for the first year. Subsequent renewals will be billed at standard market rates." bm="Ya, kami sertakan satu domain .com atau .com.my untuk tahun pertama." />
+      answer: <T en="Yes, we include one .com or .my domain for the first year. Subsequent renewals will be billed at standard market rates." bm="Ya, kami sertakan satu domain .com atau .my untuk tahun pertama." />
     },
     {
       question: <T en="What kind of support is included?" bm="Apakah jenis sokongan yang disertakan?" />,
-      answer: <T en="We provide 3 months of free bug-fix support and technical maintenance after your site goes live to ensure a smooth transition." bm="Kami menyediakan 3 bulan sokongan pembetulan pepijat dan penyelenggaraan teknikal percuma." />
+      answer: <T en="We provide 3 months of free bug-fix support and technical maintenance after your site goes live to ensure a smooth transition." bm="Kami menyediakan 3 bulan sokongan pembetulan ralat sistem dan penyelenggaraan teknikal percuma." />
     }
   ] : [
     {
       question: <T en="When will I be charged?" bm="Bilakah saya akan dicaj?" />,
-      answer: <T en="You will only be charged after you approve the staging site and manually trigger deployment from your dashboard. There are no upfront payments or hidden charges." bm="Anda hanya akan dicaj selepas anda meluluskan tapak pementasan dan melancarkannya dari papan pemuka anda." />
+      answer: <T en="Development begins immediately after the deposit is paid. Your website will be launched as soon as the first month's subscription is settled." bm="Pembangunan bermula sebaik sahaja deposit dibayar. Laman web anda akan dilancarkan sebaik sahaja bayaran langganan bulan pertama dijelaskan." />
     },
     {
-      question: <T en="Can I change my plan later?" bm="Bolehkah saya menukar pelan kemudian?" />,
-      answer: <T en="Yes, you can upgrade or downgrade your plan at any time through your dashboard. Changes will take effect in the next billing cycle, and we will prorate the difference." bm="Ya, anda boleh menaik taraf atau menurunkan taraf pelan anda bila-bila masa." />
+      question: <T en="Can I change my plan later?" bm="Bolehkah saya menukar pakej kemudian?" />,
+      answer: <T en="Yes, you can upgrade or downgrade your plan at any time through your dashboard. Changes will take effect in the next billing cycle, and we will prorate the difference." bm="Ya, anda boleh menaik taraf atau menurunkan taraf pakej anda bila-bila masa." />
     },
     {
-      question: <T en="Is a domain included in all plans?" bm="Adakah domain disertakan dalam semua pelan?" />,
-      answer: <T en="Yes! Every plan includes one free .com or .com.my domain. We fully manage DNS, renewals, and SSL configurations for you." bm="Ya! Setiap pelan disertakan satu domain .com atau .com.my percuma." />
+      question: <T en="Is a domain included in all plans?" bm="Adakah domain disertakan dalam semua pakej?" />,
+      answer: <T en="Yes! Every plan includes one free .com or .my domain. We fully manage DNS, renewals, and SSL configurations for you." bm="Ya! Setiap pakej disertakan satu domain .com atau .my percuma." />
     },
     {
       question: <T en="What happens if my website exceeds the traffic limit?" bm="Apa yang berlaku jika laman web melebihi had trafik?" />,
@@ -88,7 +88,7 @@ export default function PricingPage() {
     },
     {
       question: <T en="How does technical support work?" bm="Bagaimanakah sokongan teknikal berfungsi?" />,
-      answer: <T en="The Standard plan includes email support. Growth includes priority support. Enterprise and Platinum include a dedicated account manager and 24/7 hotline access." bm="Pelan Standard termasuk sokongan e-mel. Growth termasuk sokongan utama." />
+      answer: <T en="All customers can report bugs and technical issues directly through our internal ticket system. Our engineers provide continuous support to ensure your platform remains stable." bm="Semua pelanggan boleh membuat aduan 'bug' dan isu teknikal secara terus melalui sistem tiket dalaman kami. Jurutera kami menyediakan sokongan berterusan untuk memastikan platform anda sentiasa stabil." />
     }
   ];
 
@@ -126,9 +126,9 @@ export default function PricingPage() {
             <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic mb-12 text-white"><T en="THE MANAGED GUARANTEE" bm="JAMINAN PENGURUSAN" /></h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 max-w-5xl mx-auto relative z-10">
               {[
-                 { title: <T en="Zero Setup Fee" bm="Yuran Sifar" />, desc: <T en="No hidden onboarding costs. Your subscription starts when you deploy." bm="Tiada kos tersembunyi. Langganan anda bermula apabila anda melancarkan projek." /> },
+                 { title: <T en="Low Deposit" bm="Deposit Rendah" />, desc: <T en="No hidden onboarding costs. Your subscription starts when you deploy." bm="Tiada kos tersembunyi. Langganan anda bermula apabila anda melancarkan projek." /> },
                  { title: <T en="Managed DNS" bm="DNS Terurus" />, desc: <T en="We handle domain propagation, SSL handshakes, and DNS hardened security." bm="Kami menguruskan pembiakan domain, SSL, dan keselamatan DNS yang kebal." /> },
-                 { title: <T en="Daily Backups" bm="Sandaran Harian" />, desc: <T en="Redundant off-site backups with one-click restoration included in every tier." bm="Sandaran luar tapak dengan pemulihan satu-klik disertakan untuk setiap peringkat." /> },
+                 { title: <T en="Backups" bm="Sandaran" />, desc: <T en="Redundant off-site backups with one-click restoration included in every tier." bm="Sandaran luar tapak dengan pemulihan satu-klik disertakan untuk setiap peringkat." /> },
                  { title: <T en="Hardened Core" bm="Teras Kebal" />, desc: <T en="All projects run on our proprietary enterprise Linux stack for maximum speed." bm="Semua projek berjalan pada sistem Linux perusahaan kami untuk kepantasan maksimum." /> }
               ].map((item, idx) => (
                 <div key={idx} className="space-y-4">
@@ -156,9 +156,9 @@ export default function PricingPage() {
               { icon: Server, title: <T en="Enterprise Infrastructure" bm="Infrastruktur Perusahaan" />, desc: <T en="Every project runs on enterprise-grade servers with NVMe storage, ensuring blazing-fast load times under any traffic conditions." bm="Setiap projek berjalan pada pelayan gred perusahaan dengan storan NVMe, menjamin masa muat yang sangat pantas." />, color: "text-blue-400 bg-blue-400/10 border-blue-400/20" },
               { icon: Lock, title: <T en="Security-First Architecture" bm="Seni Bina Utamakan Keselamatan" />, desc: <T en="From hardened Nginx configs to automated vulnerability scanning, your application is protected at every layer of the stack." bm="Dari konfigurasi Nginx yang kebal ke imbasan kerentanan automatik, aplikasi anda dilindungi di setiap lapisan." />, color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
               { icon: Globe, title: <T en="Malaysian-Optimized CDN" bm="CDN Dioptimumkan Malaysia" />, desc: <T en="Our edge network is specifically optimized for ASEAN traffic, with local nodes ensuring your Malaysian users get the fastest experience." bm="Rangkaian kami dioptimumkan khas untuk trafik ASEAN, dengan nod tempatan menjamin pengalaman terpantas di Malaysia." />, color: "text-violet-400 bg-violet-400/10 border-violet-400/20" },
-              { icon: Clock, title: <T en="Development in Days, Not Months" bm="Pembangunan Dalam Hari, Bukan Bulan" />, desc: <T en="Our streamlined onboarding process delivers production-ready websites in as little as 5-7 working days from project submission." bm="Proses kami memberikan laman web sedia-produksi sepantas 5-7 hari bekerja selepas penyerahan projek." />, color: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
-              { icon: Headphones, title: <T en="Human Support, Not Bots" bm="Sokongan Manusia, Bukan Bot" />, desc: <T en="Real engineers handle your support requests. No ticket queues, no chatbots — just real humans who understand your project." bm="Jurutera sebenar menguruskan permintaan sokongan anda. Tiada barisan tiket atau chatbot — hanya manusia yang faham projek anda." />, color: "text-pink-400 bg-pink-400/10 border-pink-400/20" },
-              { icon: Sparkles, title: <T en="Continuous Improvement" bm="Penambahbaikan Berterusan" />, desc: <T en="We don't just build and forget. Your website receives continuous updates, performance tuning, and feature enhancements." bm="Kami tidak sekadar membina dan lupa. Laman web anda menerima kemas kini berterusan dan talaan prestasi." />, color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20" },
+              { icon: Clock, title: <T en="Efficient Development" bm="Pembangunan Efisien" />, desc: <T en="Launch your fully operational platform in as little as 1 to 2 months." bm="Lancarkan platform lengkap anda sepantas 1 hingga 2 bulan sahaja." />, color: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
+              { icon: Headphones, title: <T en="Human Support, Not Bots" bm="Sokongan, Bukan Bot" />, desc: <T en="Real engineers handle your support via our dedicated ticket system. No chatbots — just real humans who understand your project." bm="Jurutera sebenar menguruskan sokongan melalui sistem tiket kami. Tiada chatbot — hanya manusia yang faham projek anda." /> , color: "text-pink-400 bg-pink-400/10 border-pink-400/20" },
+              { icon: Sparkles, title: <T en="Bug Support" bm="Sokongan Bug" />, desc: <T en="Dedicated support for bug fixes and technical maintenance. We ensure your platform remains operational and stable." bm="Sokongan khusus untuk pembetulan 'bug' dan penyelenggaraan teknikal. Kami memastikan platform anda sentiasa stabil dan beroperasi." />, color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20" },
             ].map((item, idx) => (
               <div key={idx} className="group p-8 rounded-3xl bg-[#0e0e11] border border-zinc-800 hover:border-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-black/20">
                 <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-6 ${item.color}`}>
@@ -180,7 +180,7 @@ export default function PricingPage() {
               <span className="text-xs font-bold text-emerald-300 tracking-wide"><T en="Got Questions?" bm="Ada Soalan?" /></span>
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold text-white"><T en="Frequently Asked Questions" bm="Soalan Lazim" /></h2>
-            <p className="text-zinc-500"><T en="Everything you need to know about our pricing and services." bm="Semua yang anda perlu tahu tentang pengebilan dan perkhidmatan kami." /></p>
+            <p className="text-zinc-500"><T en="Everything you need to know about our pricing and services." bm="Semua yang anda perlu tahu tentang pembayaran dan perkhidmatan kami." /></p>
           </div>
 
           <div className="rounded-3xl border border-zinc-800 bg-[#0e0e11] p-8 md:p-10">
@@ -205,7 +205,7 @@ export default function PricingPage() {
               />
             </h2>
             <p className="text-zinc-400 text-lg max-w-xl mx-auto">
-              <T en="Join hundreds of businesses already powered by SaaS House." bm="Sertai ratusan perniagaan yang telah dikuasakan oleh SaaS House." /> {otpMode ? <T en="Build your dream platform today." bm="Bina platform impian anda hari ini." /> : <T en="Start with zero upfront cost." bm="Bermula dengan sifar kos pendahuluan." />}
+              <T en="Build a professional digital experience for your brand with a partner you can trust." bm="Bina pengalaman digital profesional untuk jenama anda bersama rakan kongsi yang boleh dipercayai." /> <T en="Start your journey today with a low deposit." bm="Mulakan langkah anda hari ini dengan deposit rendah." />
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Link

@@ -59,10 +59,10 @@ const projects: Project[] = [
 ];
 
 const stats = [
-  { value: "150+", label: <T en="Projects Delivered" bm="Projek Disiapkan" /> },
+  { value: "99.9%", label: <T en="Server Uptime" bm="Masa Aktif Server" /> },
   { value: "98%", label: <T en="Client Satisfaction" bm="Kepuasan Pelanggan" /> },
-  { value: "50+", label: <T en="Team Members" bm="Ahli Pasukan" /> },
-  { value: "8+", label: <T en="Years Experience" bm="Tahun Pengalaman" /> },
+  { value: "24/7", label: <T en="Security Monitoring" bm="Pemantauan Keselamatan" /> },
+  { value: <T en="30 Days" bm="30 Hari" />, label: <T en="Avg. Delivery Time" bm="Purata Masa Siap" /> },
 ];
 
 function ProjectCard({ project }: { project: Project }) {

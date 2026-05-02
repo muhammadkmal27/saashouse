@@ -72,7 +72,7 @@ export default function ProfileSettingsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2"><T en="Public Profile" bm="Profil Awam" /></h2>
-                    <p className="text-sm text-slate-500 font-medium"><T en="This information will be displayed on your main dashboard and invoices." bm="Maklumat ini akan dipaparkan pada papan pemuka utama dan invois anda." /></p>
+                    <p className="text-sm text-slate-500 font-medium"><T en="This information will be displayed on your main dashboard and invoices." bm="Maklumat ini akan dipaparkan pada laman utama dan invois anda." /></p>
                 </div>
                 {loading && <Loader2 className="w-5 h-5 animate-spin text-violet-600" />}
             </div>
@@ -126,7 +126,7 @@ export default function ProfileSettingsPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Short Bio" bm="Bio Ringkas" /></label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Short Bio" bm="Biodata Ringkas" /></label>
                         <textarea 
                             name="bio"
                             value={formData.bio}

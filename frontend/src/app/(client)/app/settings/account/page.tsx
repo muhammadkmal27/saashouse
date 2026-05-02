@@ -37,7 +37,7 @@ export default function AccountSettingsPage() {
                         <AlertTriangle className="w-5 h-5" />
                     </div>
                     <div>
-                        <p className="font-black uppercase tracking-tighter leading-none italic"><T en="Feature Locked" bm="Ciri Dikunci" /></p>
+                        <p className="font-black uppercase tracking-tighter leading-none italic"><T en="Feature Locked" bm="Fungsi Sistem Dikunci" /></p>
                         <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1"><T en="Please contact support to update your email" bm="Sila hubungi sokongan untuk mengemas kini e-mel" /></p>
                     </div>
                 </div>
