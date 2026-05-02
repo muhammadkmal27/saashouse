@@ -293,28 +293,66 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-6">
-        <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500" />
-        </div>
-        <h1 className="text-4xl font-black tracking-tight text-zinc-900"><T en="Project Successfully Submitted" bm="Projek Berjaya Dihantar" /></h1>
-        <div className="space-y-4 max-w-xl">
-          <p className="text-zinc-600 text-lg font-medium">
-            <T en="Our development team is currently reviewing your project requirements in detail." bm="Pasukan pembangunan kami sedang menyemak keperluan projek anda secara terperinci." />
+      <div className="relative flex flex-col items-center justify-center min-h-[80vh] overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-purple-50/40 to-emerald-50/60 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-100/30 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-lg px-4">
+          {/* Circular icon with ripple */}
+          <div className="relative">
+            <div className="absolute inset-0 scale-125 bg-emerald-200/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-0 scale-110 bg-purple-200/20 rounded-full" />
+            <div className="w-24 h-24 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl shadow-purple-500/30 relative">
+              <svg className="w-11 h-11 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-tight leading-tight">
+              <span className="text-zinc-900"><T en="Project" bm="Projek" /></span>{" "}
+              <span className="text-violet-500"><T en="Successfully" bm="Berjaya" /></span>
+              <br />
+              <span className="text-zinc-900"><T en="Submitted" bm="Dihantar" /></span>
+            </h1>
+          </div>
+
+          {/* Subtitle */}
+          <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
+            <T
+              en="Our development team is currently reviewing your project requirements in detail."
+              bm="Pasukan pembangunan kami sedang menyemak keperluan projek anda secara terperinci."
+            />
           </p>
-          <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl text-amber-800">
-            <p className="font-black uppercase tracking-widest text-xs mb-2 flex items-center gap-2 justify-center text-amber-900">
-              <Shield className="w-4 h-4" /> <T en="Important Instruction" bm="Arahan Penting" />
-            </p>
-            <p className="text-sm font-bold leading-relaxed">
-              <T en={<>A developer will contact you via <span className="text-emerald-600 font-black">WhatsApp</span> once the review is complete. Please <span className="underline decoration-2 underline-offset-4 font-black">do not make any payments</span> until you have been officially contacted by our developer via WhatsApp.</>} 
-                 bm={<>Pembangun akan menghubungi anda melalui <span className="text-emerald-600 font-black">WhatsApp</span> sebaik sahaja semakan selesai. Sila <span className="underline decoration-2 underline-offset-4 font-black">jangan buat sebarang pembayaran</span> sehingga anda dihubungi secara rasmi oleh pembangun kami melalui WhatsApp.</>} />
+
+          {/* Important Instruction card */}
+          <div className="w-full bg-amber-50/80 backdrop-blur-sm border border-amber-200/80 p-5 rounded-2xl text-left shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Shield className="w-4 h-4 text-amber-500 shrink-0" />
+              <p className="font-black uppercase tracking-[0.15em] text-[10px] text-amber-700">
+                <T en="Important Instruction" bm="Arahan Penting" />
+              </p>
+            </div>
+            <p className="text-sm text-zinc-700 leading-relaxed">
+              <T
+                en={<>A developer will contact you via <span className="text-emerald-600 font-semibold">WhatsApp</span> once the review is complete. Please <span className="underline decoration-2 underline-offset-2 font-semibold text-zinc-900">do not make any payments</span> until you have been officially contacted by our developer via WhatsApp.</>}
+                bm={<>Pembangun akan menghubungi anda melalui <span className="text-emerald-600 font-semibold">WhatsApp</span> sebaik sahaja semakan selesai. Sila <span className="underline decoration-2 underline-offset-2 font-semibold text-zinc-900">jangan buat sebarang pembayaran</span> sehingga anda dihubungi secara rasmi oleh pembangun kami melalui WhatsApp.</>}
+              />
             </p>
           </div>
+
+          {/* CTA Button */}
+          <Link
+            href="/app/dashboard"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:translate-y-0"
+          >
+            <T en="Return to Dashboard" bm="Kembali ke Papan Pemuka" />
+          </Link>
         </div>
-        <Link href="/app/dashboard" className="px-8 py-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 font-bold text-white transition-all">
-          <T en="Return to Dashboard" bm="Kembali ke Papan Pemuka" />
-        </Link>
       </div>
     );
   }
