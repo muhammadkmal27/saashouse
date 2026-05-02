@@ -37,7 +37,7 @@ image = "0.25.10"
 redis = { version = "0.27", features = ["tokio-comp", "aio"] }
 regex = "1.12.3"
 bigdecimal = "0.4"
-hickory-resolver = "0.24"
+hickory-resolver = "0.26"
 
 [dev-dependencies]
 mockall = "0.13"
