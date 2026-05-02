@@ -33,11 +33,11 @@ INSERT INTO system_settings (key, value) VALUES
         },
         {
             "title": "MODEL PEMBAYARAN & FASA PEMBANGUNAN",
-            "content": "- **Bayaran Pendahuluan:** Pelanggan wajib mula melanggan sebelum fasa pembangunan dimulakan.\n- **Fasa Pembangunan:** Pembangunan website hanya akan dimulakan secara rasmi selepas bayaran bulan pertama berjaya disahkan melalui sistem.\n- **Unlimited Revisions:** Dalam tempoh 30 hari pembangunan, Pelanggan berhak meminta pindaan atau penambahan ciri (feature) tanpa had dan tanpa cas tambahan selagi tidak mengubah struktur/kategori asal projek yang telah dipersetujui."
+            "content": "- **Bayaran Deposit (Setup Fee):** Pelanggan wajib menjelaskan bayaran pendahuluan sebanyak **RM {{deposit_amount}}** sebelum fasa pembangunan dimulakan. Bayaran ini adalah untuk kos pembinaan sistem dan bersifat non-refundable (tidak akan dipulangkan) sekiranya Pelanggan membatalkan projek selepas kerja bermula.\n- **Fasa Pembangunan (Offline/Staging):** Laman web akan dibangunkan di dalam persekitaran pembangunan (staging) Penyedia Perkhidmatan dalam tempoh 30 hari bekerja. Pelanggan berhak meminta pindaan tanpa had dalam tempoh ini selagi tidak mengubah struktur asal projek.\n- **Pengaktifan & Go-Live (SaaS Mode):** Laman web hanya akan dipindahkan ke hos (hosting live) dan diaktifkan untuk akses awam selepas Pelanggan mula melanggan yuran bulanan (**RM {{monthly_price}}**) melalui sistem Stripe. Akses penuh kepada sistem hanya akan diberikan setelah langganan bulanan pertama disahkan."
         },
         {
             "title": "YURAN LANGGANAN & PENYELENGGARAAN (SAAS)",
-            "content": "- **Yuran Bulanan:** **RM {{deposit_amount}}** sebulan (Auto-billing melalui sistem Stripe).\n- **Merangkumi:** Sewaan Server (VPS), Nama Domain, Sijil SSL (Security), Penyelenggaraan Sistem, dan Pemantauan Keselamatan.\n- **Jaminan Ralat (Bugs):** Penyedia Perkhidmatan bertanggungjawab sepenuhnya ke atas pembetulan ralat teknikal (bugs) tanpa sebarang cas tambahan dan tanpa had tempoh selagi langganan masih aktif."
+            "content": "- **Yuran Bulanan:** **RM {{monthly_price}}** sebulan (Auto-billing melalui sistem Stripe).\n- **Merangkumi:** Sewaan Server (VPS), Nama Domain, Sijil SSL (Security), Penyelenggaraan Sistem, dan Pemantauan Keselamatan.\n- **Jaminan Ralat (Bugs):** Penyedia Perkhidmatan bertanggungjawab sepenuhnya ke atas pembetulan ralat teknikal (bugs) tanpa sebarang cas tambahan dan tanpa had tempoh selagi langganan masih aktif."
         },
         {
             "title": "PINDAAN SELEPAS TEMPOH PEMBANGUNAN (CHANGE REQUEST)",
