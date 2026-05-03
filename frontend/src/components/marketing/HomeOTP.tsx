@@ -34,13 +34,13 @@ export default function HomeOTP({ totalPrice }: HomeOTPProps) {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link 
               href="/auth/register" 
-              className="w-full sm:w-auto px-10 py-5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white font-bold text-sm shadow-[0_0_40px_rgba(168,85,247,0.3)] transition-all flex items-center justify-center gap-2 group active:scale-95"
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white font-bold text-sm shadow-[0_0_40px_rgba(168,85,247,0.3)] transition-all flex items-center justify-center gap-2 group active:scale-95"
             >
               <T en="Get Started Now" bm="Mula Sekarang"/> <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 
               href="/pricing"
-              className="w-full sm:w-auto px-10 py-5 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-sm transition-all flex items-center justify-center"
+              className="w-full sm:w-auto px-8 py-4 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-sm transition-all flex items-center justify-center"
             >
               <T en="View Packages" bm="Lihat Pakej"/>
             </Link>

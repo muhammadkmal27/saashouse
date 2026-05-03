@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Home, LayoutGrid, CreditCard, Mail } from "lucide-react";
 import { T } from "@/components/Translate";
 import LanguageToggle from "@/components/LanguageToggle";
 
@@ -7,15 +7,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-50 flex flex-col font-sans selection:bg-purple-500/30">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-[#09090b]/80 backdrop-blur-md px-6 py-4">
+      <nav className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-[#09090b]/80 backdrop-blur-md px-4 md:px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group relative">
-            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
               <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-xl font-black tracking-tight ml-1">SaaS House</span>
+            <span className="text-lg md:text-xl font-black tracking-tight ml-1">SaaS House</span>
           </Link>
 
+          {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-400">
             <Link href="/" className="hover:text-white transition-colors"><T en="Home" bm="Utama"/></Link>
             <Link href="/showcase" className="hover:text-white transition-colors"><T en="Showcase" bm="Portfolio"/></Link>
@@ -23,17 +24,17 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <Link href="/contact" className="hover:text-white transition-colors"><T en="Contact" bm="Hubungi"/></Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <LanguageToggle />
             <Link 
               href="/auth/login" 
-              className="px-5 py-2.5 rounded-full hover:bg-zinc-900 transition-colors text-sm font-bold text-zinc-300 whitespace-nowrap"
+              className="px-4 md:px-5 py-2 md:py-2.5 rounded-full hover:bg-zinc-900 transition-colors text-xs md:text-sm font-bold text-zinc-300 whitespace-nowrap"
             >
               <T en="Sign In" bm="Log Masuk"/>
             </Link>
             <Link 
               href="/auth/register" 
-              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white transition-all text-sm font-bold shadow-lg shadow-purple-500/20 active:scale-95 whitespace-nowrap"
+              className="hidden sm:block px-6 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white transition-all text-sm font-bold shadow-lg shadow-purple-500/20 active:scale-95 whitespace-nowrap"
             >
               <T en="Get Started" bm="Bermula"/>
             </Link>
@@ -41,7 +42,29 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         </div>
       </nav>
 
-      <main className="flex-1 w-full bg-[#09090b]">
+      {/* Mobile Bottom Navigation Bar (Full Width) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] w-full border-t border-zinc-900 bg-[#09090b]/90 backdrop-blur-xl px-10 py-4 safe-area-pb">
+        <div className="flex items-center justify-between w-full">
+          <Link href="/" className="flex flex-col items-center gap-1.5 group">
+            <Home className="w-6 h-6 text-zinc-400 group-hover:text-violet-500 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest"><T en="Home" bm="Utama"/></span>
+          </Link>
+          <Link href="/showcase" className="flex flex-col items-center gap-1.5 group">
+            <LayoutGrid className="w-6 h-6 text-zinc-400 group-hover:text-violet-500 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest"><T en="Showcase" bm="Portfolio"/></span>
+          </Link>
+          <Link href="/pricing" className="flex flex-col items-center gap-1.5 group">
+            <CreditCard className="w-6 h-6 text-zinc-400 group-hover:text-violet-500 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest"><T en="Pricing" bm="Harga"/></span>
+          </Link>
+          <Link href="/contact" className="flex flex-col items-center gap-1.5 group">
+            <Mail className="w-6 h-6 text-zinc-400 group-hover:text-violet-500 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest"><T en="Contact" bm="Hubungi"/></span>
+          </Link>
+        </div>
+      </div>
+
+      <main className="flex-1 w-full bg-[#09090b] pb-24 md:pb-0">
         {children}
       </main>
 

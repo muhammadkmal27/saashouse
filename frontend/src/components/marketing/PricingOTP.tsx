@@ -109,34 +109,52 @@ export default function PricingOTP({ otpDeposit, otpFinal, totalPrice }: Pricing
           <p className="text-zinc-500 max-w-xl mx-auto"><T en="See exactly what you get with each plan. No guesswork." bm="Lihat apa yang anda dapat dengan pakej ini secara telus." /></p>
         </div>
 
-        <div className="rounded-3xl border border-zinc-800 bg-[#0e0e11] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="border-b border-zinc-800">
-                  <th className="text-left py-5 px-6 text-xs font-black uppercase tracking-widest text-zinc-500"><T en="Feature" bm="Fungsi-fungsi Sistem" /></th>
-                  <th className="text-center py-5 px-4 text-xs font-black uppercase tracking-widest text-cyan-400"><T en="One-Time Package" bm="Pakej Pembelian Penuh" /></th>
+        {/* Mobile: Unified Feature List */}
+        <div className="md:hidden rounded-2xl border border-zinc-800 bg-[#0e0e11] overflow-hidden divide-y divide-zinc-800/50">
+          {comparisonFeatures.map((row, idx) => (
+            <div key={idx} className="p-5 flex items-center justify-between gap-4">
+              <span className="text-sm font-medium text-zinc-300">
+                {row.feature === "Unlimited Revisions" ? <T en="Unlimited Revisions" bm="Semakan Tanpa Had" /> : 
+                 row.feature === "Custom Feature Development" ? <T en="Custom Feature Development" bm="Pembangunan Fungsi Sistem Tersuai" /> : 
+                 row.feature === "Guaranteed Zero Downtime" ? <T en="Guaranteed Zero Downtime" bm="Jaminan Sifar Masa Henti" /> : 
+                 row.feature === "Advanced Security Audits" ? <T en="Advanced Security Audits" bm="Audit Keselamatan Lanjutan" /> : 
+                 row.feature === "Bug Fix Support" ? <T en="Bug Fix Support" bm="Sokongan Pembaikan Ralat Sistem" /> : 
+                 row.feature === "SSL Certificate" ? <T en="SSL Certificate" bm="Sijil SSL" /> : row.feature}
+              </span>
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Table */}
+        <div className="hidden md:block rounded-3xl border border-zinc-800 bg-[#0e0e11] overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-zinc-800 bg-zinc-900/30">
+                <th className="text-left py-6 px-8 text-xs font-black uppercase tracking-widest text-zinc-500">
+                  <T en="Feature" bm="Fungsi-fungsi Sistem" />
+                </th>
+                <th className="text-center py-6 px-4 text-xs font-black uppercase tracking-widest text-cyan-400"><T en="One-Time Package" bm="Pakej Pembelian Penuh" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonFeatures.map((row, idx) => (
+                <tr key={idx} className="border-b border-zinc-800/50 last:border-b-0 hover:bg-white/[0.02] transition-colors">
+                  <td className="py-5 px-8 text-sm font-medium text-zinc-300">
+                    {row.feature === "Unlimited Revisions" ? <T en="Unlimited Revisions" bm="Semakan Tanpa Had" /> : 
+                     row.feature === "Custom Feature Development" ? <T en="Custom Feature Development" bm="Pembangunan Fungsi Sistem Tersuai" /> : 
+                     row.feature === "Guaranteed Zero Downtime" ? <T en="Guaranteed Zero Downtime" bm="Jaminan Sifar Masa Henti" /> : 
+                     row.feature === "Advanced Security Audits" ? <T en="Advanced Security Audits" bm="Audit Keselamatan Lanjutan" /> : 
+                     row.feature === "Bug Fix Support" ? <T en="Bug Fix Support" bm="Sokongan Pembaikan Ralat Sistem" /> : 
+                     row.feature === "SSL Certificate" ? <T en="SSL Certificate" bm="Sijil SSL" /> : row.feature}
+                  </td>
+                  <td className="py-5 px-4 text-center">
+                     <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {comparisonFeatures.map((row, idx) => (
-                  <tr key={idx} className="border-b border-zinc-800/50 last:border-b-0 hover:bg-white/[0.02] transition-colors">
-                    <td className="py-4 px-6 text-sm font-medium text-zinc-300">
-                      {row.feature === "Unlimited Revisions" ? <T en="Unlimited Revisions" bm="Semakan Tanpa Had" /> : 
-                       row.feature === "Custom Feature Development" ? <T en="Custom Feature Development" bm="Pembangunan Fungsi Sistem Tersuai" /> : 
-                       row.feature === "Guaranteed Zero Downtime" ? <T en="Guaranteed Zero Downtime" bm="Jaminan Sifar Masa Henti" /> : 
-                       row.feature === "Advanced Security Audits" ? <T en="Advanced Security Audits" bm="Audit Keselamatan Lanjutan" /> : 
-                       row.feature === "Bug Fix Support" ? <T en="Bug Fix Support" bm="Sokongan Pembaikan Ralat Sistem" /> : 
-                       row.feature === "SSL Certificate" ? <T en="SSL Certificate" bm="Sijil SSL" /> : row.feature}
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                       <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </>

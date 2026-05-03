@@ -144,45 +144,75 @@ export default function PricingSubscription({ dynamicPrices }: PricingSubscripti
             <p className="text-zinc-500 max-w-xl mx-auto"><T en="See exactly what you get with each plan. No guesswork." bm="Lihat apa yang anda dapat dengan setiap pakej secara telus." /></p>
           </div>
 
-        <div className="rounded-3xl border border-zinc-800 bg-[#0e0e11] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="border-b border-zinc-800">
-                  <th className="text-left py-5 px-6 text-xs font-black uppercase tracking-widest text-zinc-500"><T en="Feature" bm="Fungsi-fungsi Sistem" /></th>
-                  <th className="text-center py-5 px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Standard</th>
-                  <th className="text-center py-5 px-4 text-xs font-black uppercase tracking-widest text-cyan-400">Growth</th>
-                  <th className="text-center py-5 px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Enterprise</th>
-                  <th className="text-center py-5 px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Platinum</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonFeatures.map((row, idx) => (
-                  <tr key={idx} className="border-b border-zinc-800/50 last:border-b-0 hover:bg-white/[0.02] transition-colors">
-                    <td className="py-4 px-6 text-sm font-medium text-zinc-300">
-                      {row.feature === "Unlimited Revisions" ? <T en="Unlimited Revisions" bm="Semakan Tanpa Had" /> : 
-                       row.feature === "Custom Feature Development" ? <T en="Custom Feature Development" bm="Pembangunan Fungsi Sistem Tersuai" /> : 
-                       row.feature === "Guaranteed Zero Downtime" ? <T en="Guaranteed Zero Downtime" bm="Jaminan Sifar Masa Henti" /> : 
-                       row.feature === "Advanced Security Audits" ? <T en="Advanced Security Audits" bm="Audit Keselamatan Lanjutan" /> : 
-                       row.feature === "Bug Fix Support" ? <T en="Bug Fix Support" bm="Sokongan Pembaikan Ralat Sistem" /> : 
-                       row.feature === "SSL Certificate" ? <T en="SSL Certificate" bm="Sijil SSL" /> : row.feature}
-                    </td>
-                    {(["standard", "growth", "enterprise", "platinum"] as const).map((plan) => (
-                      <td key={plan} className="py-4 px-4 text-center">
-                        {row[plan] === true ? (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />
-                        ) : row[plan] === false ? (
-                          <X className="w-5 h-5 text-zinc-700 mx-auto" />
-                        ) : (
-                          <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">{String(row[plan])}</span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
+        {/* Mobile: Unified Feature List */}
+        <div className="md:hidden rounded-3xl border border-zinc-800 bg-[#0e0e11] overflow-hidden divide-y divide-zinc-800/50">
+          {comparisonFeatures.map((row, idx) => (
+            <div key={idx} className="p-6 space-y-4">
+              <h4 className="text-sm font-bold text-zinc-300">
+                {row.feature === "Unlimited Revisions" ? <T en="Unlimited Revisions" bm="Semakan Tanpa Had" /> : 
+                 row.feature === "Custom Feature Development" ? <T en="Custom Feature Development" bm="Pembangunan Fungsi Sistem Tersuai" /> : 
+                 row.feature === "Guaranteed Zero Downtime" ? <T en="Guaranteed Zero Downtime" bm="Jaminan Sifar Masa Henti" /> : 
+                 row.feature === "Advanced Security Audits" ? <T en="Advanced Security Audits" bm="Audit Keselamatan Lanjutan" /> : 
+                 row.feature === "Bug Fix Support" ? <T en="Bug Fix Support" bm="Sokongan Pembaikan Ralat Sistem" /> : 
+                 row.feature === "SSL Certificate" ? <T en="SSL Certificate" bm="Sijil SSL" /> : row.feature}
+              </h4>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {(["standard", "growth", "enterprise", "platinum"] as const).map((plan) => (
+                  <div key={plan} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900/30 border border-white/5">
+                    <span className={`text-[9px] font-black uppercase tracking-wider ${plan === 'growth' ? 'text-cyan-400' : 'text-zinc-500'}`}>
+                      {plan}
+                    </span>
+                    {row[plan] === true ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-zinc-700" />
+                    )}
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Professional Table */}
+        <div className="hidden md:block rounded-3xl border border-zinc-800 bg-[#0e0e11] overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-zinc-800 bg-zinc-900/30">
+                <th className="text-left py-6 px-10 text-xs font-black uppercase tracking-widest text-zinc-500">
+                  <T en="Feature" bm="Fungsi-fungsi Sistem" />
+                </th>
+                <th className="text-center py-6 px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Standard</th>
+                <th className="text-center py-6 px-4 text-xs font-black uppercase tracking-widest text-cyan-400">Growth</th>
+                <th className="text-center py-6 px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Enterprise</th>
+                <th className="text-center py-6 px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Platinum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonFeatures.map((row, idx) => (
+                <tr key={idx} className="border-b border-zinc-800/50 last:border-b-0 hover:bg-white/[0.02] transition-colors">
+                  <td className="py-6 px-10 text-sm font-medium text-zinc-300">
+                    {row.feature === "Unlimited Revisions" ? <T en="Unlimited Revisions" bm="Semakan Tanpa Had" /> : 
+                     row.feature === "Custom Feature Development" ? <T en="Custom Feature Development" bm="Pembangunan Fungsi Sistem Tersuai" /> : 
+                     row.feature === "Guaranteed Zero Downtime" ? <T en="Guaranteed Zero Downtime" bm="Jaminan Sifar Masa Henti" /> : 
+                     row.feature === "Advanced Security Audits" ? <T en="Advanced Security Audits" bm="Audit Keselamatan Lanjutan" /> : 
+                     row.feature === "Bug Fix Support" ? <T en="Bug Fix Support" bm="Sokongan Pembaikan Ralat Sistem" /> : 
+                     row.feature === "SSL Certificate" ? <T en="SSL Certificate" bm="Sijil SSL" /> : row.feature}
+                  </td>
+                  {(["standard", "growth", "enterprise", "platinum"] as const).map((plan) => (
+                    <td key={plan} className="py-6 px-4 text-center">
+                      {row[plan] === true ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />
+                      ) : (
+                        <X className="w-5 h-5 text-zinc-700 mx-auto" />
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

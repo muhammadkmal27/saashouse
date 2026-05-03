@@ -84,7 +84,7 @@ export default function PricingPage() {
     },
     {
       question: <T en="Do you support payment integrations?" bm="Adakah anda menyokong integrasi pembayaran?" />,
-      answer: <T en="Yes, we support ToyyibPay, Stripe, and other major payment gateways. All integrations are set up during the onboarding process at no extra cost." bm="Ya, kami menyokong ToyyibPay, Stripe, dan gerbang pembayaran utama lain." />
+      answer: <T en="Yes, we support ToyyibPay, Stripe, and other major payment gateways. All integrations are set up during the onboarding process at no extra cost." bm="Ya, kami menyokong ToyyibPay, Stripe, dan sistem pembayaran utama lain." />
     },
     {
       question: <T en="How does technical support work?" bm="Bagaimanakah sokongan teknikal berfungsi?" />,
@@ -110,7 +110,7 @@ export default function PricingPage() {
             <p className="text-zinc-500 max-w-2xl mx-auto text-lg leading-relaxed">
               {otpMode 
                 ? <T en={`Build your complete platform for RM${totalPrice}. Pay a deposit to start and the final amount upon completion.`} bm={`Bina platform lengkap anda dengan RM${totalPrice}. Bayar deposit untuk mula dan baki selepas siap.`} />
-                : <T en="Fixed monthly fee including web apps, high-performance server, and domain. No hidden charges." bm="Yuran bulanan tetap termasuk aplikasi web, pelayan berprestasi tinggi, dan domain. Tiada caj tersembunyi." />
+                : <T en="Build your platform with a RM550 deposit. Your monthly subscription covers system maintenance, technical support (bug-fixes), hosting, and domain." bm="Bina platform anda dengan deposit RM550. Langganan bulanan pula adalah untuk penyelenggaraan sistem, penyelenggaraan teknikal (bug-fix), hosting, dan domain." />
               }
             </p>
           </div>
@@ -210,13 +210,13 @@ export default function PricingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Link
                 href="/app/projects/create"
-                className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-black uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-violet-600/20 text-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 md:px-10 md:py-5 bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-black uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-violet-600/20 text-sm md:text-lg"
               >
                 <T en="Get Started Free" bm="Mula Secara Percuma" /> <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 px-10 py-5 bg-transparent border border-white/10 text-white font-bold uppercase tracking-widest rounded-2xl hover:bg-white/5 transition-all text-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 md:px-10 md:py-5 bg-transparent border border-white/10 text-white font-bold uppercase tracking-widest rounded-2xl hover:bg-white/5 transition-all text-sm md:text-lg"
               >
                 <T en="Talk to Sales" bm="Hubungi Jualan" />
               </Link>

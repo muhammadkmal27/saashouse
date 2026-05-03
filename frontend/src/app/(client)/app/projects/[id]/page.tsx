@@ -1002,7 +1002,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             {step === 1 && (
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">1. <T en="Financial Gateway" bm="Gerbang Kewangan" /></h2>
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">1. <T en="Financial Gateway" bm="Sistem Kewangan" /></h2>
                                         <p className="text-zinc-500 font-medium text-sm">Coordinate your site's payment infrastructure.</p>
                                     </div>
                                     

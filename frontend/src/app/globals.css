@@ -4,6 +4,12 @@ html {
   scrollbar-gutter: stable;
 }
 
+@layer utilities {
+  .safe-area-pb {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

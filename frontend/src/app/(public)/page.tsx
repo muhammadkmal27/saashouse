@@ -38,22 +38,22 @@ export default function LandingPage() {
       )}
 
       {/* Pro Website Banner (Restored from old design) */}
-      <section className="px-6 pb-24">
-        <div className="max-w-7xl mx-auto rounded-3xl overflow-hidden border border-zinc-800 aspect-[21/9] relative flex items-center justify-center p-12 bg-gradient-to-br from-zinc-900 to-black group">
+      <section className="px-6 md:pb-24 pb-10">
+        <div className="max-w-7xl mx-auto rounded-[2.5rem] overflow-hidden border border-zinc-800 aspect-[16/10] md:aspect-[21/9] relative flex items-center justify-center p-6 md:p-12 bg-gradient-to-br from-zinc-900 to-black group shadow-2xl">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&q=80&w=2000')] opacity-20 group-hover:opacity-30 transition-opacity object-cover bg-center"></div>
-          <div className="relative z-10 text-center space-y-4">
-            <div className="inline-flex items-center gap-2 text-cyan-400 text-xs font-black uppercase tracking-widest">
-              <Globe className="w-4 h-4" /> <T en="Global Reach, Malaysia’s Best" bm="Jangkauan Global, Terbaik di Malaysia" />
+          <div className="relative z-10 text-center space-y-3 md:space-y-6">
+            <div className="inline-flex items-center gap-2 text-cyan-400 text-[9px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-widest">
+              <Globe className="w-3.5 h-3.5 md:w-4 h-4" /> <T en="Global Reach, Malaysia’s Best" bm="Jangkauan Global, Terbaik di Malaysia" />
             </div>
-            <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
-              <T en={<>PRO WEBSITE<br/>DEVELOPMENT</>} bm={<>PEMBANGUNAN WEB<br/>PROFESIONAL</>} />
+            <h2 className="text-3xl md:text-7xl font-black text-white tracking-tighter leading-[1.1]">
+              <T en={<>PRO WEBSITE<br className="md:hidden" /> DEVELOPMENT</>} bm={<>PEMBANGUNAN WEB<br />PROFESIONAL</>} />
             </h2>
           </div>
         </div>
       </section>
 
       {/* Shared Showcase Section (Visible in both modes) */}
-      <section className="px-6 py-24">
+      <section className="px-6 md:py-24 py-12">
         <div className="max-w-7xl mx-auto text-center space-y-16">
           <div className="space-y-4">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
@@ -97,7 +97,7 @@ export default function LandingPage() {
       </section>
 
       {/* Shared Features Grid */}
-      <section className="px-6 py-24 border-t border-zinc-900 bg-[#09090b]">
+      <section className="px-6 md:py-24 py-12 border-t border-zinc-900 bg-[#09090b]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
@@ -159,7 +159,7 @@ export default function LandingPage() {
       </section>
 
       {/* Dynamic CTA Section at the bottom */}
-      <section className="px-6 py-24 pb-0">
+      <section className="px-6 md:py-24 py-12 pb-0">
         <div className="max-w-5xl mx-auto rounded-[3rem] bg-[#0e0e11] border border-zinc-800 p-16 md:p-24 text-center space-y-10 relative overflow-hidden group">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-cyan-500/10 blur-[100px] rounded-full group-hover:opacity-75 transition-opacity opacity-50 pointer-events-none"></div>
           
@@ -175,7 +175,7 @@ export default function LandingPage() {
                 <div className="pt-6">
                   <Link 
                     href="/auth/register" 
-                    className="inline-flex px-10 py-5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white font-bold text-sm shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all uppercase tracking-widest gap-2 items-center"
+                    className="inline-flex px-8 py-4 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white font-bold text-sm shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all uppercase tracking-widest gap-2 items-center"
                   >
                     <T en="CREATE PROJECT" bm="BINA PROJEK"/> <ArrowRight className="w-4 h-4" />
                   </Link>
@@ -192,7 +192,7 @@ export default function LandingPage() {
                 <div className="pt-6">
                   <Link 
                     href="/auth/register" 
-                    className="inline-flex px-10 py-5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white font-bold text-sm shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all uppercase tracking-widest gap-2 items-center"
+                    className="inline-flex px-8 py-4 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white font-bold text-sm shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all uppercase tracking-widest gap-2 items-center"
                   >
                     <T en="START NOW" bm="MULA SEKARANG"/> <ArrowRight className="w-4 h-4" />
                   </Link>
