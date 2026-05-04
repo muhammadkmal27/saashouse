@@ -93,6 +93,7 @@ interface Requirements {
     business_address?: string;
     operation_hours?: string;
     project_vision?: string;
+    target_audience?: string;
 }
 
 interface Project {
