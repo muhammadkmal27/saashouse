@@ -83,8 +83,8 @@ export default function AdminClients() {
             </header>
 
 
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
-                <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div className="bg-white border border-zinc-200 rounded-[2rem] overflow-hidden">
+                <div className="p-6 border-b border-zinc-100 flex flex-col md:flex-row gap-4 justify-between items-center">
                     <div className="relative w-full md:w-80">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                         <input 
@@ -92,7 +92,7 @@ export default function AdminClients() {
                             placeholder="Find client or project..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
+                            className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
                             suppressHydrationWarning
                         />
                     </div>
@@ -117,9 +117,9 @@ export default function AdminClients() {
                                     <th className="px-8 py-5">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                            <tbody className="divide-y divide-zinc-100">
                                 {filteredClients.map((client) => (
-                                    <tr key={client.row_id || client.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                    <tr key={client.row_id || client.id} className="group hover:bg-zinc-50 transition-colors">
                                         <td className="px-8 py-7">
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-sm">{client.full_name}</span>

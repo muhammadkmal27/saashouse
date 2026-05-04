@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-8 rounded-[2rem] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                <div className="p-8 rounded-[2rem] bg-white border border-zinc-200 shadow-sm relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
                             <TrendingUp className="w-6 h-6" />
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
                     <p className="text-3xl font-black">RM {stats?.total_revenue?.toLocaleString() || "0.00"}</p>
                 </div>
 
-                <div className="p-8 rounded-[2rem] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                <div className="p-8 rounded-[2rem] bg-white border border-zinc-200 shadow-sm relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-4 rounded-2xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
                             <Briefcase className="w-6 h-6" />
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
                     <p className="text-3xl font-black">{stats?.active_projects || 0} Projects</p>
                 </div>
 
-                <div className="p-8 rounded-[2rem] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                <div className="p-8 rounded-[2rem] bg-white border border-zinc-200 shadow-sm relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-4 rounded-2xl bg-purple-500/10 text-purple-500 group-hover:scale-110 transition-transform">
                             <Users className="w-6 h-6" />
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
                         <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
                     </div>
 
-                    <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-zinc-800">
+                    <div className="p-8 rounded-[2.5rem] bg-white border border-zinc-200">
                         <h3 className="text-xl font-bold mb-6">System Health</h3>
                         <div className="space-y-6">
                             {[
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
                                     <span className="text-sm font-medium text-zinc-400">{s.name}</span>
                                     <div className="flex items-center gap-2">
                                         <span className={`w-2 h-2 rounded-full ${s.color}`}></span>
-                                        <span className="text-xs font-bold text-zinc-200">{s.status}</span>
+                                        <span className="text-xs font-bold text-zinc-900">{s.status}</span>
                                     </div>
                                 </div>
                             ))}
