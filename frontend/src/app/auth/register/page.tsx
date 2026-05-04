@@ -51,21 +51,21 @@ export default function RegisterPage() {
   return (
     <div className="w-full">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2"><T en="Create an account" bm="Daftar akaun" /></h1>
-        <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2"><T en="Create an account" bm="Daftar akaun" /></h1>
+        <p className="text-sm font-medium text-slate-500">
           <T en="Enter your details below to set up your enterprise workspace" bm="Masukkan butiran anda di bawah untuk menyediakan ruang kerja perusahaan anda" />
         </p>
       </div>
 
       {error && (
-        <div className="mt-6 p-3 text-sm text-red-500 bg-red-50 border border-red-100 dark:border-red-900/50 dark:bg-red-900/20 rounded-xl">
+        <div className="mt-6 p-3 text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5 mt-8">
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
+          <label htmlFor="name" className="text-sm font-bold text-slate-700">
             <T en="Full Name" bm="Nama Penuh" />
           </label>
           <input
@@ -74,13 +74,13 @@ export default function RegisterPage() {
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-4 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
+            className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white pl-4 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
             required
             suppressHydrationWarning
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
+          <label htmlFor="email" className="text-sm font-bold text-slate-700">
             <T en="Email" bm="E-mel" />
           </label>
           <input
@@ -89,13 +89,13 @@ export default function RegisterPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-4 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
+            className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white pl-4 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
             required
             suppressHydrationWarning
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
+          <label htmlFor="password" className="text-sm font-bold text-slate-700">
             <T en="Password" bm="Kata Laluan" />
           </label>
           <input
@@ -104,7 +104,7 @@ export default function RegisterPage() {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-4 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
+            className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white pl-4 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
             required
             suppressHydrationWarning
           />

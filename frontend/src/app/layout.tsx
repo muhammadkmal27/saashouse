@@ -21,6 +21,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth" style={{ colorScheme: 'light' }}>
+      <head>
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="color-scheme" content="light" />
+      </head>
       <body className={`${inter.className} antialiased bg-white text-zinc-900`}>
         <LanguageProvider>
           <SocketProvider>

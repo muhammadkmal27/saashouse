@@ -100,7 +100,7 @@ export default function SecuritySettingsPage() {
             <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
                 {hasPassword && (
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-zinc-300 ml-1"><T en="Current Password" bm="Kata Laluan Semasa" /></label>
+                        <label className="text-sm font-bold text-slate-700 ml-1"><T en="Current Password" bm="Kata Laluan Semasa" /></label>
                         <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input 
@@ -108,7 +108,7 @@ export default function SecuritySettingsPage() {
                                 required
                                 value={passwords.current_password}
                                 onChange={(e) => setPasswords({...passwords, current_password: e.target.value})}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -128,25 +128,25 @@ export default function SecuritySettingsPage() {
 
                 <div className="pt-2 space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-zinc-300 ml-1"><T en="New Password" bm="Kata Laluan Baru" /></label>
+                        <label className="text-sm font-bold text-slate-700 ml-1"><T en="New Password" bm="Kata Laluan Baru" /></label>
                         <input 
                             type="password" 
                             required
                             value={passwords.new_password}
                             onChange={(e) => setPasswords({...passwords, new_password: e.target.value})}
-                            className="w-full px-5 py-3 bg-slate-50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                            className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                             placeholder={lang === "EN" ? "Enter new password" : "Masukkan kata laluan baru"}
                         />
                     </div>
                     
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-zinc-300 ml-1"><T en="Confirm New Password" bm="Sahkan Kata Laluan Baru" /></label>
+                        <label className="text-sm font-bold text-slate-700 ml-1"><T en="Confirm New Password" bm="Sahkan Kata Laluan Baru" /></label>
                         <input 
                             type="password" 
                             required
                             value={passwords.confirm_password}
                             onChange={(e) => setPasswords({...passwords, confirm_password: e.target.value})}
-                            className="w-full px-5 py-3 bg-slate-50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                            className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                             placeholder={lang === "EN" ? "Type new password again" : "Taip semula kata laluan baru"}
                         />
                     </div>

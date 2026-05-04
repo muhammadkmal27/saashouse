@@ -86,7 +86,7 @@ export default function ProfileSettingsPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-1.5 md:space-y-2">
-                        <label className="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Full Name" bm="Nama Penuh" /></label>
+                        <label className="text-xs md:text-sm font-bold text-slate-700 ml-1"><T en="Full Name" bm="Nama Penuh" /></label>
                         <div className="relative group">
                             <User className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 transition-colors ${loading ? 'text-slate-200' : 'text-slate-400 group-focus-within:text-violet-500'}`} />
                             <input 
@@ -94,7 +94,7 @@ export default function ProfileSettingsPage() {
                                 name="full_name"
                                 value={formData.full_name}
                                 onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                                className="w-full pl-11 md:pl-12 pr-5 py-3.5 md:py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                className="w-full pl-11 md:pl-12 pr-5 py-3.5 md:py-4 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                                 placeholder={lang === "EN" ? "e.g. John Doe" : "cth. Ahmad Albab"}
                             />
                         </div>
@@ -102,37 +102,37 @@ export default function ProfileSettingsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
                         <div className="space-y-1.5 md:space-y-2">
-                            <label className="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Company Name" bm="Nama Syarikat" /></label>
+                            <label className="text-xs md:text-sm font-bold text-slate-700 ml-1"><T en="Company Name" bm="Nama Syarikat" /></label>
                             <input 
                                 type="text" 
                                 name="company_name"
                                 value={formData.company_name}
                                 onChange={(e) => setFormData({...formData, company_name: e.target.value})}
-                                className="w-full px-5 md:px-6 py-3.5 md:py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                className="w-full px-5 md:px-6 py-3.5 md:py-4 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                                 placeholder={lang === "EN" ? "Company Ltd" : "Syarikat Sdn Bhd"}
                             />
                         </div>
                         <div className="space-y-1.5 md:space-y-2">
-                            <label className="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Phone Number" bm="Nombor Telefon" /></label>
+                            <label className="text-xs md:text-sm font-bold text-slate-700 ml-1"><T en="Phone Number" bm="Nombor Telefon" /></label>
                             <input 
                                 type="text" 
                                 name="phone_number"
                                 value={formData.phone_number}
                                 onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
-                                className="w-full px-5 md:px-6 py-3.5 md:py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                className="w-full px-5 md:px-6 py-3.5 md:py-4 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                                 placeholder="+60 12-345 6789"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-1.5 md:space-y-2">
-                        <label className="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-300 ml-1"><T en="Short Bio" bm="Biodata Ringkas" /></label>
+                        <label className="text-xs md:text-sm font-bold text-slate-700 ml-1"><T en="Short Bio" bm="Biodata Ringkas" /></label>
                         <textarea 
                             name="bio"
                             value={formData.bio}
                             onChange={(e) => setFormData({...formData, bio: e.target.value})}
                             rows={4}
-                            className="w-full px-5 md:px-6 py-3.5 md:py-4 bg-slate-50/50 dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 resize-none font-medium h-24 md:h-32"
+                            className="w-full px-5 md:px-6 py-3.5 md:py-4 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[13px] md:text-base focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 resize-none font-medium h-24 md:h-32"
                             placeholder={lang === "EN" ? "Tell us a little bit about yourself..." : "Beritahu kami serba sedikit tentang diri anda..."}
                         />
                     </div>

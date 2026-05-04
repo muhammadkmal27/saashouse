@@ -70,11 +70,11 @@ export default function ChatWidget() {
             <div 
               key={t.id} 
               onClick={() => { setIsOpen(false); router.push(`/admin/tickets/${t.id}`); }}
-              className="p-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer flex items-center justify-between transition-colors"
+              className="p-4 border-b border-zinc-100 hover:bg-zinc-50 cursor-pointer flex items-center justify-between transition-colors"
             >
                <div className="w-full pr-4 flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t.creator_email}</h4>
+                    <h4 className="text-sm font-semibold text-zinc-900">{t.creator_email}</h4>
                     <p className="text-xs text-zinc-500 truncate">{t.title}</p>
                   </div>
                   {t.unread_count > 0 && (
@@ -107,14 +107,14 @@ export default function ChatWidget() {
           <div 
             key={t.id} 
             onClick={() => setActiveTicketId(t.id)}
-            className="p-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer flex items-center justify-between transition-colors"
+            className="p-4 border-b border-zinc-100 hover:bg-zinc-50 cursor-pointer flex items-center justify-between transition-colors"
           >
              <div className="w-full pr-4 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-wider text-blue-600 mb-1">
                     <T en={t.type_} bm={t.type_ === 'BUG' ? 'RALAT SISTEM' : 'FUNGSI SISTEM'} />
                   </p>
-                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{t.title}</h4>
+                  <h4 className="text-sm font-semibold text-zinc-900 truncate">{t.title}</h4>
                 </div>
                 {t.unread_count > 0 && (
                   <div className="bg-red-500 text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center shadow-sm animate-pulse">
@@ -132,8 +132,8 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-24 md:bottom-6 right-6 z-50 print:hidden">
       {isOpen ? (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl w-[350px] h-[580px] flex flex-col overflow-hidden transition-all duration-300 transform scale-100 opacity-100 animate-in fade-in slide-in-from-bottom-5">
-           <div className="bg-zinc-900 dark:bg-black text-white p-4 flex justify-between items-center cursor-pointer shadow-sm relative z-10 flex-shrink-0">
+        <div className="bg-white border border-zinc-200 rounded-2xl shadow-2xl w-[350px] h-[580px] flex flex-col overflow-hidden transition-all duration-300 transform scale-100 opacity-100 animate-in fade-in slide-in-from-bottom-5">
+           <div className="bg-zinc-900 text-white p-4 flex justify-between items-center cursor-pointer shadow-sm relative z-10 flex-shrink-0">
               <div className="flex items-center space-x-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-400 border-2 border-emerald-900" : "bg-red-500 animate-pulse"}`}></div>
                 <h3 className="font-semibold text-sm tracking-wide">
@@ -151,7 +151,7 @@ export default function ChatWidget() {
               </div>
            </div>
            
-           <div className="flex-1 bg-zinc-50 dark:bg-zinc-900 flex flex-col items-stretch justify-start relative w-full h-full overflow-hidden">
+           <div className="flex-1 bg-zinc-50 flex flex-col items-stretch justify-start relative w-full h-full overflow-hidden">
                {renderContent()}
            </div>
         </div>
@@ -161,13 +161,13 @@ export default function ChatWidget() {
             setIsOpen(true);
             setUnreadCount(0);
           }}
-          className="relative bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 p-4 rounded-full shadow-xl transition-transform hover:scale-110 active:scale-95 duration-200 group"
+          className="relative bg-zinc-900 hover:bg-zinc-800 text-white p-4 rounded-full shadow-xl transition-transform hover:scale-110 active:scale-95 duration-200 group"
           suppressHydrationWarning
         >
           <MessageCircle size={28} className="transform group-hover:rotate-12 transition-transform duration-300" />
           
           {unreadCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white dark:border-zinc-950 shadow-sm animate-bounce">
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-sm animate-bounce">
               {unreadCount}
             </span>
           )}
