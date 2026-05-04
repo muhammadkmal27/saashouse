@@ -5,7 +5,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-50 flex flex-col font-sans selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#09090b] text-zinc-50 flex flex-col font-sans selection:bg-purple-500/30 overflow-x-hidden">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-[#09090b]/80 backdrop-blur-md px-4 md:px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -209,7 +209,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         </div>
         {/* Massive Backdrop Watermark Text (Gradient) */}
         <div className="w-full text-center select-none pointer-events-none flex items-center justify-center mt-16 overflow-hidden">
-           <h1 className="text-[15vw] lg:text-[13vw] font-black leading-[0.8] tracking-tighter bg-gradient-to-r from-slate-800/80 via-zinc-800/80 to-purple-900/50 text-transparent bg-clip-text whitespace-nowrap pb-4 text-center">
+           <h1 className="text-[15vw] lg:text-[13vw] font-black leading-[0.8] tracking-tighter bg-gradient-to-r from-slate-800/80 via-zinc-800/80 to-purple-900/50 text-transparent bg-clip-text whitespace-normal md:whitespace-nowrap pb-4 text-center">
              <T en={<>BUILD FIRST /<br/>THEN SCALE.</>} bm={<>BINA DAHULU /<br/>KEMUDIAN KEMBANGKAN.</>} />
            </h1>
         </div>

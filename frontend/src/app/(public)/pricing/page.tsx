@@ -192,7 +192,7 @@ export default function PricingPage() {
       </section>
 
       {/* ─── NEW: Final CTA ─── */}
-      <section className="px-6 pb-40">
+      <section className="px-6 pb-40 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative">
           {/* Ambient glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-violet-600/10 blur-[120px] rounded-full pointer-events-none" />
