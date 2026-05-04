@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.className} antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50`}>
+    <html lang="en" className="scroll-smooth" style={{ colorScheme: 'light' }}>
+      <body className={`${inter.className} antialiased bg-white text-zinc-900`}>
         <LanguageProvider>
           <SocketProvider>
             {children}

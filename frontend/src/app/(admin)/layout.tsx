@@ -29,9 +29,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ];
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">
+        <div className="min-h-screen bg-zinc-50 flex flex-col md:flex-row">
             {/* Mobile Header */}
-            <header className="md:hidden flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-40">
+            <header className="md:hidden flex items-center justify-between p-4 border-b border-zinc-200 bg-white sticky top-0 z-40">
                 <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-lg overflow-hidden flex items-center justify-center">
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* Sidebar */}
             <aside className={`
-                fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 
+                fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-zinc-200 
                 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
                 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
             `}>
@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-bold text-lg leading-tight uppercase tracking-widest text-emerald-600 dark:text-emerald-400">SaaS House</span>
+                            <span className="font-bold text-lg leading-tight uppercase tracking-widest text-emerald-600">SaaS House</span>
                             <span className="text-xs font-medium text-zinc-400">ADMIN CONSOLE</span>
                         </div>
                     </div>
@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <Link 
                                 key={item.name} 
                                 href={item.href}
-                                className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium"
+                                className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-600 hover:bg-zinc-100 hover:text-emerald-600 transition-colors font-medium"
                             >
                                 <item.icon className="w-5 h-5" />
                                 {item.name}
@@ -73,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         ))}
                     </nav>
 
-                    <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="pt-6 border-t border-zinc-200">
                         <button 
                             onClick={async () => {
                                 try {
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     window.location.href = "/auth/login";
                                 }
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors font-medium border-none cursor-pointer"
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors font-medium border-none cursor-pointer"
                         >
                             <LogOut className="w-5 h-5" />
                             Sign Out
