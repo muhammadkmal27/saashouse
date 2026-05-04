@@ -168,7 +168,7 @@ export default function MiniChat({
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-zinc-50 dark:bg-zinc-900 overflow-hidden relative">
+    <div className="flex flex-col h-full w-full bg-zinc-50 overflow-hidden relative">
       <div className="flex-1 overflow-y-auto w-full p-5 space-y-5">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center opacity-50">
@@ -180,7 +180,7 @@ export default function MiniChat({
           const isMine = msg.user_id === userProfile?.user?.id;
           return (
             <div key={idx} className={`flex ${isMine ? 'justify-end' : 'justify-start'} w-full`}>
-               <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm shadow-sm ${isMine ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-br-sm' : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-bl-sm'}`}>
+               <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm shadow-sm ${isMine ? 'bg-zinc-100 text-zinc-900 rounded-br-sm' : 'bg-white border border-zinc-200 text-zinc-800 rounded-bl-sm'}`}>
                 <p className="whitespace-pre-wrap leading-relaxed">
                   {msg.message.includes("[SYSTEM]: Ticket status updated to ") ? (
                     <>
@@ -202,13 +202,13 @@ export default function MiniChat({
                    <button 
                      key={uidx} 
                      onClick={() => setPreviewImage(url)} 
-                     className="block mt-3 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 opacity-90 hover:opacity-100 transition-opacity w-full cursor-zoom-in"
+                     className="block mt-3 rounded-lg overflow-hidden border border-black/10 opacity-90 hover:opacity-100 transition-opacity w-full cursor-zoom-in"
                    >
                      <img src={url} className="w-full h-auto max-h-32 object-cover" />
                    </button>
                 ))}
                 <div className="flex items-center justify-end space-x-2 mt-1">
-                   <p className={`text-[9px] font-medium tracking-wide ${isMine ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-400'}`}>
+                   <p className={`text-[9px] font-medium tracking-wide ${isMine ? 'text-zinc-400' : 'text-zinc-400'}`}>
                     {new Date(msg.created_at).toISOString()}
                   </p>
                   {isMine && msg.is_read && (
@@ -223,7 +223,7 @@ export default function MiniChat({
       </div>
 
       {ticket?.status !== 'CLOSED' ? (
-        <form onSubmit={handleSend} className="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 flex-shrink-0 flex items-center justify-between gap-3 relative shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-10 flex-wrap">
+        <form onSubmit={handleSend} className="p-4 bg-white border-t border-zinc-100 flex-shrink-0 flex items-center justify-between gap-3 relative shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-10 flex-wrap">
           {attachments.length > 0 && (
               <div className="w-full flex flex-wrap gap-3 pb-3 px-1">
                 {attachments.map((url, idx) => (
@@ -244,26 +244,26 @@ export default function MiniChat({
                 ))}
              </div>
           )}
-          <label className="cursor-pointer text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors p-2 -ml-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
+          <label className="cursor-pointer text-zinc-400 hover:text-zinc-600 transition-colors p-2 -ml-2 rounded-full hover:bg-zinc-100">
             {uploading ? <Loader2 size={20} className="animate-spin" /> : <Paperclip size={20} />}
             <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading || sending} />
           </label>
-          <div className="flex-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl px-4 py-3 flex items-center relative border border-transparent focus-within:border-zinc-300 dark:focus-within:border-zinc-700 transition-all">
+          <div className="flex-1 bg-zinc-100 rounded-xl px-4 py-3 flex items-center relative border border-transparent focus-within:border-zinc-300 transition-all">
              <input 
                type="text"
                value={input}
                onChange={e => setInput(e.target.value)}
                placeholder={userProfile?.lang === 'BM' ? "Taip mesej anda..." : "Type your message..."}
-               className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-zinc-400 text-zinc-900 dark:text-white"
+               className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-zinc-400 text-zinc-900"
                disabled={sending || uploading}
              />
           </div>
-          <button type="submit" disabled={(!input.trim() && attachments.length === 0) || sending} className="text-white bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 p-3 rounded-xl disabled:bg-zinc-200 dark:disabled:bg-zinc-800 disabled:text-zinc-400 hover:bg-black active:scale-95 transition-all shadow-sm">
+          <button type="submit" disabled={(!input.trim() && attachments.length === 0) || sending} className="text-white bg-zinc-900 p-3 rounded-xl disabled:bg-zinc-200 disabled:text-zinc-400 hover:bg-black active:scale-95 transition-all shadow-sm">
             {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </button>
         </form>
       ) : (
-        <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 text-center flex-shrink-0">
+        <div className="p-4 bg-zinc-50 border-t border-zinc-200 text-center flex-shrink-0">
           <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500"><T en="Notice" bm="Notis" /></p>
           <p className="text-xs text-zinc-500 font-medium"><T en="This ticket has been closed." bm="Tiket ini telah ditutup." /></p>
         </div>

@@ -92,7 +92,7 @@ export default function LoginPage() {
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-zinc-300">
+            <label htmlFor="password" className="text-sm font-bold text-slate-700">
               <T en="Password" bm="Kata Laluan" />
             </label>
             <a href="/auth/forgot-password" className="text-sm font-medium text-cyan-600 hover:text-cyan-500">

@@ -3,14 +3,14 @@ import { T } from "@/components/Translate";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex bg-[#09090b]">
+    <div className="min-h-screen flex bg-slate-50">
       
       {/* Left Column (Light/Form) */}
-      <div className="flex-1 flex flex-col justify-center items-center px-8 bg-white dark:bg-[#09090b]">
+      <div className="flex-1 flex flex-col justify-center items-center px-8 bg-white">
         <div className="w-full max-w-md">
           {/* Logo Badge */}
           <div className="mb-10 flex justify-start">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 text-violet-600 border border-violet-100 dark:bg-violet-900/30 dark:border-violet-800 dark:text-violet-400 text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 text-violet-600 border border-violet-100 text-sm font-semibold">
               <Sparkles className="w-4 h-4" />
               SaaS House
             </div>

@@ -72,7 +72,7 @@ export default function AccountSettingsPage() {
                         </button>
                     </div>
 
-                    <div className="bg-slate-50/50 dark:bg-black p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 shadow-sm">
+                    <div className="bg-slate-50/50 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 shadow-sm">
                         <div className="flex items-center gap-4 md:gap-5">
                             <div className="w-10 h-10 md:w-14 md:h-14 bg-violet-100/80 text-violet-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-inner shadow-white shrink-0">
                                 <BadgeCheck className="w-5 h-5 md:w-7 md:h-7" strokeWidth={2.5} />

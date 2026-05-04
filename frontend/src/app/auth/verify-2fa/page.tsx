@@ -72,16 +72,16 @@ export default function Verify2FAPage() {
         <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
           <ShieldCheck className="w-6 h-6" />
         </div>
-        <h1 className="text-3xl font-extra-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-3xl font-extra-bold tracking-tight text-zinc-900">
           <T en="Double Protection." bm="Pelindungan Berganda." />
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
+        <p className="text-zinc-500 text-sm leading-relaxed">
           <T en="We have sent a 6-digit code to your registered email. Please enter the code below to verify your identity." bm="Kami telah menghantar kod 6-digit ke e-mel berdaftar anda. Sila masukkan kod di bawah untuk mengesahkan identiti anda." />
         </p>
       </div>
 
       {resendSuccess && (
-        <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl px-4 py-3 text-sm font-semibold">
+        <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm font-semibold">
           <CheckCircle2 className="w-4 h-4" /> <T en="A new code has been sent to your email." bm="Kod baru telah dihantar ke e-mel anda." />
         </div>
       )}
@@ -100,7 +100,7 @@ export default function Verify2FAPage() {
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
               placeholder="000000"
-              className="w-full bg-zinc-100 dark:bg-zinc-900 border-none rounded-2xl py-4 pl-12 pr-4 text-center text-2xl font-black tracking-[0.5em] focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+              className="w-full bg-white border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-center text-2xl font-black tracking-[0.5em] focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-zinc-300"
               suppressHydrationWarning
             />
           </div>
@@ -110,7 +110,7 @@ export default function Verify2FAPage() {
         <button
           disabled={loading || code.length < 6}
           type="submit"
-          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-300 dark:disabled:bg-zinc-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
+          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-300 text-white font-bold py-4 rounded-2xl shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
           suppressHydrationWarning
         >
           {loading ? <T en="Verifying..." bm="Mengesahkan..." /> : (
@@ -122,7 +122,7 @@ export default function Verify2FAPage() {
 
       </form>
 
-      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-zinc-400 px-1 border-t border-zinc-100 dark:border-zinc-800 pt-6">
+      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-zinc-400 px-1 border-t border-zinc-100 pt-6">
         <button
           onClick={handleResend}
           disabled={resending}
