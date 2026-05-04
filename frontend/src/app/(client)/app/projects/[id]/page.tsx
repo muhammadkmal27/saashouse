@@ -43,7 +43,13 @@ import {
     MoveVertical,
     Type,
     Maximize2,
-    RotateCcw
+    RotateCcw,
+    Users2,
+    Palette,
+    FolderOpen,
+    ArrowDownToLine,
+    Image,
+    Receipt
 } from "lucide-react";
 import Link from "next/link";
 import Script from "next/script";
@@ -485,7 +491,330 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
     const planName = project.selected_plan || "Custom Plan";
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6 pt-10 pb-12 bg-[#FAFAFC] min-h-screen px-4 md:px-0">
+        <div className="w-full min-h-screen bg-[#FDFDFF]">
+            <Script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" strategy="afterInteractive" />
+            
+            {/* ─── MOBILE VIEW (lg:hidden) ─── */}
+            <div className="lg:hidden">
+                {/* Header Banner */}
+                <div className="relative bg-violet-600 pt-10 pb-16 px-5 overflow-hidden -mx-4 -mt-8">
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-6">
+                            <Link href="/app/projects" className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-white">
+                                <ArrowLeft className="w-5 h-5" />
+                            </Link>
+                            <div className="flex flex-col items-end gap-1.5">
+                                <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-widest text-white border border-white/10">
+                                    {project.status === 'REVIEW' ? <T en="In Review" bm="Dalam Semakan" /> : <T en={project.status.replace(/_/g, ' ')} bm={project.status === 'PAID' ? 'DIBAYAR' : project.status.replace(/_/g, ' ')} />}
+                                </span>
+                                <span className="px-3 py-1 bg-amber-400 text-amber-900 text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-amber-900/20">
+                                    {planName}
+                                </span>
+                            </div>
+                        </div>
+                        <h1 className="text-3xl font-black text-white tracking-tight mb-1">{project.title}</h1>
+                        <p className="text-violet-100 text-[10px] font-bold uppercase tracking-widest opacity-80">
+                            {project.subscription_status === 'active' 
+                                ? <T en="Active Subscription" bm="Langganan Aktif" /> 
+                                : <T en="No Active Subscription" bm="Tiada Langganan Aktif" />}
+                        </p>
+                    </div>
+                    {/* Decorative Blobs */}
+                    <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-fuchsia-500/30 rounded-full blur-3xl" />
+                    <div className="absolute bottom-0 left-0 -ml-10 -mb-10 w-32 h-32 bg-indigo-500/30 rounded-full blur-3xl" />
+                </div>
+
+                <div className="px-5 -mt-8 pb-24 space-y-5 relative z-20">
+                    {/* Primary Actions */}
+                    <div className="flex gap-3">
+                        <button 
+                            onClick={() => project.client_edit_allowed && setIsEditing(true)}
+                            disabled={!project.client_edit_allowed}
+                            className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 ${
+                                project.client_edit_allowed 
+                                ? 'bg-white text-violet-600 border border-violet-100' 
+                                : 'bg-slate-50 text-slate-300 border border-slate-100'
+                            }`}
+                        >
+                            {project.client_edit_allowed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                            <T en="Update Project" bm="Kemaskini Projek" />
+                        </button>
+                        <button 
+                            onClick={handleExportReportPDF}
+                            disabled={isExporting}
+                            className="h-14 px-6 bg-violet-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-violet-200 active:scale-95 transition-all"
+                        >
+                            <Download className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    {/* Environment Access */}
+                    <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400"><T en="Environment" bm="Persekitaran" /></span>
+                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest rounded-md border border-emerald-100">Live Node</span>
+                        </div>
+                        {project.prod_url ? (
+                            <a href={project.prod_url} target="_blank" className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 active:scale-[0.98] transition-all">
+                                <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shrink-0">
+                                    <Rocket className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="text-[11px] font-black text-slate-900 leading-tight uppercase"><T en="Launch Website" bm="Lancarkan Laman Web" /></p>
+                                    <p className="text-[9px] font-bold text-slate-400 truncate">{project.prod_url.replace(/^https?:\/\//, '')}</p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 text-slate-300" />
+                            </a>
+                        ) : project.dev_url ? (
+                            <a href={project.dev_url} target="_blank" className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 active:scale-[0.98] transition-all">
+                                <div className="w-10 h-10 bg-violet-500 rounded-xl flex items-center justify-center text-white shrink-0">
+                                    <Cpu className="w-5 h-5 animate-pulse" />
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="text-[11px] font-black text-slate-900 leading-tight uppercase"><T en="Staging Access" bm="Akses Pementasan" /></p>
+                                    <p className="text-[9px] font-bold text-slate-400 truncate">{project.dev_url.replace(/^https?:\/\//, '')}</p>
+                                </div>
+                                <ExternalLink className="w-4 h-4 text-slate-300" />
+                            </a>
+                        ) : (
+                            <div className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 opacity-60">
+                                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300 shrink-0">
+                                    <Clock className="w-5 h-5" />
+                                </div>
+                                <p className="text-[11px] font-bold text-slate-400 italic"><T en="Deploying system nodes..." bm="Menyebarkan nod sistem..." /></p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Mobile Billing Section (NOW AT POSITION 2) */}
+                    <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+                                <CreditCard className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                                {planName === "One-Time Purchase" ? <T en="Project Billing" bm="Pembayaran Projek" /> : <T en="Onboarding Billing" bm="Pembayaran Onboarding" />}
+                            </h3>
+                        </div>
+
+                        {/* SaaS/OTP Logic Combined for Mobile */}
+                        {(project.status === "REVIEW" || project.status === "PAYMENT_PENDING") ? (
+                            <div className="space-y-4">
+                                <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex justify-between items-center">
+                                    <div>
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-0.5">
+                                            {planName === "One-Time Purchase" ? <T en="Initial Deposit" bm="Deposit Awal" /> : <T en="Setup Fee" bm="Kos Persediaan" />}
+                                        </p>
+                                        <p className="text-xl font-black text-slate-900">
+                                            RM {planName === "One-Time Purchase" ? (systemSettings?.otp_deposit_price || "200.00") : (systemSettings?.saas_deposit_price || "250.00")}
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleToyyibpayCheckout("DEPOSIT")}
+                                        className="h-12 px-6 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <T en="Pay Now" bm="Bayar" />
+                                        <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                {planName !== "One-Time Purchase" && (
+                                    <p className="text-[9px] text-slate-400 font-bold text-center italic leading-tight px-4">
+                                        <T en="Subscription starts after project goes live." bm="Langganan bermula selepas projek aktif." />
+                                    </p>
+                                )}
+                            </div>
+                        ) : project.status === "PAID" ? (
+                            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4">
+                                <div className="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center text-white shrink-0">
+                                    <CheckCircle2 className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">Payment Received</p>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-tight">Infrastructure is being prepared.</p>
+                                </div>
+                            </div>
+                        ) : project.status === "UNDER_DEVELOPMENT" && planName === "One-Time Purchase" ? (
+                            <div className="space-y-4">
+                                <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex justify-between items-center">
+                                    <div>
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-0.5">Final Installment</p>
+                                        <p className="text-xl font-black text-slate-900">RM {systemSettings?.otp_final_price || "500.00"}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleToyyibpayCheckout("FINAL")}
+                                        className="h-12 px-6 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-200 active:scale-95 transition-all"
+                                    >
+                                        <T en="Pay Final" bm="Bayar" />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (project.status === "LIVE" || project.status === "UNDER_DEVELOPMENT") ? (
+                            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4">
+                                <div className="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center text-white shrink-0">
+                                    <CheckCircle2 className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">Account Settle</p>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-tight">Onboarding financials completed.</p>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    {/* HQ Location */}
+                    <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                                <MapPin className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="HQ Location" bm="Lokasi HQ" /></h3>
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                            {req.business_address || "No address provided yet."}
+                        </p>
+                    </div>
+
+                    {/* Strategy & Target Combined (Compact) */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
+                                    <Lightbulb className="w-5 h-5" />
+                                </div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="Strategy" bm="Strategi" /></h3>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-3 italic">
+                                "{req.project_vision || "Building a revolutionary experience."}"
+                            </p>
+                        </div>
+                        <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+                                    <Users2 className="w-5 h-5" />
+                                </div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="Target" bm="Sasaran" /></h3>
+                            </div>
+                            <p className="text-[11px] font-bold text-slate-500 leading-relaxed">
+                                {req.target_audience || "Broad market expansion target."}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Business Parameters Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2"><T en="Email" bm="E-mel" /></p>
+                            <p className="text-[10px] font-bold text-slate-900 break-words">{req.business_email || "N/A"}</p>
+                        </div>
+                        <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2"><T en="Operations" bm="Operasi" /></p>
+                            <p className="text-[10px] font-bold text-slate-900 break-words">{req.operation_hours || "6 – 10 PM"}</p>
+                        </div>
+                        <div className="col-span-2 bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2"><T en="Social Links" bm="Pautan Sosial" /></p>
+                            <div className="flex gap-4">
+                                {req.social_media?.facebook && <a href={req.social_media.facebook} target="_blank" className="text-slate-900 font-bold text-[10px]">FACEBOOK</a>}
+                                {req.social_media?.instagram && <a href={req.social_media.instagram} target="_blank" className="text-slate-900 font-bold text-[10px]">INSTAGRAM</a>}
+                                {req.social_media?.tiktok && <a href={req.social_media.tiktok} target="_blank" className="text-slate-900 font-bold text-[10px]">TIKTOK</a>}
+                                {!req.social_media?.facebook && !req.social_media?.instagram && !req.social_media?.tiktok && <span className="text-[10px] text-slate-300 font-bold italic">No links added</span>}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Architecture (Compact) */}
+                    <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600 shrink-0">
+                                <Layout className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="Architecture" bm="Arkitektur" /></h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            {(req.sitemap?.slice(0, 4) || ["Home", "About", "Services", "Contact"]).map((page, idx) => (
+                                <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                                    <span className="text-[10px] font-bold text-slate-600 truncate">{page}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Assets & Reference (Combined Group) */}
+                    <div className="grid grid-cols-1 gap-4">
+                        <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600 shrink-0">
+                                    <Palette className="w-5 h-5" />
+                                </div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="Design Reference" bm="Rujukan Reka Bentuk" /></h3>
+                            </div>
+                            {req.competitor_ref ? (
+                                <a href={req.competitor_ref} target="_blank" className="flex items-center justify-between p-3.5 bg-rose-50/50 rounded-2xl border border-rose-100 active:scale-[0.98] transition-all">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        <Globe2 className="w-4 h-4 text-rose-500 shrink-0" />
+                                        <span className="text-[10px] font-black text-rose-900 truncate uppercase">{req.competitor_ref.replace(/^https?:\/\//, '')}</span>
+                                    </div>
+                                    <ExternalLink className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                                </a>
+                            ) : (
+                                <p className="text-[10px] text-slate-400 italic text-center py-1">No visual reference.</p>
+                            )}
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shrink-0">
+                                    <FolderOpen className="w-5 h-5" />
+                                </div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="Asset Vault" bm="Bilik Aset" /></h3>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                                {[
+                                    { label: "SSM Record", bm: "Rekod SSM", url: req.payment_setup?.ssm_url, icon: FileText },
+                                    { label: "Brand Logo", bm: "Logo Jenama", url: req.brand_assets?.logo_url, icon: Image },
+                                    { label: "Agreement", bm: "Perjanjian", url: agreement ? "signed" : null, icon: ShieldCheck }
+                                ].map((asset, i) => (
+                                    <div key={i} className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div className="flex items-center gap-3">
+                                            <asset.icon className={`w-4 h-4 ${asset.url ? 'text-slate-600' : 'text-slate-300'}`} />
+                                            <span className={`text-[10px] font-bold uppercase ${asset.url ? 'text-slate-900' : 'text-slate-300'}`}><T en={asset.label} bm={asset.bm} /></span>
+                                        </div>
+                                        <button 
+                                            onClick={() => {
+                                                if (asset.label === "Agreement") {
+                                                    if (agreement) setIsAgreementPreviewOpen(true);
+                                                } else if (asset.url) {
+                                                    setActiveAsset(getAssetUrl(asset.url));
+                                                }
+                                            }}
+                                            disabled={!asset.url}
+                                            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30"
+                                        >
+                                            <ArrowDownToLine className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Subscription History (Compact) */}
+                    <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                                <Receipt className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight"><T en="Invoices" bm="Invois" /></h3>
+                        </div>
+                        <div className="p-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 text-center">
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none"><T en="No records" bm="Tiada rekod" /></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ─── DESKTOP VIEW (hidden lg:block) ─── */}
+            <div className="hidden lg:block max-w-6xl mx-auto space-y-6 pt-10 pb-12 px-4 md:px-0">
             <Script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" strategy="afterInteractive" />
             
             {/* PRINT VIEWS */}
@@ -1368,6 +1697,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                  </div>
               </div>
             )}
+            </div>
+
             {/* ASSET VIEWER MODAL */}
             {activeAsset && (
                 <div className="fixed inset-0 z-[200] bg-zinc-950/90 backdrop-blur-xl flex items-center justify-center p-4 md:p-12 animate-in fade-in zoom-in duration-300">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PlusCircle, Sparkles, Folder, Activity, CreditCard, TrendingUp, ChevronRight } from "lucide-react";
+import { PlusCircle, Sparkles, Folder, Activity, CreditCard, TrendingUp, ChevronRight, LifeBuoy, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCookie } from "@/utils/cookies";
@@ -46,7 +46,137 @@ export default function DashboardPage() {
     if (loading) return <div className="p-20 text-center font-bold text-slate-500 animate-pulse"><T en="Synchronizing Workspace..." bm="Menyelaraskan Ruang Kerja..." /></div>;
 
     return (
-        <div className="w-full max-w-7xl mx-auto space-y-10">
+        <div className="w-full">
+
+        {/* ─── MOBILE VIEW (lg:hidden) ─── */}
+        <div className="lg:hidden -mx-4 -mt-8">
+            {/* Hero Greeting Banner */}
+            <div className="relative bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800 px-5 pt-8 pb-16 overflow-hidden">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-12 translate-x-12 blur-2xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-400/20 rounded-full translate-y-8 -translate-x-8 blur-xl" />
+                <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[11px] font-bold text-white/70 uppercase tracking-widest"><T en="Live activity enabled" bm="Aktiviti langsung didayakan" /></span>
+                    </div>
+                    <h1 className="text-2xl font-extrabold text-white leading-tight mb-1">
+                        <T en="Welcome back 👋" bm="Selamat kembali 👋" />
+                    </h1>
+                    <p className="text-[13px] text-violet-200 font-medium">
+                        <T en="Here's your workspace overview." bm="Ini gambaran keseluruhan ruang kerja anda." />
+                    </p>
+                </div>
+            </div>
+
+
+
+            {/* Quick Actions */}
+            <div className="px-4 pt-6 mb-5">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3"><T en="Quick Actions" bm="Tindakan Pantas" /></p>
+                <div className="grid grid-cols-4 gap-3">
+                    {[
+                        { href: "/app/projects/create", icon: PlusCircle, label: <T en="New Project" bm="Projek Baru" />, color: "bg-violet-50 text-violet-600" },
+                        { href: "/app/projects", icon: Folder, label: <T en="Projects" bm="Projek" />, color: "bg-violet-50 text-violet-600" },
+                        { href: "/app/billing", icon: CreditCard, label: <T en="Billing" bm="Bayaran" />, color: "bg-violet-50 text-violet-600" },
+                        { href: "/app/tickets", icon: LifeBuoy, label: <T en="Support" bm="Sokongan" />, color: "bg-violet-50 text-violet-600" },
+                    ].map((item, i) => (
+                        <Link key={i} href={item.href} className="flex flex-col items-center gap-2 group">
+                            <div className={`w-14 h-14 rounded-2xl ${item.color} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
+                                <item.icon className="w-6 h-6" />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">{item.label}</span>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+
+            {/* Progress Section */}
+            <div className="px-4 mb-5">
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400"><T en="This week" bm="Minggu ini" /></p>
+                            <h3 className="text-base font-bold text-slate-800"><T en="Momentum" bm="Momentum" /></h3>
+                        </div>
+                        <div className="h-9 w-9 rounded-full bg-violet-50 flex items-center justify-center">
+                            <TrendingUp className="w-4 h-4 text-violet-600" />
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <div>
+                            <div className="flex justify-between text-[11px] font-medium text-slate-500 mb-1.5">
+                                <span><T en="Tasks resolved" bm="Tugasan diselesaikan" /></span>
+                                <span className="font-bold text-slate-800">68%</span>
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                                <div className="h-full bg-violet-600 rounded-full" style={{ width: '68%' }} />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between text-[11px] font-medium text-slate-500 mb-1.5">
+                                <span><T en="Billing progress" bm="Kemajuan Bil" /></span>
+                                <span className="font-bold text-slate-800">84%</span>
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                                <div className="h-full bg-violet-600 rounded-full" style={{ width: '84%' }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Recent Projects List */}
+            <div className="px-4 mb-6">
+                <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400"><T en="Recent Projects" bm="Projek Terkini" /></p>
+                    <Link href="/app/projects" className="text-[11px] font-bold text-violet-600"><T en="See all" bm="Lihat semua" /></Link>
+                </div>
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+                    {projects.slice(0, 4).map(project => (
+                        <Link href={`/app/projects/${project.id}`} key={project.id} className="flex items-center gap-3 px-4 py-4 hover:bg-slate-50 transition-colors">
+                            <div className="h-10 w-10 shrink-0 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                {project.title.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-[13px] text-slate-800 truncate">{project.title}</div>
+                                <div className="text-[11px] text-slate-400 mt-0.5">
+                                    <T en={<>Updated {new Date(project.updated_at).toLocaleDateString('en-GB')}</>} bm={<>Dikemaskini {new Date(project.updated_at).toLocaleDateString('en-GB')}</>} />
+                                </div>
+                            </div>
+                            <span className={`shrink-0 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                                project.status === 'REVIEW' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-600'
+                            }`}>
+                                <T en={project.status.replace(/_/g, ' ')} bm={
+                                    project.status === 'REVIEW' ? 'SEMAKAN' :
+                                    project.status === 'PAID' ? 'DIBAYAR' :
+                                    project.status === 'UNDER_DEVELOPMENT' ? 'DALAM KERJA' :
+                                    project.status === 'LIVE' ? 'AKTIF' :
+                                    project.status.replace(/_/g, ' ')
+                                } />
+                            </span>
+                        </Link>
+                    ))}
+                    {projects.length === 0 && (
+                        <div className="py-10 text-center text-slate-400 text-sm italic">
+                            <T en="No projects yet. Start one now!" bm="Tiada projek lagi. Mulakan sekarang!" />
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+
+        {/* Floating Add Project Button for Mobile */}
+        <div className="fixed bottom-44 right-6 z-50 lg:hidden">
+            <Link 
+                href="/app/projects/create" 
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 text-white flex items-center justify-center shadow-[0_10px_30px_rgba(124,58,237,0.5)] border-2 border-white/20 active:scale-90 transition-transform"
+            >
+                <Plus className="w-8 h-8" strokeWidth={3} />
+            </Link>
+        </div>
+
+        {/* ─── DESKTOP VIEW (hidden lg:block) ─── */}
+        <div className="hidden lg:block max-w-7xl mx-auto space-y-10">
                 {/* Top Section: Hero + Sidebar Cards */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                     
@@ -268,6 +398,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </div>
-            </div>
+        </div>
+        </div>
     );
 }

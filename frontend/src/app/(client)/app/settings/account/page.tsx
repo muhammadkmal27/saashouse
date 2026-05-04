@@ -44,45 +44,45 @@ export default function AccountSettingsPage() {
             )}
 
             {/* Account Information Section */}
-            <div className="space-y-10">
+            <div className="space-y-6 md:space-y-10">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mb-2"><T en="Account Information" bm="Maklumat Akaun" /></h2>
-                        <p className="text-sm text-slate-500 font-medium"><T en="Manage the core details of your SaaS House account." bm="Urus butiran teras akaun SaaS House anda." /></p>
+                        <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-900 mb-1 md:mb-2"><T en="Account Information" bm="Maklumat Akaun" /></h2>
+                        <p className="text-[11px] md:text-sm text-slate-500 font-medium"><T en="Manage the core details of your account." bm="Urus butiran teras akaun anda." /></p>
                     </div>
                     {loading && <Loader2 className="w-5 h-5 animate-spin text-violet-600" />}
                 </div>
 
-                <div className={`space-y-6 transition-all duration-500 ${loading ? 'opacity-40 pointer-events-none blur-[1px]' : 'opacity-100'}`}>
-                    <div className="bg-slate-50/50 dark:bg-black p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
-                        <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 bg-violet-100/80 text-violet-600 rounded-2xl flex items-center justify-center shadow-inner shadow-white">
-                                <Mail className="w-7 h-7" strokeWidth={2.5} />
+                <div className={`space-y-4 md:space-y-6 transition-all duration-500 ${loading ? 'opacity-40 pointer-events-none blur-[1px]' : 'opacity-100'}`}>
+                    <div className="bg-slate-50/50 dark:bg-black p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 shadow-sm">
+                        <div className="flex items-center gap-4 md:gap-5">
+                            <div className="w-10 h-10 md:w-14 md:h-14 bg-violet-100/80 text-violet-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-inner shadow-white shrink-0">
+                                <Mail className="w-5 h-5 md:w-7 md:h-7" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1"><T en="Email Address" bm="Alamat E-mel" /></p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white leading-none">{email || (loading ? "loading..." : "None")}</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5"><T en="Email Address" bm="Alamat E-mel" /></p>
+                                <p className="text-sm md:text-xl font-bold text-slate-900 dark:text-white leading-none break-all">{email || (loading ? "loading..." : "None")}</p>
                             </div>
                         </div>
                         <button 
                             onClick={handleLockedFeature}
-                            className="px-6 py-3 bg-white border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:border-violet-300 transition-all shadow-sm active:scale-95"
+                            className="w-full md:w-auto px-5 py-3 md:py-3 bg-white border border-slate-200 dark:border-slate-700 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:border-violet-300 transition-all shadow-sm active:scale-95"
                         >
                             <T en="Change Email" bm="Tukar E-mel" />
                         </button>
                     </div>
 
-                    <div className="bg-slate-50/50 dark:bg-black p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
-                        <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 bg-violet-100/80 text-violet-600 rounded-2xl flex items-center justify-center shadow-inner shadow-white">
-                                <BadgeCheck className="w-7 h-7" strokeWidth={2.5} />
+                    <div className="bg-slate-50/50 dark:bg-black p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 shadow-sm">
+                        <div className="flex items-center gap-4 md:gap-5">
+                            <div className="w-10 h-10 md:w-14 md:h-14 bg-violet-100/80 text-violet-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-inner shadow-white shrink-0">
+                                <BadgeCheck className="w-5 h-5 md:w-7 md:h-7" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1"><T en="Account Role" bm="Peranan Akaun" /></p>
-                                <p className="text-xl font-black uppercase text-slate-900 dark:text-white leading-none">{role === 'Admin' ? <T en="Admin" bm="Admin" /> : <T en="Client" bm="Pelanggan" />}</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5"><T en="Account Role" bm="Peranan Akaun" /></p>
+                                <p className="text-sm md:text-xl font-black uppercase text-slate-900 dark:text-white leading-none">{role === 'Admin' ? <T en="Admin" bm="Admin" /> : <T en="Client" bm="Pelanggan" />}</p>
                             </div>
                         </div>
-                        <span className="px-5 py-2 bg-violet-100/50 text-violet-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-violet-200/50 shadow-sm">
+                        <span className="w-full md:w-auto text-center px-4 py-2.5 md:py-2 bg-violet-100/50 text-violet-700 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full border border-violet-200/50 shadow-sm">
                             <T en="Verified Status" bm="Status Disahkan" />
                         </span>
                     </div>

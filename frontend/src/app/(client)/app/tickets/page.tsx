@@ -13,7 +13,8 @@ import {
     Loader2,
     Inbox,
     Hash,
-    ArrowRight
+    ArrowRight,
+    Plus
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -79,215 +80,331 @@ export default function TicketsPage() {
     const resolvedCount = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
 
     return (
-        <div className="w-full max-w-7xl mx-auto space-y-8 px-4 lg:px-8 pt-8 pb-20 bg-[#F8F9FA] min-h-screen">
+        <div className="w-full min-h-screen bg-[#FDFDFF]">
             
-            {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-white shadow-sm px-8 py-10 lg:p-14 lg:pb-12 border border-slate-100/50">
-                {/* Background attractive lighting (Mesh Gradient Bloom) */}
-                <div className="absolute inset-0 bg-white z-0"></div>
-                <div className="absolute -left-32 -bottom-32 w-[35rem] h-[35rem] bg-violet-500/15 rounded-full blur-[120px] z-0 pointer-events-none"></div>
-                <div className="absolute -right-20 -top-32 w-[45rem] h-[45rem] bg-violet-500/15 rounded-full blur-[120px] z-0 pointer-events-none"></div>
-                <div className="absolute right-1/4 top-1/4 w-[25rem] h-[25rem] bg-pink-400/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl z-0 pointer-events-none border border-white/60"></div>
-                
-                <div className="relative z-10">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-slate-500 shadow-sm border border-slate-200/60 mb-7 backdrop-blur-md">
-                        <Hash className="w-3.5 h-3.5 text-slate-400" /> <T en="Support Center" bm="Pusat Sokongan" />
-                    </span>
-
-                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8 mb-14">
+            {/* ─── MOBILE VIEW (lg:hidden) ─── */}
+            <div className="lg:hidden -mx-5 -mt-8">
+                {/* Modern Support Hub Header */}
+                <div className="px-5 pt-14 pb-8 bg-white/40 backdrop-blur-xl border-b border-slate-100 relative overflow-hidden">
+                    <div className="absolute -left-10 -top-10 w-40 h-40 bg-violet-100 rounded-full blur-3xl opacity-60" />
+                    <div className="relative z-10 flex items-center justify-between">
                         <div>
-                            <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-3">
-                                <T en={<>Project Support & <span className="text-violet-600">Tasks</span></>} bm={<>Sokongan Projek & <span className="text-violet-600">Tugasan</span></>} />
+                            <p className="text-[10px] font-black text-violet-600 uppercase tracking-[0.2em] mb-1"><T en="Support Hub" bm="Pusat Bantuan" /></p>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                                <T en="How can we help?" bm="Apa yang boleh kami bantu?" />
                             </h1>
-                            <p className="text-[14px] text-slate-500 max-w-lg leading-relaxed font-medium">
-                                <T en="Have an issue or a new idea? We're here to help realize your digital vision." bm="Ada masalah atau idea baru? Kami di sini untuk merealisasikan visi digital anda." />
-                            </p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 shrink-0 mt-3">
-                            <Link 
-                                href="/app/tickets/new?type=BUG" 
-                                className="flex items-center justify-center gap-2.5 h-[50px] px-7 rounded-full bg-white text-orange-600 font-bold text-[13px] hover:bg-orange-50 transition-all border border-slate-200 shadow-sm hover:-translate-y-0.5"
-                            >
-                                <Bug className="w-[18px] h-[18px] text-orange-500" />
-                                <T en="Report Bug" bm="Lapor Ralat Sistem" />
-                            </Link>
-                            <Link 
-                                href="/app/tickets/new?type=FEATURE" 
-                                className="flex items-center justify-center gap-2.5 h-[50px] px-8 rounded-full bg-violet-600 text-white font-semibold text-[14px] shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:bg-violet-700 transition-all hover:-translate-y-0.5 border border-violet-500"
-                            >
-                                <Zap className="w-[18px] h-[18px]" strokeWidth={2.5} />
-                                <T en="Request Feature" bm="Mohon Fungsi Sistem" />
-                            </Link>
+                        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center">
+                            <MessageSquare className="w-6 h-6 text-violet-600" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Service Tiles - Compact Layout */}
+                <div className="px-5 py-6 grid grid-cols-2 gap-3">
+                    <Link 
+                        href="/app/tickets/new?type=BUG" 
+                        className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl p-4 flex flex-col justify-between shadow-lg shadow-orange-200 active:scale-95 transition-all group overflow-hidden relative h-32"
+                    >
+                        <Bug className="absolute -right-2 -bottom-2 w-16 h-16 text-white/10 group-hover:rotate-12 transition-transform" />
+                        <div className="w-8 h-8 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30">
+                            <Bug className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="relative z-10">
+                            <p className="text-white font-black text-[10px] uppercase tracking-widest"><T en="Report Issue (Bug)" bm="Lapor Isu (Ralat Sistem)" /></p>
+                            <p className="text-white/70 text-[8px] font-bold mt-0.5"><T en="Fix technical problems" bm="Baiki masalah teknikal" /></p>
+                        </div>
+                    </Link>
+
+                    <Link 
+                        href="/app/tickets/new?type=FEATURE" 
+                        className="bg-gradient-to-br from-violet-500 to-indigo-700 rounded-3xl p-4 flex flex-col justify-between shadow-lg shadow-violet-200 active:scale-95 transition-all group overflow-hidden relative h-32"
+                    >
+                        <Zap className="absolute -right-2 -bottom-2 w-16 h-16 text-white/10 group-hover:-rotate-12 transition-transform" />
+                        <div className="w-8 h-8 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30">
+                            <Zap className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="relative z-10">
+                            <p className="text-white font-black text-[10px] uppercase tracking-widest"><T en="Request Feature" bm="Mohon Fungsi Sistem" /></p>
+                            <p className="text-white/70 text-[8px] font-bold mt-0.5"><T en="Suggest new additions" bm="Cadangkan fungsi baru" /></p>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Ticket Activity Feed (Timeline Style) */}
+                <div className="px-5 pb-24">
+                    <div className="flex items-center justify-between mb-5">
+                        <h2 className="text-[11px] font-black text-slate-900 uppercase tracking-widest"><T en="Recent Activity" bm="Aktiviti Terkini" /></h2>
+                        <div className="flex gap-2">
+                            <button onClick={() => setFilter('ALL')} className={`w-7 h-7 rounded-full border flex items-center justify-center text-[8px] font-black ${filter === 'ALL' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'}`}>A</button>
+                            <button onClick={() => setFilter('BUG')} className={`w-7 h-7 rounded-full border flex items-center justify-center text-[8px] font-black ${filter === 'BUG' ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-slate-400 border-slate-100'}`}>B</button>
                         </div>
                     </div>
 
-                    {/* Quick Stats Bar */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-[1.25rem] border border-white/80 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row items-stretch overflow-hidden">
-                        
-                        <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80 flex items-center gap-5 relative group overflow-hidden">
-                            <div className="absolute right-0 top-0 w-24 h-24 bg-slate-100/50 rounded-full blur-2xl group-hover:bg-violet-100 transition-colors pointer-events-none"></div>
-                            <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
-                                <MessageSquare className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
-                            </div>
-                            <div className="relative z-10">
-                                <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{tickets.length}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Total Tickets" bm="Jumlah Tiket" /></div>
-                            </div>
-                        </div>
+                    <div className="space-y-0 relative">
+                        {/* Timeline vertical line */}
+                        <div className="absolute left-[21px] top-4 bottom-4 w-0.5 bg-slate-100" />
 
-                        <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80 flex items-center gap-5 relative group overflow-hidden">
-                            <div className="absolute right-2 top-2 rounded-full w-20 h-20 bg-orange-100/30 blur-2xl group-hover:bg-orange-200/40 transition-colors pointer-events-none"></div>
-                            <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
-                                <Bug className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
-                            </div>
-                            <div className="relative z-10">
-                                <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{openBugs}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Open Bugs" bm="Ralat Sistem Terbuka" /></div>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80 flex items-center gap-5 relative group overflow-hidden">
-                            <div className="absolute right-2 top-2 rounded-full w-20 h-20 bg-violet-100/30 blur-2xl group-hover:bg-violet-200/40 transition-colors pointer-events-none"></div>
-                            <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
-                                <Zap className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
-                            </div>
-                            <div className="relative z-10">
-                                <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{featureReqs}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Feature Requests" bm="Permohonan Fungsi Sistem" /></div>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 px-8 py-7 flex items-center gap-5 relative group overflow-hidden">
-                            <div className="absolute right-2 top-2 rounded-full w-20 h-20 bg-emerald-100/30 blur-2xl group-hover:bg-emerald-200/40 transition-colors pointer-events-none"></div>
-                            <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
-                                <CheckCircle2 className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
-                            </div>
-                            <div className="relative z-10">
-                                <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{resolvedCount}</div>
-                                <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Resolved" bm="Selesai" /></div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            {/* Controls Bar */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 mb-6 pb-2">
-                {/* Search */}
-                <div className="relative w-full md:flex-1 md:max-w-3xl">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input 
-                        type="text" 
-                        placeholder={lang === "EN" ? "Search tickets..." : "Cari tiket..."} 
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full h-[46px] pl-[3.25rem] pr-5 rounded-full bg-white border border-slate-200/70 text-[13px] focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all font-medium placeholder:text-slate-400 shadow-sm"
-                    />
-                </div>
-
-                {/* Filters */}
-                <div className="flex items-center bg-white border border-slate-200/70 rounded-full p-1 shadow-sm shrink-0">
-                    {['ALL', 'BUG', 'FEATURE'].map((f) => (
-                        <button 
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={`px-6 py-2 rounded-full text-[11px] font-bold transition-all ${
-                                filter === f 
-                                    ? 'bg-slate-900 text-white shadow-sm' 
-                                    : 'text-slate-500 hover:text-slate-800'
-                            }`}
-                        >
-                            {f === 'ALL' ? <T en="All" bm="Semua" /> : f === 'BUG' ? <T en="Bug" bm="Ralat Sistem" /> : <T en="Feature" bm="Fungsi Sistem" />}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Tickets Grid */}
-            {filteredTickets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
-                        <Inbox className="w-10 h-10" />
-                    </div>
-                    <div className="space-y-1">
-                        <p className="text-slate-800 font-bold text-lg"><T en="Ticket Inbox Empty" bm="Peti Masuk Tiket Kosong" /></p>
-                        <p className="text-slate-500 font-medium text-sm"><T en="Have an issue or a new idea? Click a button above to start!" bm="Ada masalah atau idea baru? Klik butang di atas untuk mula!" /></p>
-                    </div>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {filteredTickets.map((ticket) => {
-                        const isBug = ticket.type_ === 'BUG';
-
-                        return (
-                            <div 
-                                key={ticket.id} 
-                                onClick={() => router.push(`/app/tickets/${ticket.id}`)} 
-                                className="bg-white rounded-[2rem] border border-slate-100 p-8 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 transition-all group flex flex-col h-full cursor-pointer relative overflow-hidden"
-                            >
-                                {/* Watermark */}
-                                <div className="absolute -right-8 top-12 opacity-[0.02] group-hover:opacity-[0.04] transition-opacity pointer-events-none">
-                                    {isBug ? <Bug className="w-48 h-48 text-orange-600" /> : <Zap className="w-48 h-48 text-violet-600" />}
-                                </div>
-
-                                <div className="relative z-10 flex flex-col h-full">
-                                    {/* Card Header */}
-                                    <div className="flex items-center justify-between mb-6">
-                                        {isBug ? (
-                                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50/80 text-orange-600 text-[9px] font-black uppercase tracking-widest border border-orange-100/50 rounded-full">
-                                                <Bug className="w-3 h-3" /> <T en="BUG" bm="RALAT SISTEM" />
-                                            </div>
-                                        ) : (
-                                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 text-[9px] font-black uppercase tracking-widest border border-violet-100/50 rounded-full">
-                                                <Hash className="w-3 h-3 text-violet-500" /> <T en="FEATURE" bm="FUNGSI SISTEM" />
-                                            </div>
-                                        )}
-
-                                        <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${
-                                                ticket.status === 'RESOLVED' ? 'bg-emerald-500' :
-                                                ticket.status === 'IN_PROGRESS' ? 'bg-blue-500' :
-                                                'bg-amber-500'
-                                            }`}></div>
-                                            {ticket.status === 'OPEN' ? <T en="OPEN" bm="TERBUKA" /> : 
-                                             ticket.status === 'IN_PROGRESS' ? <T en="IN-PROGRESS" bm="DALAM PROSES" /> :
-                                             ticket.status === 'RESOLVED' ? <T en="RESOLVED" bm="SELESAI" /> :
-                                             <T en="CLOSED" bm="DITUTUP" />}
-                                        </div>
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="mb-4">
-                                        <h3 className="text-lg font-extrabold text-slate-900 mb-2 truncate group-hover:text-violet-700 transition-colors">{ticket.title}</h3>
-                                        <p className="text-[13px] font-medium text-slate-500 line-clamp-2 leading-relaxed">{ticket.description}</p>
-                                    </div>
-
-                                    <div className="flex-1"></div>
-
-                                    {/* Footer */}
-                                    <div className="mt-8 pt-5 border-t border-slate-100/80 flex items-center justify-between">
-                                        <div className="flex items-center gap-4 text-slate-400">
-                                            <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                                                <Clock className="w-3.5 h-3.5" />
-                                                {timeAgo(ticket.created_at)}
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                                                <MessageSquare className="w-3.5 h-3.5" />
-                                                0 {/* Future placeholder for comments */}
+                        {filteredTickets.map((ticket, idx) => {
+                            const isBug = ticket.type_ === 'BUG';
+                            return (
+                                <div 
+                                    key={ticket.id}
+                                    onClick={() => router.push(`/app/tickets/${ticket.id}`)}
+                                    className="relative pl-12 pb-6 active:opacity-60 transition-opacity"
+                                >
+                                    {/* Timeline dot */}
+                                    <div className={`absolute left-[13px] top-1 w-4 h-4 rounded-full border-[3px] border-white shadow-sm z-10 ${
+                                        ticket.status === 'RESOLVED' ? 'bg-emerald-500' :
+                                        ticket.status === 'IN_PROGRESS' ? 'bg-blue-500' :
+                                        'bg-amber-500'
+                                    }`} />
+                                    
+                                    <div className="bg-white rounded-2xl p-4 border border-slate-50 shadow-sm shadow-slate-100/50">
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{timeAgo(ticket.created_at)}</span>
+                                            <div className={`px-1.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${isBug ? 'text-orange-500 bg-orange-50' : 'text-violet-600 bg-violet-50'}`}>
+                                                {isBug ? 'Bug' : 'Idea'}
                                             </div>
                                         </div>
-                                        <div className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.1em] flex items-center group-hover:text-violet-600 transition-colors">
-                                            <T en="OPEN DISCUSSION" bm="BUKA PERBINCANGAN" /> <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2.5} />
-                                        </div>
+                                        <h3 className="text-[12px] font-black text-slate-900 mb-0.5 leading-tight">{ticket.title}</h3>
+                                        <p className="text-[10px] text-slate-500 line-clamp-1 font-medium">{ticket.description}</p>
                                     </div>
                                 </div>
+                            );
+                        })}
+
+                        {filteredTickets.length === 0 && (
+                            <div className="py-20 text-center bg-white rounded-3xl border border-dashed border-slate-200">
+                                <Inbox className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                                <p className="text-slate-400 text-xs font-medium italic"><T en="No recent activity." bm="Tiada aktiviti terkini." /></p>
                             </div>
-                        );
-                    })}
+                        )}
                 </div>
-            )}
+            </div>
+        </div>
+
+        {/* Floating Add Project Button for Mobile */}
+        <div className="fixed bottom-44 right-6 z-50 lg:hidden">
+            <Link 
+                href="/app/projects/create" 
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 text-white flex items-center justify-center shadow-[0_10px_30px_rgba(124,58,237,0.5)] border-2 border-white/20 active:scale-90 transition-transform"
+            >
+                <Plus className="w-8 h-8" strokeWidth={3} />
+            </Link>
+        </div>
+
+        {/* ─── DESKTOP VIEW (hidden lg:block) ─── */}
+            <div className="hidden lg:block w-full max-w-7xl mx-auto space-y-8 px-4 lg:px-8 pt-8 pb-20 bg-[#F8F9FA] min-h-screen">
+                
+                {/* Hero Section */}
+                <div className="relative overflow-hidden rounded-[2.5rem] bg-white shadow-sm px-8 py-10 lg:p-14 lg:pb-12 border border-slate-100/50">
+                    {/* Background attractive lighting (Mesh Gradient Bloom) */}
+                    <div className="absolute inset-0 bg-white z-0"></div>
+                    <div className="absolute -left-32 -bottom-32 w-[35rem] h-[35rem] bg-violet-500/15 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+                    <div className="absolute -right-20 -top-32 w-[45rem] h-[45rem] bg-violet-500/15 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+                    <div className="absolute right-1/4 top-1/4 w-[25rem] h-[25rem] bg-pink-400/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl z-0 pointer-events-none border border-white/60"></div>
+                    
+                    <div className="relative z-10">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-slate-500 shadow-sm border border-slate-200/60 mb-7 backdrop-blur-md">
+                            <Hash className="w-3.5 h-3.5 text-slate-400" /> <T en="Support Center" bm="Pusat Sokongan" />
+                        </span>
+
+                        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8 mb-14">
+                            <div>
+                                <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-3">
+                                    <T en={<>Project Support & <span className="text-violet-600">Tasks</span></>} bm={<>Sokongan Projek & <span className="text-violet-600">Tugasan</span></>} />
+                                </h1>
+                                <p className="text-[14px] text-slate-500 max-w-lg leading-relaxed font-medium">
+                                    <T en="Have an issue or a new idea? We're here to help realize your digital vision." bm="Ada masalah atau idea baru? Kami di sini untuk merealisasikan visi digital anda." />
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 shrink-0 mt-3">
+                                <Link 
+                                    href="/app/tickets/new?type=BUG" 
+                                    className="flex items-center justify-center gap-2.5 h-[50px] px-7 rounded-full bg-white text-orange-600 font-bold text-[13px] hover:bg-orange-50 transition-all border border-slate-200 shadow-sm hover:-translate-y-0.5"
+                                >
+                                    <Bug className="w-[18px] h-[18px] text-orange-500" />
+                                    <T en="Report Bug" bm="Lapor Ralat Sistem" />
+                                </Link>
+                                <Link 
+                                    href="/app/tickets/new?type=FEATURE" 
+                                    className="flex items-center justify-center gap-2.5 h-[50px] px-8 rounded-full bg-violet-600 text-white font-semibold text-[14px] shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:bg-violet-700 transition-all hover:-translate-y-0.5 border border-violet-500"
+                                >
+                                    <Zap className="w-[18px] h-[18px]" strokeWidth={2.5} />
+                                    <T en="Request Feature" bm="Mohon Fungsi Sistem" />
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Quick Stats Bar */}
+                        <div className="bg-white/95 backdrop-blur-md rounded-[1.25rem] border border-white/80 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row items-stretch overflow-hidden">
+                            
+                            <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80 flex items-center gap-5 relative group overflow-hidden">
+                                <div className="absolute right-0 top-0 w-24 h-24 bg-slate-100/50 rounded-full blur-2xl group-hover:bg-violet-100 transition-colors pointer-events-none"></div>
+                                <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
+                                    <MessageSquare className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{tickets.length}</div>
+                                    <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Total Tickets" bm="Jumlah Tiket" /></div>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80 flex items-center gap-5 relative group overflow-hidden">
+                                <div className="absolute right-2 top-2 rounded-full w-20 h-20 bg-orange-100/30 blur-2xl group-hover:bg-orange-200/40 transition-colors pointer-events-none"></div>
+                                <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
+                                    <Bug className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{openBugs}</div>
+                                    <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Open Bugs" bm="Ralat Sistem Terbuka" /></div>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 px-8 py-7 border-b md:border-b-0 md:border-r border-slate-100/80 flex items-center gap-5 relative group overflow-hidden">
+                                <div className="absolute right-2 top-2 rounded-full w-20 h-20 bg-violet-100/30 blur-2xl group-hover:bg-violet-200/40 transition-colors pointer-events-none"></div>
+                                <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
+                                    <Zap className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{featureReqs}</div>
+                                    <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Feature Requests" bm="Permohonan Fungsi Sistem" /></div>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 px-8 py-7 flex items-center gap-5 relative group overflow-hidden">
+                                <div className="absolute right-2 top-2 rounded-full w-20 h-20 bg-emerald-100/30 blur-2xl group-hover:bg-emerald-200/40 transition-colors pointer-events-none"></div>
+                                <div className="w-[42px] h-[42px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative z-10">
+                                    <CheckCircle2 className="w-4 h-4 text-slate-800" strokeWidth={2.5} />
+                                </div>
+                                <div className="relative z-10">
+                                    <div className="text-[2rem] font-black text-slate-900 leading-none mb-1">{resolvedCount}</div>
+                                    <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-400"><T en="Resolved" bm="Selesai" /></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {/* Controls Bar */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 mb-6 pb-2">
+                    {/* Search */}
+                    <div className="relative w-full md:flex-1 md:max-w-3xl">
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input 
+                            type="text" 
+                            placeholder={lang === "EN" ? "Search tickets..." : "Cari tiket..."} 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full h-[46px] pl-[3.25rem] pr-5 rounded-full bg-white border border-slate-200/70 text-[13px] focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                        />
+                    </div>
+
+                    {/* Filters */}
+                    <div className="flex items-center bg-white border border-slate-200/70 rounded-full p-1 shadow-sm shrink-0">
+                        {['ALL', 'BUG', 'FEATURE'].map((f) => (
+                            <button 
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                className={`px-6 py-2 rounded-full text-[11px] font-bold transition-all ${
+                                    filter === f 
+                                        ? 'bg-slate-900 text-white shadow-sm' 
+                                        : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                            >
+                                {f === 'ALL' ? <T en="All" bm="Semua" /> : f === 'BUG' ? <T en="Bug" bm="Ralat Sistem" /> : <T en="Feature" bm="Fungsi Sistem" />}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Tickets Grid */}
+                {filteredTickets.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                            <Inbox className="w-10 h-10" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-slate-800 font-bold text-lg"><T en="Ticket Inbox Empty" bm="Peti Masuk Tiket Kosong" /></p>
+                            <p className="text-slate-500 font-medium text-sm"><T en="Have an issue or a new idea? Click a button above to start!" bm="Ada masalah atau idea baru? Klik butang di atas untuk mula!" /></p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {filteredTickets.map((ticket) => {
+                            const isBug = ticket.type_ === 'BUG';
+
+                            return (
+                                <div 
+                                    key={ticket.id} 
+                                    onClick={() => router.push(`/app/tickets/${ticket.id}`)} 
+                                    className="bg-white rounded-[2rem] border border-slate-100 p-8 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 transition-all group flex flex-col h-full cursor-pointer relative overflow-hidden"
+                                >
+                                    {/* Watermark */}
+                                    <div className="absolute -right-8 top-12 opacity-[0.02] group-hover:opacity-[0.04] transition-opacity pointer-events-none">
+                                        {isBug ? <Bug className="w-48 h-48 text-orange-600" /> : <Zap className="w-48 h-48 text-violet-600" />}
+                                    </div>
+
+                                    <div className="relative z-10 flex flex-col h-full">
+                                        {/* Card Header */}
+                                        <div className="flex items-center justify-between mb-6">
+                                            {isBug ? (
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50/80 text-orange-600 text-[9px] font-black uppercase tracking-widest border border-orange-100/50 rounded-full">
+                                                    <Bug className="w-3 h-3" /> <T en="BUG" bm="RALAT SISTEM" />
+                                                </div>
+                                            ) : (
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 text-[9px] font-black uppercase tracking-widest border border-violet-100/50 rounded-full">
+                                                    <Hash className="w-3 h-3 text-violet-500" /> <T en="FEATURE" bm="FUNGSI SISTEM" />
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                                    ticket.status === 'RESOLVED' ? 'bg-emerald-500' :
+                                                    ticket.status === 'IN_PROGRESS' ? 'bg-blue-500' :
+                                                    'bg-amber-500'
+                                                }`}></div>
+                                                {ticket.status === 'OPEN' ? <T en="OPEN" bm="TERBUKA" /> : 
+                                                 ticket.status === 'IN_PROGRESS' ? <T en="IN-PROGRESS" bm="DALAM PROSES" /> :
+                                                 ticket.status === 'RESOLVED' ? <T en="RESOLVED" bm="SELESAI" /> :
+                                                 <T en="CLOSED" bm="DITUTUP" />}
+                                            </div>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="mb-4">
+                                            <h3 className="text-lg font-extrabold text-slate-900 mb-2 truncate group-hover:text-violet-700 transition-colors">{ticket.title}</h3>
+                                            <p className="text-[13px] font-medium text-slate-500 line-clamp-2 leading-relaxed">{ticket.description}</p>
+                                        </div>
+
+                                        <div className="flex-1"></div>
+
+                                        {/* Footer */}
+                                        <div className="mt-8 pt-5 border-t border-slate-100/80 flex items-center justify-between">
+                                            <div className="flex items-center gap-4 text-slate-400">
+                                                <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    {timeAgo(ticket.created_at)}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                                                    <MessageSquare className="w-3.5 h-3.5" />
+                                                    0 {/* Future placeholder for comments */}
+                                                </div>
+                                            </div>
+                                            <div className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.1em] flex items-center group-hover:text-violet-600 transition-colors">
+                                                <T en="OPEN DISCUSSION" bm="BUKA PERBINCANGAN" /> <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2.5} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

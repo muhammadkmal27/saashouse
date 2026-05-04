@@ -9,12 +9,11 @@ import NotificationsSettingsPage from "./notifications/page";
 
 function SettingsContent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
-    const currentTab = searchParams.get("tab") || "profile";
-
-    // This component will act as a router for the settings tabs
-    // and provide the smooth experience the user requested.
+    const tabParam = searchParams.get("tab");
     
+    // Always default to profile if no tab is provided
+    const currentTab = tabParam || "profile";
+
     switch (currentTab) {
         case "profile":
             return <ProfileSettingsPage />;

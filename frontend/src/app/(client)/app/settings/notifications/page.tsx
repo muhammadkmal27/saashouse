@@ -88,9 +88,9 @@ export default function NotificationsSettingsPage() {
                     
                     {/* Email Section */}
                     <div className="border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden shadow-sm bg-white dark:bg-black">
-                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-8 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <div className="bg-slate-50/50 dark:bg-slate-900/50 p-6 md:p-8 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <h3 className="font-extrabold text-slate-900 flex items-center gap-3 uppercase tracking-widest text-xs">
-                                <div className="w-10 h-10 rounded-xl bg-violet-100/80 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-xl bg-violet-100/80 flex items-center justify-center shrink-0">
                                     <Mail className="w-5 h-5 text-violet-600" />
                                 </div>
                                 <T en="Email Communications" bm="Komunikasi E-mel" />
@@ -104,16 +104,16 @@ export default function NotificationsSettingsPage() {
                                 { key: 'billing_alerts', label: <T en="Billing Alerts" bm="Amaran Pembayaran" />, desc: <T en="Invoices, payment failures, and major renewal reminders." bm="Invois, kegagalan pembayaran, dan peringatan pembaharuan utama." /> },
                                 { key: 'security_alerts', label: <T en="Security Alerts" bm="Amaran Keselamatan" />, desc: <T en="Get notified of password changes and account-wide security events." bm="Dapatkan notifikasi tentang pertukaran kata laluan dan acara keselamatan akaun." /> }
                             ].map((item) => (
-                                <div key={item.key} className="p-8 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-all group">
-                                    <div className="max-w-md">
-                                        <p className="font-bold text-slate-900 dark:text-zinc-100 group-hover:text-violet-600 transition-colors uppercase tracking-tight">{item.label}</p>
-                                        <p className="text-xs text-slate-500 mt-1 font-medium">{item.desc}</p>
+                                <div key={item.key} className="p-6 md:p-8 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-all group">
+                                    <div className="max-w-[200px] md:max-w-md">
+                                        <p className="font-bold text-slate-900 dark:text-zinc-100 group-hover:text-violet-600 transition-colors uppercase tracking-tight text-[11px] md:text-sm">{item.label}</p>
+                                        <p className="text-[10px] md:text-xs text-slate-500 mt-1 font-medium leading-tight">{item.desc}</p>
                                     </div>
                                     <button 
                                         onClick={() => handleToggle(item.key as keyof typeof toggles)}
-                                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all active:scale-90 ${toggles[item.key as keyof typeof toggles] ? 'bg-violet-600 shadow-lg shadow-violet-600/20' : 'bg-slate-200 dark:bg-zinc-700'}`}
+                                        className={`relative inline-flex h-6 w-11 md:h-7 md:w-12 items-center rounded-full transition-all active:scale-90 shrink-0 ${toggles[item.key as keyof typeof toggles] ? 'bg-violet-600 shadow-lg shadow-violet-600/20' : 'bg-slate-200 dark:bg-zinc-700'}`}
                                     >
-                                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all ${toggles[item.key as keyof typeof toggles] ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        <span className={`inline-block h-4 w-4 md:h-5 md:w-5 transform rounded-full bg-white shadow-md transition-all ${toggles[item.key as keyof typeof toggles] ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
                                 </div>
                             ))}
@@ -125,7 +125,7 @@ export default function NotificationsSettingsPage() {
                         <button 
                             onClick={handleSave}
                             disabled={saving || loading}
-                            className="h-[56px] px-12 bg-violet-600 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-[1.5rem] hover:bg-violet-700 transition-all disabled:opacity-50 shadow-xl shadow-violet-200/50 flex items-center gap-3"
+                            className="w-full md:w-auto h-[56px] px-12 bg-violet-600 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-[1.5rem] hover:bg-violet-700 transition-all disabled:opacity-50 shadow-xl shadow-violet-200/50 flex items-center justify-center gap-3"
                         >
                             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <T en="Store Preferences" bm="Simpan Tetapan" />}
                         </button>

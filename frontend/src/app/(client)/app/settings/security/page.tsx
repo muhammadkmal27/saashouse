@@ -152,14 +152,14 @@ export default function SecuritySettingsPage() {
                     </div>
                 </div>
 
-                <div className="pt-6 flex justify-between items-center">
-                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
+                <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
                         <ShieldCheck className="w-4 h-4 text-violet-500 animate-pulse" /> <T en="Secure Connection" bm="Sambungan Selamat" />
                     </div>
                     <button 
                         type="submit" 
                         disabled={saving}
-                        className="px-8 py-4 bg-violet-600 text-white font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-violet-700 transition-all disabled:opacity-50 shadow-lg shadow-violet-200/50 min-w-[200px] flex items-center justify-center"
+                        className="w-full md:w-auto px-10 py-4 bg-violet-600 text-white font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-violet-700 transition-all disabled:opacity-50 shadow-xl shadow-violet-200/50 flex items-center justify-center"
                     >
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <T en="Update Password" bm="Kemaskini Kata Laluan" />}
                     </button>

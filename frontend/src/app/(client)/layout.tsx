@@ -48,9 +48,32 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 pb-28 md:pb-8">
         {children}
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-full border-t border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl px-6 py-4">
+        <div className="flex items-center justify-between w-full max-w-md mx-auto">
+          <Link href="/app/dashboard" className="flex flex-col items-center gap-1 group">
+            <LayoutDashboard className="w-6 h-6 text-zinc-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-300 uppercase tracking-widest"><T en="Dashboard" bm="Utama"/></span>
+          </Link>
+          <Link href="/app/projects" className="flex flex-col items-center gap-1 group">
+            <Briefcase className="w-6 h-6 text-zinc-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-300 uppercase tracking-widest"><T en="Projects" bm="Projek"/></span>
+          </Link>
+          <Link href="/app/billing" className="flex flex-col items-center gap-1 group">
+            <Receipt className="w-6 h-6 text-zinc-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-300 uppercase tracking-widest"><T en="Billing" bm="Bayaran"/></span>
+          </Link>
+          <Link href="/app/tickets" className="flex flex-col items-center gap-1 group">
+            <FileText className="w-6 h-6 text-zinc-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+            <span className="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-300 uppercase tracking-widest"><T en="Tasks" bm="Tugasan"/></span>
+          </Link>
+        </div>
+      </div>
+
       <ChatWidget />
     </div>
   );

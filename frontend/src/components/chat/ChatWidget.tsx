@@ -130,7 +130,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 print:hidden">
+    <div className="fixed bottom-24 md:bottom-6 right-6 z-50 print:hidden">
       {isOpen ? (
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl w-[350px] h-[580px] flex flex-col overflow-hidden transition-all duration-300 transform scale-100 opacity-100 animate-in fade-in slide-in-from-bottom-5">
            <div className="bg-zinc-900 dark:bg-black text-white p-4 flex justify-between items-center cursor-pointer shadow-sm relative z-10 flex-shrink-0">

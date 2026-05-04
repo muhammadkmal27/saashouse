@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, Zap, CheckCircle2, AlertCircle, Loader2, ArrowLeft, LayoutGrid, User, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { CreditCard, Zap, CheckCircle2, AlertCircle, Loader2, ArrowLeft, LayoutGrid, User, ShieldCheck, Plus, Clock } from "lucide-react";
 
 import { fetchPrices, DEFAULT_PRICES } from "@/utils/pricing";
 import ServiceAgreementModal from "@/components/modals/ServiceAgreementModal";
@@ -219,253 +220,447 @@ export default function BillingPage() {
   const sub = data?.sub;
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 pb-20">
+    <div className="w-full min-h-screen bg-[#F8F9FA]">
       
-      {/* Hero Header Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-slate-100 shadow-sm px-8 py-10 lg:p-14 lg:pb-12">
-        {/* Background attractive lighting (Mesh Gradient Bloom) */}
-        <div className="absolute inset-0 bg-white z-0"></div>
-        <div className="absolute -left-20 -bottom-20 w-[30rem] h-[30rem] bg-violet-400/20 rounded-full blur-[100px] z-0 pointer-events-none"></div>
-        <div className="absolute right-0 -top-20 w-[40rem] h-[40rem] bg-violet-500/20 rounded-full blur-[120px] z-0 pointer-events-none"></div>
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl z-0 pointer-events-none"></div>
-        
-        <div className="relative z-10">
-            {selectedProjectId && projects.length > 1 ? (
-                <button 
-                    onClick={() => setSelectedProjectId(null)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 border border-slate-200/60 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-violet-700 hover:border-violet-200 mb-6 transition-all shadow-sm backdrop-blur-md group"
-                >
-                    <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Back to Selection" bm="Kembali" />
-                </button>
-            ) : (
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-violet-700 shadow-sm border border-violet-200/50 mb-7 backdrop-blur-md">
-                    <CreditCard className="w-3.5 h-3.5 text-violet-600" /> <T en="Billing Management" bm="Pembayaran" />
-                </span>
-            )}
-            
-            <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 mb-4 leading-[1.05]">
-                <T en={<>Billing & <span className="text-violet-600">Subscriptions</span></>} bm={<>Pembayaran & <span className="text-violet-600">Langganan</span></>} />
-            </h1>
-            <p className="text-[15px] font-medium text-slate-500 max-w-xl leading-relaxed">
-                {selectedProjectId ? <T en={`Securely managing payment options and automated renewals for ${selectedProject?.title}.`} bm={`Menguruskan pilihan pembayaran dan pembaharuan automatik dengan selamat untuk ${selectedProject?.title}.`} /> : <T en="Select a platform to manage your infrastructure services and premium subscription plan." bm="Pilih platform untuk mengurus perkhidmatan infrastruktur dan pakej langganan premium anda." />}
-            </p>
+      {/* ─── MOBILE VIEW (lg:hidden) ─── */}
+      <div className="lg:hidden -mx-5 -mt-8">
+        {/* Mobile Header Banner */}
+        <div className="bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800 px-5 pt-12 pb-12 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-10 translate-x-10 blur-2xl" />
+            <div className="relative z-10">
+                {selectedProjectId && projects.length > 1 && (
+                    <button 
+                        onClick={() => setSelectedProjectId(null)}
+                        className="flex items-center gap-2 text-violet-200 text-[10px] font-black uppercase tracking-widest mb-4"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> <T en="Back" bm="Kembali" />
+                    </button>
+                )}
+                <h1 className="text-2xl font-black text-white leading-tight">
+                    <T en="Billing" bm="Pembayaran" />
+                </h1>
+                <p className="text-violet-200 text-xs mt-1 font-medium">
+                    {selectedProjectId ? <T en={selectedProject?.title} bm={selectedProject?.title} /> : <T en="Manage your subscriptions" bm="Urus langganan anda" />}
+                </p>
+            </div>
         </div>
-      </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3 border border-red-100 font-bold text-sm">
-          <AlertCircle className="w-5 h-5" /> {error}
-        </div>
-      )}
+        {error && (
+            <div className="mx-5 mt-4 p-4 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3 border border-red-100 font-bold text-[11px]">
+                <AlertCircle className="w-4 h-4" /> {error}
+            </div>
+        )}
 
-      {!selectedProjectId ? (
-        /* PHASE 1: PROJECT SELECTION GRID */
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.length === 0 ? (
-                <div className="sm:col-span-2 lg:col-span-3 p-16 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100 italic text-slate-400 font-medium">
-                    <T en="No projects found. Please create your first project to start subscribing." bm="Tiada projek dijumpai.  Sila cipta projek pertama anda untuk mula melanggan." />
+        <div className="px-5 pb-10">
+            {!selectedProjectId ? (
+                /* MOBILE PHASE 1: SELECTION - COMPACT */
+                <div className="space-y-3 mt-6">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1"><T en="Select Platform" bm="Pilih Platform" /></p>
+                    {projects.map((proj: any) => (
+                        <button 
+                            key={proj.id}
+                            onClick={() => setSelectedProjectId(proj.id)}
+                            className="w-full bg-white rounded-2xl p-4 text-left border border-slate-100 shadow-sm active:scale-[0.98] transition-transform flex items-center justify-between gap-3"
+                        >
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                    <div className={`w-1.5 h-1.5 rounded-full ${proj.status === 'LIVE' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                    <h3 className="text-[13px] font-black text-slate-900 truncate">{proj.title}</h3>
+                                </div>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider line-clamp-1">{proj.selected_plan || 'Standard'}</p>
+                            </div>
+                            <div className="w-9 h-9 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center shrink-0">
+                                <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                            </div>
+                        </button>
+                    ))}
+                    {projects.length === 0 && (
+                        <div className="py-20 text-center">
+                            <CreditCard className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                            <p className="text-slate-400 text-sm font-medium italic"><T en="No projects found." bm="Tiada projek dijumpai." /></p>
+                        </div>
+                    )}
                 </div>
             ) : (
-                projects.map((proj: any) => (
-                    <button 
-                        key={proj.id}
-                        onClick={() => setSelectedProjectId(proj.id)}
-                        className="group relative bg-white/80 bg-gradient-to-br from-white to-violet-50/40 rounded-[2.5rem] p-8 text-left border border-violet-100/50 shadow-xl shadow-violet-100/30 hover:border-violet-400 hover:shadow-violet-200/50 hover:-translate-y-2 transition-all duration-300 overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-violet-300/15 rounded-full blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-[0.08] transition-opacity text-violet-900 pointer-events-none">
-                            <LayoutGrid className="w-24 h-24" />
+                /* MOBILE PHASE 2: DETAILS - COMPACT */
+                <div className="space-y-5 mt-[-35px] relative z-20">
+                    {/* Plan Detail Card */}
+                    <div className="bg-white rounded-[1.75rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-[0.02] pointer-events-none text-violet-900">
+                            <Zap className="w-24 h-24" />
                         </div>
-                        
-                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${
-                            proj.status === 'LIVE' ? 'bg-emerald-50 text-emerald-600' : 
-                            proj.status === 'PAID' ? 'bg-indigo-50 text-indigo-600' :
-                            proj.status === 'UNDER_DEVELOPMENT' ? 'bg-cyan-50 text-cyan-500' :
-                            'bg-amber-50 text-amber-600'
-                        }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${
-                                proj.status === 'LIVE' ? 'bg-emerald-500' : 
-                                proj.status === 'PAID' ? 'bg-indigo-500' :
-                                proj.status === 'UNDER_DEVELOPMENT' ? 'bg-cyan-500' :
-                                'bg-amber-500 animate-pulse'
-                            }`} /> <T en={proj.status.replace('_', ' ')} bm={proj.status === 'PAID' ? 'DIBAYAR' : proj.status === 'UNDER_DEVELOPMENT' ? 'DALAM PEMBANGUNAN' : proj.status === 'REVIEW' ? 'SEMAKAN' : proj.status === 'LIVE' ? 'AKTIF' : proj.status.replace('_', ' ')} />
-                        </div>
-                        
-                        <h3 className="text-xl font-black text-slate-900 mb-2 group-hover:text-violet-600 transition-colors line-clamp-1">{proj.title}</h3>
-                        <p className="text-sm text-slate-400 font-medium line-clamp-2 mb-8">{proj.description || <T en="No project description." bm="Tiada penerangan projek." />}</p>
-                        
-                        <div className="flex items-center justify-between mt-auto">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-violet-700"><T en="Manage Billing" bm="Urus Pembayaran" /></span>
-                            <div className="w-10 h-10 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-colors">
-                                <ArrowLeft className="w-4 h-4 rotate-180" />
+                        <div className="relative z-10">
+                            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-violet-600 text-white rounded-full text-[8px] font-black uppercase tracking-widest mb-3">
+                                <Zap className="w-2.5 h-2.5 fill-white/20" /> {currentPlan.label}
                             </div>
-                        </div>
-                    </button>
-                ))
-            )}
-        </div>
-      ) : (
-        /* PHASE 2: BILLING DETAILS FOR SELECTED PROJECT */
-        <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-                {/* Subscription Card */}
-                <div className="bg-white/80 bg-gradient-to-br from-white to-violet-50/30 rounded-[3rem] p-10 border border-violet-100/50 shadow-xl shadow-violet-100/40 relative overflow-hidden group">
-                    {/* Purple gradient accent */}
-                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-violet-400/10 rounded-full blur-[80px] pointer-events-none transition-all group-hover:bg-violet-400/20"></div>
-                    <div className="absolute top-0 right-0 p-12 opacity-[0.04] -mr-10 -mt-10 pointer-events-none text-violet-700 group-hover:opacity-[0.06] transition-opacity">
-                        <Zap className="w-64 h-64" />
-                    </div>
-                    
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
-                        <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-600 text-white rounded-full text-[10px] font-black uppercase tracking-[0.15em] mb-5 shadow-lg shadow-violet-600/20">
-                                <Zap className="w-3.5 h-3.5 text-white fill-white/20" /> {currentPlan.label}
-                            </div>
-                            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2"><span className="text-violet-600">
-                                {planKey.split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
-                            </span> <T en="Plan" bm="Pakej" /></h2>
-                            <p className="text-slate-500 font-medium max-w-md">
-                                <T en="Automated managed service covers server maintenance, SSL security, and daily data backups." bm="Perkhidmatan terurus automatik kami termasuk jaminan pelayan, SSL kebal, bersama sandaran peribadi." />
-                            </p>
-                        </div>
-                        <div className="text-right">
-                            <div className="text-5xl font-black text-slate-900 tracking-tighter">
-                                RM {currentPlan.price} 
-                                {(currentPlan.isOTP || isSaaSDeposit) ? (
-                                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-2">
-                                        <T 
-                                            en={currentPlan.priceLabel || "Package"} 
-                                            bm={currentPlan.priceLabel === "Deposit" || currentPlan.priceLabel === "Setup Deposit" ? "Deposit" : currentPlan.priceLabel === "Final Payment" ? "Bayaran Akhir" : "Pakej"} 
-                                        />
-                                    </span>
-                                ) : (
-                                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">/ <T en="mth" bm="bln" /></span>
-                                )}
-                            </div>
-                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-2">
-                                {((['LIVE', 'PAID'].includes(selectedProject?.status)) || (data?.sub?.status?.toLowerCase() === 'active')) 
-                                    ? <T en="Active & Paid" bm="Aktif & Dibayar" />
-                                    : <T en="Awaiting Activation" bm="Menunggu Pengaktifan" />}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="pt-10 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-900 border border-slate-100">
-                                <CreditCard className="w-7 h-7" />
-                            </div>
-                            <div>
-                                <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs mb-1"><T en="Current Project Status" bm="Status Projek Terkini" /></h4>
-                                <div className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full ${['LIVE', 'PAID', 'REVIEW'].includes(selectedProject?.status) ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} /> 
-                                    <span className="font-black text-lg text-slate-900 uppercase tracking-tighter">
-                                        <T en={selectedProject?.status?.replace('_', ' ')} bm={selectedProject?.status === 'PAID' ? 'DIBAYAR' : selectedProject?.status === 'UNDER_DEVELOPMENT' ? 'DALAM PEMBANGUNAN' : selectedProject?.status === 'REVIEW' ? 'SEMAKAN' : selectedProject?.status === 'LIVE' ? 'AKTIF' : selectedProject?.status?.replace('_', ' ')} />
-                                    </span>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight"><T en="Active Plan" bm="Pakej Aktif" /></h2>
+                            
+                            <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-5">
+                                <div>
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5"><T en="Amount Due" bm="Jumlah Bayaran" /></p>
+                                    <p className="text-2xl font-black text-slate-900 tracking-tighter">RM {currentPlan.price}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5"><T en="Cycle" bm="Kitaran" /></p>
+                                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                                        {(currentPlan.isOTP || isSaaSDeposit) ? <T en="One-Time" bm="Sekali" /> : <T en="Monthly" bm="Bulanan" />}
+                                    </p>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {(data?.sub?.status?.toLowerCase() === 'active' || (isOTP && (selectedProject?.status === 'PAID' || selectedProject?.status === 'LIVE'))) ? (
-                            <div className="px-10 py-5 bg-emerald-50 text-emerald-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-3">
-                                <CheckCircle2 className="w-5 h-5" /> <T en={selectedProject?.status === 'LIVE' ? 'Fully Paid' : selectedProject?.status === 'PAID' ? 'Payment Verified' : selectedProject?.status === 'REVIEW' ? 'Pending Review' : 'All Systems Go'} bm={selectedProject?.status === 'LIVE' ? 'Selesai Dibayar' : selectedProject?.status === 'PAID' ? 'Pembayaran Sah' : selectedProject?.status === 'REVIEW' ? 'Dalam Semakan' : 'Sistem Beroperasi'} />
+                    {/* Action Button Section */}
+                    <div className="space-y-3">
+                        {selectedProject?.status === "PAID" ? (
+                            <div className="w-full py-5 bg-indigo-50 text-indigo-600 rounded-2xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center gap-3 border border-indigo-100 flex-col">
+                                <div className="flex items-center gap-2">
+                                    <Clock className="w-4 h-4 animate-pulse" />
+                                    <T en="Deposit Verified" bm="Deposit Sah" />
+                                </div>
+                                <p className="text-[8px] opacity-70 normal-case px-6 text-center">
+                                    <T en="Admin is currently initializing your development environment." bm="Admin sedang menyediakan persekitaran pembangunan anda." />
+                                </p>
+                            </div>
+                        ) : (data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')) ? (
+                            <div className="w-full py-5 bg-emerald-50 text-emerald-600 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 border border-emerald-100">
+                                <CheckCircle2 className="w-5 h-5" /> <T en="Plan Active" bm="Pakej Aktif" />
                             </div>
                         ) : (
                             <button 
                                 onClick={() => handlePayNow(selectedProject?.id)}
-                                disabled={actionLoading || (isOTP && (selectedProject?.status === 'PAID' || selectedProject?.status === 'LIVE'))}
-                                className="w-full md:w-auto px-12 py-6 bg-violet-600 text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-violet-700 hover:-translate-y-1 transition-all shadow-xl shadow-violet-600/30 flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0"
+                                disabled={actionLoading || (isOTP && selectedProject?.status === 'PAID') || (!isOTP && selectedProject?.status === 'PAID')}
+                                className="w-full h-16 bg-violet-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg shadow-violet-200 border border-violet-500 active:scale-[0.97] transition-all disabled:opacity-50"
                             >
-                                {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                                {actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                                     <>
-                                        <CreditCard className="w-6 h-6" /> 
-                                        {isSaaSDeposit ? <T en="Pay Deposit" bm="Bayar Deposit" /> : <T en="Activate Now" bm="Aktifkan Sekarang" />}
+                                        <CreditCard className="w-5 h-5" /> 
+                                        {isSaaSDeposit ? <T en="Pay Deposit" bm="Bayar Deposit" /> : 
+                                         selectedProject?.status === 'UNDER_DEVELOPMENT' && isOTP ? <T en="Pay Final Balance" bm="Bayar Baki Akhir" /> :
+                                         <T en="Activate Plan" bm="Aktifkan Pakej" />}
                                     </>
                                 )}
                             </button>
                         )}
+                        <p className="text-center text-[9px] font-bold text-slate-400 px-4">
+                            <T en="Payments are processed securely via Stripe or ToyyibPay." bm="Pembayaran diproses dengan selamat melalui Stripe atau ToyyibPay." />
+                        </p>
                     </div>
-                </div>
 
-                {/* Auto-Renewal Toggle */}
-                {sub && sub.project_id === selectedProject?.id && (
-                    <div className="bg-white/80 bg-gradient-to-r from-white to-violet-50/40 rounded-[3rem] p-10 border border-violet-100/50 shadow-sm flex items-center justify-between gap-10 group hover:border-violet-300 hover:shadow-xl hover:shadow-violet-200/50 transition-all relative overflow-hidden">
-                        <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-violet-300/20 rounded-full blur-[40px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="flex-1">
-                            <h3 className="font-black text-2xl text-slate-900 mb-2"><T en="Automated Renewal" bm="Pembaharuan Automatik" /></h3>
-                            <p className="text-slate-500 font-medium leading-relaxed max-w-xl">
-                                <T en="Keep your projects active. When enabled, your subscription will automatically renew via Stripe at the end of the billing cycle." bm="Kekalkan projek anda secara sentiasa aktif. Apabila dibenarkan, langganan anda akan diperbaharui selepas tamat kitaran bulanan." />
-                            </p>
-                            {sub.cancel_at_period_end && (
-                                <p className="text-amber-500 font-black text-[10px] uppercase tracking-widest mt-4"><T en={`Important: Service will end on ${new Date(sub.current_period_end).toISOString().split('T')[0]}`} bm={`Perhatian: Servis akan tamat kelak di ${new Date(sub.current_period_end).toISOString().split('T')[0]}`} /></p>
-                            )}
-                        </div>
-                        
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                className="sr-only peer" 
-                                checked={!sub.cancel_at_period_end} 
-                                onChange={(e) => handleToggleAutoRenew(selectedProject?.id, !e.target.checked)}
-                            />
-                            <div className="w-20 h-10 bg-slate-100 rounded-full peer peer-checked:bg-violet-600 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-8 after:w-8 after:transition-all peer-checked:after:translate-x-10 shadow-inner"></div>
-                        </label>
-                    </div>
-                )}
-            </div>
-
-            {/* Sidebar Information */}
-            <div className="space-y-6">
-                <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-violet-900/20 relative overflow-hidden group">
-                    {/* Glowing Premium Core inside dark card */}
-                    <div className="absolute -right-20 -top-20 w-64 h-64 bg-violet-600/40 rounded-full blur-[70px] pointer-events-none group-hover:bg-violet-500/50 transition-colors duration-700"></div>
-                    <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-violet-900/50 rounded-full blur-[50px] pointer-events-none"></div>
-
-                    <div className="relative z-10">
-                        <div className="w-14 h-14 bg-violet-600 text-white rounded-2xl flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(124,58,237,0.4)]">
-                        <ShieldCheck className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-black text-2xl mb-4 tracking-tight leading-tight">
-                        <T 
-                            en={`Secured via ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"}`} 
-                            bm={`Dijamin oleh ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"}`} 
-                        />
-                    </h3>
-                    <p className="text-slate-400 font-medium mb-8 leading-relaxed">
-                        <T 
-                            en={`We partner with ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"} to ensure every transaction is 100% secure with ${(isOTP || isSaaSDeposit) ? "Bank-grade security" : "AES-256 encryption"}.`} 
-                            bm={`Kami bekerjasama bersama ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"} untuk jamin keberkesanan setiap aliran bayar.`} 
-                        />
-                    </p>
-                    <div className="space-y-4">
-                        {[
-                            { en: "Military Grade", bm: "Gred Ketenteraan" },
-                            { en: "No Credit Card Stored", bm: "Tiada Kad Kredit Disimpan" },
-                            (isOTP || isSaaSDeposit) 
-                                ? { en: "Secure FPX Checkout", bm: "Pembayaran FPX Selamat" }
-                                : { en: "Auto-Billing Protection", bm: "Perlindungan Pembayaran Auto" }
-                        ].map((tip) => (
-                            <div key={tip.en} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-violet-400">
-                                <div className="w-1.5 h-1.5 rounded-full bg-violet-400" /> <T en={tip.en} bm={tip.bm} />
+                    {/* Auto-Renewal (If applicable) */}
+                    {sub && sub.project_id === selectedProject?.id && (
+                        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                                <h3 className="font-black text-sm text-slate-900 mb-1"><T en="Auto-Renewal" bm="Pembaharuan Auto" /></h3>
+                                <p className="text-[10px] text-slate-500 font-medium">
+                                    <T en="Automatically renew via Stripe" bm="Perbaharui secara automatik" />
+                                </p>
                             </div>
-                        ))}
-                    </div>
-                    </div>
-                </div>
+                            <label className="relative inline-flex items-center cursor-pointer scale-90">
+                                <input 
+                                    type="checkbox" 
+                                    className="sr-only peer" 
+                                    checked={!sub.cancel_at_period_end} 
+                                    onChange={(e) => handleToggleAutoRenew(selectedProject?.id, !e.target.checked)}
+                                />
+                                <div className="w-14 h-7 bg-slate-100 rounded-full peer peer-checked:bg-violet-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-7"></div>
+                            </label>
+                        </div>
+                    )}
 
-                <div className="bg-white/80 bg-gradient-to-br from-white to-violet-50/20 rounded-[3rem] p-10 border border-violet-100/50 shadow-lg shadow-violet-100/20">
-                    <h3 className="font-black text-xl text-slate-900 mb-6 flex items-center gap-2">
-                        <User className="w-5 h-5 text-violet-600" /> <T en="Business Details" bm="Butiran Bisnes" />
-                    </h3>
-                    <div className="space-y-6">
-                        <DetailItem label={<T en="Plan" bm="Kategori Pakej" />} value={currentPlan.label} />
-                        <DetailItem label={<T en={isOTP ? "Stage Charge" : "Monthly Charge"} bm={isOTP ? "Caj Serahan" : "Kitaran Bilan"} />} value={`RM ${currentPlan.price}.00`} />
-                        <DetailItem label={<T en="Currency" bm="Mata Wang" />} value="MYR" />
+                    {/* Security Badge */}
+                    <div className="bg-slate-900 rounded-[2rem] p-6 text-white relative overflow-hidden">
+                        <div className="absolute -right-10 -top-10 w-32 h-32 bg-violet-600/30 rounded-full blur-2xl pointer-events-none"></div>
+                        <div className="relative z-10 flex items-center gap-4">
+                            <div className="w-12 h-12 bg-violet-600 rounded-xl flex items-center justify-center shrink-0">
+                                <ShieldCheck className="w-7 h-7" />
+                            </div>
+                            <div>
+                                <h4 className="font-black text-[13px] tracking-tight"><T en="Bank-Grade Security" bm="Keselamatan Tahap Bank" /></h4>
+                                <p className="text-[10px] text-slate-400 font-medium mt-1 leading-relaxed">
+                                    <T en="Every transaction is 100% secured with AES-256 encryption." bm="Setiap transaksi dijamin 100% selamat dengan enkripsi AES-256." />
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            )}
+        </div>
+      </div>
+
+      {/* Floating Add Project Button for Mobile */}
+      <div className="fixed bottom-44 right-6 z-50 lg:hidden">
+          <Link 
+              href="/app/projects/create" 
+              className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 text-white flex items-center justify-center shadow-[0_10px_30px_rgba(124,58,237,0.5)] border-2 border-white/20 active:scale-90 transition-transform"
+          >
+              <Plus className="w-8 h-8" strokeWidth={3} />
+          </Link>
+      </div>
+
+      {/* ─── DESKTOP VIEW (hidden lg:block) ─── */}
+      <div className="hidden lg:block max-w-6xl mx-auto space-y-8 pb-20 pt-8 px-4 lg:px-8">
+        
+        {/* Hero Header Section */}
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-slate-100 shadow-sm px-8 py-10 lg:p-14 lg:pb-12">
+            {/* Background attractive lighting (Mesh Gradient Bloom) */}
+            <div className="absolute inset-0 bg-white z-0"></div>
+            <div className="absolute -left-20 -bottom-20 w-[30rem] h-[30rem] bg-violet-400/20 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+            <div className="absolute right-0 -top-20 w-[40rem] h-[40rem] bg-violet-500/20 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl z-0 pointer-events-none"></div>
+            
+            <div className="relative z-10">
+                {selectedProjectId && projects.length > 1 ? (
+                    <button 
+                        onClick={() => setSelectedProjectId(null)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 border border-slate-200/60 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-violet-700 hover:border-violet-200 mb-6 transition-all shadow-sm backdrop-blur-md group"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Back to Selection" bm="Kembali" />
+                    </button>
+                ) : (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] text-violet-700 shadow-sm border border-violet-200/50 mb-7 backdrop-blur-md">
+                        <CreditCard className="w-3.5 h-3.5 text-violet-600" /> <T en="Billing Management" bm="Pembayaran" />
+                    </span>
+                )}
+                
+                <h1 className="text-[3.5rem] font-extrabold tracking-tight text-slate-900 mb-4 leading-[1.05]">
+                    <T en={<>Billing & <span className="text-violet-600">Subscriptions</span></>} bm={<>Pembayaran & <span className="text-violet-600">Langganan</span></>} />
+                </h1>
+                <p className="text-[15px] font-medium text-slate-500 max-w-xl leading-relaxed">
+                    {selectedProjectId ? <T en={`Securely managing payment options and automated renewals for ${selectedProject?.title}.`} bm={`Menguruskan pilihan pembayaran dan pembaharuan automatik dengan selamat untuk ${selectedProject?.title}.`} /> : <T en="Select a platform to manage your infrastructure services and premium subscription plan." bm="Pilih platform untuk mengurus perkhidmatan infrastruktur dan pakej langganan premium anda." />}
+                </p>
             </div>
         </div>
-      )}
+
+        {error && (
+            <div className="p-4 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3 border border-red-100 font-bold text-sm">
+            <AlertCircle className="w-5 h-5" /> {error}
+            </div>
+        )}
+
+        {!selectedProjectId ? (
+            /* PHASE 1: PROJECT SELECTION GRID */
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.length === 0 ? (
+                    <div className="sm:col-span-2 lg:col-span-3 p-16 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100 italic text-slate-400 font-medium">
+                        <T en="No projects found. Please create your first project to start subscribing." bm="Tiada projek dijumpai.  Sila cipta projek pertama anda untuk mula melanggan." />
+                    </div>
+                ) : (
+                    projects.map((proj: any) => (
+                        <button 
+                            key={proj.id}
+                            onClick={() => setSelectedProjectId(proj.id)}
+                            className="group relative bg-white/80 bg-gradient-to-br from-white to-violet-50/40 rounded-[2.5rem] p-8 text-left border border-violet-100/50 shadow-xl shadow-violet-100/30 hover:border-violet-400 hover:shadow-violet-200/50 hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-300/15 rounded-full blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-[0.08] transition-opacity text-violet-900 pointer-events-none">
+                                <LayoutGrid className="w-24 h-24" />
+                            </div>
+                            
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${
+                                proj.status === 'LIVE' ? 'bg-emerald-50 text-emerald-600' : 
+                                proj.status === 'PAID' ? 'bg-indigo-50 text-indigo-600' :
+                                proj.status === 'UNDER_DEVELOPMENT' ? 'bg-cyan-50 text-cyan-500' :
+                                'bg-amber-50 text-amber-600'
+                            }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${
+                                    proj.status === 'LIVE' ? 'bg-emerald-500' : 
+                                    proj.status === 'PAID' ? 'bg-indigo-500' :
+                                    proj.status === 'UNDER_DEVELOPMENT' ? 'bg-cyan-500' :
+                                    'bg-amber-500 animate-pulse'
+                                }`} /> <T en={proj.status.replace('_', ' ')} bm={proj.status === 'PAID' ? 'DIBAYAR' : proj.status === 'UNDER_DEVELOPMENT' ? 'DALAM PEMBANGUNAN' : proj.status === 'REVIEW' ? 'SEMAKAN' : proj.status === 'LIVE' ? 'AKTIF' : proj.status.replace('_', ' ')} />
+                            </div>
+                            
+                            <h3 className="text-xl font-black text-slate-900 mb-2 group-hover:text-violet-600 transition-colors line-clamp-1">{proj.title}</h3>
+                            <p className="text-sm text-slate-400 font-medium line-clamp-2 mb-8">{proj.description || <T en="No project description." bm="Tiada penerangan projek." />}</p>
+                            
+                            <div className="flex items-center justify-between mt-auto">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-violet-700"><T en="Manage Billing" bm="Urus Pembayaran" /></span>
+                                <div className="w-10 h-10 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-colors">
+                                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                                </div>
+                            </div>
+                        </button>
+                    ))
+                )}
+            </div>
+          ) : (
+            /* PHASE 2: BILLING DETAILS FOR SELECTED PROJECT */
+            <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 space-y-8">
+                    {/* Subscription Card */}
+                    <div className="bg-white/80 bg-gradient-to-br from-white to-violet-50/30 rounded-[3rem] p-10 border border-violet-100/50 shadow-xl shadow-violet-100/40 relative overflow-hidden group">
+                        {/* Purple gradient accent */}
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-violet-400/10 rounded-full blur-[80px] pointer-events-none transition-all group-hover:bg-violet-400/20"></div>
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.04] -mr-10 -mt-10 pointer-events-none text-violet-700 group-hover:opacity-[0.06] transition-opacity">
+                            <Zap className="w-64 h-64" />
+                        </div>
+                        
+                        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
+                            <div>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-600 text-white rounded-full text-[10px] font-black uppercase tracking-[0.15em] mb-5 shadow-lg shadow-violet-600/20">
+                                    <Zap className="w-3.5 h-3.5 text-white fill-white/20" /> {currentPlan.label}
+                                </div>
+                                <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2"><span className="text-violet-600">
+                                    {planKey.split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                                </span> <T en="Plan" bm="Pakej" /></h2>
+                                <p className="text-slate-500 font-medium max-w-md">
+                                    <T en="Automated managed service covers server maintenance, SSL security, and daily data backups." bm="Perkhidmatan terurus automatik kami termasuk jaminan pelayan, SSL kebal, bersama sandaran peribadi." />
+                                </p>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-5xl font-black text-slate-900 tracking-tighter">
+                                    RM {currentPlan.price} 
+                                    {(currentPlan.isOTP || isSaaSDeposit) ? (
+                                        <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-2">
+                                            <T 
+                                                en={currentPlan.priceLabel || "Package"} 
+                                                bm={currentPlan.priceLabel === "Deposit" || currentPlan.priceLabel === "Setup Deposit" ? "Deposit" : currentPlan.priceLabel === "Final Payment" ? "Bayaran Akhir" : "Pakej"} 
+                                            />
+                                        </span>
+                                    ) : (
+                                        <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">/ <T en="mth" bm="bln" /></span>
+                                    )}
+                                </div>
+                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-2">
+                                    {data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')
+                                        ? <T en="Active & Paid" bm="Aktif & Dibayar" />
+                                        : selectedProject?.status === 'PAID'
+                                        ? <T en="Deposit Verified" bm="Deposit Sah" />
+                                        : <T en="Awaiting Activation" bm="Menunggu Pengaktifan" />}
+                                </p>
+                            </div>
+                        </div>
+    
+                        <div className="pt-10 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-900 border border-slate-100">
+                                    <CreditCard className="w-7 h-7" />
+                                </div>
+                                <div>
+                                    <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs mb-1"><T en="Current Project Status" bm="Status Projek Terkini" /></h4>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`w-2 h-2 rounded-full ${['LIVE', 'PAID', 'REVIEW'].includes(selectedProject?.status) ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} /> 
+                                        <span className="font-black text-lg text-slate-900 uppercase tracking-tighter">
+                                            <T en={selectedProject?.status?.replace('_', ' ')} bm={selectedProject?.status === 'PAID' ? 'DIBAYAR' : selectedProject?.status === 'UNDER_DEVELOPMENT' ? 'DALAM PEMBANGUNAN' : selectedProject?.status === 'REVIEW' ? 'SEMAKAN' : selectedProject?.status === 'LIVE' ? 'AKTIF' : selectedProject?.status?.replace('_', ' ')} />
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            {selectedProject?.status === "PAID" ? (
+                                <div className="px-10 py-5 bg-indigo-50 text-indigo-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex flex-col items-center gap-1 border border-indigo-100">
+                                    <div className="flex items-center gap-3">
+                                        <Clock className="w-5 h-5 animate-pulse" />
+                                        <T en="Awaiting Environment Setup" bm="Menunggu Persediaan Sistem" />
+                                    </div>
+                                    <p className="text-[10px] opacity-60 normal-case font-medium">
+                                        <T en="Infrastructure will be ready for activation once status moves to Under Development." bm="Infrastruktur akan sedia untuk diaktifkan selepas status bertukar kepada 'Under Development'." />
+                                    </p>
+                                </div>
+                            ) : (data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')) ? (
+                                <div className="px-10 py-5 bg-emerald-50 text-emerald-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 border border-emerald-100">
+                                    <CheckCircle2 className="w-5 h-5" /> <T en={selectedProject?.status === 'LIVE' ? 'Fully Paid' : 'Plan Active'} bm={selectedProject?.status === 'LIVE' ? 'Selesai Dibayar' : 'Pakej Aktif'} />
+                                </div>
+                            ) : (
+                                <button 
+                                    onClick={() => handlePayNow(selectedProject?.id)}
+                                    disabled={actionLoading || (selectedProject?.status === 'PAID')}
+                                    className="w-full md:w-auto px-12 py-6 bg-violet-600 text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-violet-700 hover:-translate-y-1 transition-all shadow-xl shadow-violet-600/30 flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0"
+                                >
+                                    {actionLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                                        <>
+                                            <CreditCard className="w-6 h-6" /> 
+                                            {isSaaSDeposit ? <T en="Pay Deposit" bm="Bayar Deposit" /> : 
+                                             selectedProject?.status === 'UNDER_DEVELOPMENT' && isOTP ? <T en="Pay Final Balance" bm="Bayar Baki Akhir" /> :
+                                             <T en="Activate Plan" bm="Aktifkan Sekarang" />}
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+    
+                    {/* Auto-Renewal Toggle */}
+                    {sub && sub.project_id === selectedProject?.id && (
+                        <div className="bg-white/80 bg-gradient-to-r from-white to-violet-50/40 rounded-[3rem] p-10 border border-violet-100/50 shadow-sm flex items-center justify-between gap-10 group hover:border-violet-300 hover:shadow-xl hover:shadow-violet-200/50 transition-all relative overflow-hidden">
+                            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-violet-300/20 rounded-full blur-[40px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex-1">
+                                <h3 className="font-black text-2xl text-slate-900 mb-2"><T en="Automated Renewal" bm="Pembaharuan Automatik" /></h3>
+                                <p className="text-slate-500 font-medium leading-relaxed max-w-xl">
+                                    <T en="Keep your projects active. When enabled, your subscription will automatically renew via Stripe at the end of the billing cycle." bm="Kekalkan projek anda secara sentiasa aktif. Apabila dibenarkan, langganan anda akan diperbaharui selepas tamat kitaran bulanan." />
+                                </p>
+                                {sub.cancel_at_period_end && (
+                                    <p className="text-amber-500 font-black text-[10px] uppercase tracking-widest mt-4"><T en={`Important: Service will end on ${new Date(sub.current_period_end).toISOString().split('T')[0]}`} bm={`Perhatian: Servis akan tamat kelak di ${new Date(sub.current_period_end).toISOString().split('T')[0]}`} /></p>
+                                )}
+                            </div>
+                            
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    className="sr-only peer" 
+                                    checked={!sub.cancel_at_period_end} 
+                                    onChange={(e) => handleToggleAutoRenew(selectedProject?.id, !e.target.checked)}
+                                />
+                                <div className="w-20 h-10 bg-slate-100 rounded-full peer peer-checked:bg-violet-600 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-8 after:w-8 after:transition-all peer-checked:after:translate-x-10 shadow-inner"></div>
+                            </label>
+                        </div>
+                    )}
+                </div>
+    
+                {/* Sidebar Information */}
+                <div className="space-y-6">
+                    <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-violet-900/20 relative overflow-hidden group">
+                        {/* Glowing Premium Core inside dark card */}
+                        <div className="absolute -right-20 -top-20 w-64 h-64 bg-violet-600/40 rounded-full blur-[70px] pointer-events-none group-hover:bg-violet-500/50 transition-colors duration-700"></div>
+                        <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-violet-900/50 rounded-full blur-[50px] pointer-events-none"></div>
+    
+                        <div className="relative z-10">
+                            <div className="w-14 h-14 bg-violet-600 text-white rounded-2xl flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(124,58,237,0.4)]">
+                            <ShieldCheck className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-black text-2xl mb-4 tracking-tight leading-tight">
+                            <T 
+                                en={`Secured via ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"}`} 
+                                bm={`Dijamin oleh ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"}`} 
+                            />
+                        </h3>
+                        <p className="text-slate-400 font-medium mb-8 leading-relaxed">
+                            <T 
+                                en={`We partner with ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"} to ensure every transaction is 100% secure with ${(isOTP || isSaaSDeposit) ? "Bank-grade security" : "AES-256 encryption"}.`} 
+                                bm={`Kami bekerjasama bersama ${(isOTP || isSaaSDeposit) ? "ToyyibPay" : "Stripe"} untuk jamin keberkesanan setiap aliran bayar.`} 
+                            />
+                        </p>
+                        <div className="space-y-4">
+                            {[
+                                { en: "Military Grade", bm: "Gred Ketenteraan" },
+                                { en: "No Credit Card Stored", bm: "Tiada Kad Kredit Disimpan" },
+                                (isOTP || isSaaSDeposit) 
+                                    ? { en: "Secure FPX Checkout", bm: "Pembayaran FPX Selamat" }
+                                    : { en: "Auto-Billing Protection", bm: "Perlindungan Pembayaran Auto" }
+                            ].map((tip) => (
+                                <div key={tip.en} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-violet-400">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400" /> <T en={tip.en} bm={tip.bm} />
+                                </div>
+                            ))}
+                        </div>
+                        </div>
+                    </div>
+    
+                    <div className="bg-white/80 bg-gradient-to-br from-white to-violet-50/20 rounded-[3rem] p-10 border border-violet-100/50 shadow-lg shadow-violet-100/20">
+                        <h3 className="font-black text-xl text-slate-900 mb-6 flex items-center gap-2">
+                            <User className="w-5 h-5 text-violet-600" /> <T en="Business Details" bm="Butiran Bisnes" />
+                        </h3>
+                        <div className="space-y-6">
+                            <DetailItem label={<T en="Plan" bm="Kategori Pakej" />} value={currentPlan.label} />
+                            <DetailItem label={<T en={isOTP ? "Stage Charge" : "Monthly Charge"} bm={isOTP ? "Caj Serahan" : "Kitaran Bilan"} />} value={`RM ${currentPlan.price}`} />
+                            <DetailItem label={<T en="Currency" bm="Mata Wang" />} value="MYR" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+          )}
+      </div>
 
       <ServiceAgreementModal 
           isOpen={isAgreementOpen}

@@ -256,33 +256,33 @@ export default function ServiceAgreementModal({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
                     
                     {/* The Full Document */}
                     <div style={{ 
                         backgroundColor: '#f9f9fb', 
                         borderRadius: '1.5rem', 
-                        padding: '2rem', 
+                        padding: typeof window !== 'undefined' && window.innerWidth < 768 ? '1rem' : '2rem', 
                         border: '1px solid #f1f1f4', 
                         display: 'flex', 
                         flexDirection: 'column', 
-                        gap: '2rem', 
+                        gap: typeof window !== 'undefined' && window.innerWidth < 768 ? '1rem' : '1.5rem', 
                         boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
                         color: '#3f3f46' 
                     }}>
-                        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                            <h3 style={{ fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#18181b', margin: '0 0 8px 0', textDecoration: 'underline', textDecorationColor: 'rgba(139, 92, 246, 0.3)', textUnderlineOffset: '8px' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                            <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '0.8rem' : '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#18181b', margin: '0 0 8px 0', textDecoration: 'underline', textDecorationColor: 'rgba(139, 92, 246, 0.3)', textUnderlineOffset: '8px', lineHeight: 1.4 }}>
                                 PERJANJIAN PERKHIDMATAN PEMBANGUNAN LAMAN WEB
                             </h3>
-                            <p style={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}>Tarikh: {today}</p>
+                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}>Tarikh: {today}</p>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '13px', lineHeight: 1.6 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', lineHeight: 1.5 }}>
                             <p style={{ margin: 0 }}>
                                 <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>ANTARA:</span> {providerName || "Penyedia Perkhidmatan"}, selepas ini dirujuk sebagai "Penyedia Perkhidmatan".
                             </p>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>DAN:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 8px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, selepas ini dirujuk sebagai "Pelanggan".
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>DAN:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, selepas ini dirujuk sebagai "Pelanggan".
                             </p>
                         </div>
 
@@ -294,7 +294,7 @@ export default function ServiceAgreementModal({
                                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#8b5cf6' }}></div>
                                             {idx + 1}. {section.title}
                                         </h4>
-                                        <div style={{ paddingLeft: '1rem', fontSize: '13px', color: '#52525b', lineHeight: 1.6 }}>
+                                        <div style={{ paddingLeft: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', color: '#52525b', lineHeight: 1.5 }}>
                                             {renderMarkdown(replacePlaceholders(section.content, data))}
                                         </div>
                                     </section>
@@ -305,29 +305,35 @@ export default function ServiceAgreementModal({
                         </div>
 
                         {/* Signature Preview Section */}
-                        <div style={{ paddingTop: '3rem', borderTop: '1px solid #e4e4e7', marginTop: '2.5rem', display: 'flex', justifyContent: 'space-between', gap: '2.5rem' }}>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-                                <div style={{ height: '80px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
+                        <div style={{ 
+                            paddingTop: '1.5rem', 
+                            borderTop: '1px solid #e4e4e7', 
+                            marginTop: '1rem', 
+                            display: 'flex', 
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', 
+                            gap: '1rem' 
+                        }}>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.25rem', overflow: 'hidden' }}>
+                                <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
                                     {providerSignature ? (
                                         <img src={providerSignature} alt="Provider Signature" style={{ maxHeight: '100%' }} />
                                     ) : (
-                                        <div style={{ fontSize: '10px', fontStyle: 'italic', color: '#d4d4d8' }}>Tiada tandatangan penyedia</div>
+                                        <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}>Tiada tandatangan</div>
                                     )}
                                 </div>
-                                <p style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#18181b', margin: 0 }}>Penyedia Perkhidmatan</p>
-                                <p style={{ fontSize: '11px', fontWeight: 'bold', color: '#18181b', margin: 0 }}>{providerName || "SaaS House Development"}</p>
-                                <p style={{ fontSize: '9px', fontWeight: 500, color: '#a1a1aa', margin: 0 }}>{today}</p>
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>Penyedia</p>
+                                <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{providerName || "SaaS House"}</p>
                             </div>
                             
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-                                <div style={{ height: '80px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.25rem', overflow: 'hidden' }}>
+                                <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
                                     {liveSignature && (
                                         <img src={liveSignature} alt="Client Signature Preview" style={{ maxHeight: '100%' }} />
                                     )}
                                 </div>
-                                <p style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#18181b', margin: 0 }}>Pelanggan</p>
-                                <p style={{ fontSize: '11px', fontWeight: 'bold', color: '#18181b', margin: 0 }}>{clientName || "............................"}</p>
-                                <p style={{ fontSize: '9px', fontWeight: 500, color: '#a1a1aa', margin: 0 }}>{today}</p>
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>Pelanggan</p>
+                                <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{clientName || ".........."}</p>
                             </div>
                         </div>
                     </div>
@@ -382,17 +388,17 @@ export default function ServiceAgreementModal({
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-zinc-100 flex gap-3 bg-zinc-50/50">
+                <div className="p-4 md:p-6 border-t border-zinc-100 flex gap-3 bg-zinc-50/50">
                     <button 
                         onClick={onClose}
-                        className="flex-1 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] text-zinc-400 hover:text-zinc-600 transition-all border-2 border-transparent"
+                        className="flex-1 py-3 md:py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] text-zinc-400 hover:text-zinc-600 transition-all border-2 border-transparent"
                     >
                         Batal
                     </button>
                     <button 
                         onClick={handleSign}
                         disabled={isSigning || !clientName || !hasSignature}
-                        className={`flex-[2] py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-lg ${
+                        className={`flex-[2] py-3 md:py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] transition-all flex items-center justify-center gap-2 shadow-lg ${
                             isSigning || !clientName || !hasSignature
                             ? 'bg-zinc-100 text-zinc-300 cursor-not-allowed'
                             : 'bg-violet-600 text-white hover:bg-violet-700 shadow-violet-600/20'
