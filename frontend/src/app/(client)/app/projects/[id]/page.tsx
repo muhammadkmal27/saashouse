@@ -497,11 +497,53 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             
             {/* UPDATE MODAL OVERLAY (COMPREHENSIVE BLUEPRINT EDITOR) */}
             {isEditing && (
-              <div className="fixed inset-0 z-[999] bg-zinc-950/90 flex items-center justify-center p-2 md:p-8 animate-in fade-in duration-200 overflow-y-auto">
-                 <div className="bg-white w-full max-w-4xl min-h-[85vh] md:max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl border-2 border-zinc-200 flex flex-col relative my-4 md:my-8">
+              <div className="fixed inset-0 z-[999] bg-zinc-950/90 flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-200 overflow-y-auto">
+                 <div className="bg-white w-full h-full md:h-auto md:max-w-4xl md:min-h-[85vh] md:max-h-[90vh] overflow-hidden md:rounded-[2.5rem] shadow-2xl border-0 md:border-2 border-zinc-200 flex flex-col relative">
                     
-                    {/* Modal Header & Progress */}
-                    <div className="p-8 md:p-10 border-b-2 border-zinc-100 bg-white">
+                    {/* Modal Header & Progress - MOBILE VERSION */}
+                    <div className="md:hidden">
+                        <div className="bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-700 p-6 pt-12 relative overflow-hidden">
+                            {/* Decorative background elements */}
+                            <div className="absolute top-[-10%] right-[-10%] w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+                            <div className="absolute bottom-[-20%] left-[-10%] w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl" />
+
+                            <div className="relative z-10 space-y-6">
+                                <button 
+                                    onClick={() => setIsEditing(false)}
+                                    className="flex items-center gap-2 text-white/70 hover:text-white transition-colors group"
+                                >
+                                    <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]"><T en="CANCEL" bm="BATAL" /></span>
+                                </button>
+
+                                <div className="flex justify-between items-end">
+                                    <div className="space-y-1">
+                                        <h2 className="text-3xl font-black text-white leading-none tracking-tight">
+                                            <T en="Blueprint Editor" bm="Editor Pelan" />
+                                        </h2>
+                                        <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">
+                                            <T en="STRATEGIC SYNC" bm="SINKRONASI STRATEGIK" />
+                                        </p>
+                                    </div>
+                                    <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex flex-col items-center justify-center backdrop-blur-md">
+                                        <span className="text-xl font-black text-white leading-none">{step}</span>
+                                        <span className="text-[8px] font-black text-white/40 uppercase">/6</span>
+                                    </div>
+                                </div>
+
+                                {/* Mobile Progress Bar */}
+                                <div className="bg-white/20 h-2.5 rounded-full p-0.5 overflow-hidden border border-white/10">
+                                    <div 
+                                        className="h-full bg-white rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(255,255,255,0.5)]" 
+                                        style={{ width: `${(step / 6) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Modal Header & Progress - DESKTOP VERSION */}
+                    <div className="hidden md:block p-10 border-b-2 border-zinc-100 bg-white">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <div className="flex items-center gap-3 text-zinc-400 font-black text-[10px] uppercase tracking-widest mb-2 italic underline decoration-indigo-500/30">
@@ -517,7 +559,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             </button>
                         </div>
 
-                        {/* Progress Bar (1-6) */}
+                        {/* Desktop Progress Bar (1-6) */}
                         <div className="flex gap-1.5">
                             {[1, 2, 3, 4, 5, 6].map((i) => (
                                 <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-700 ${step >= i ? 'bg-zinc-900' : 'bg-zinc-100'}`} />
@@ -526,25 +568,28 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     </div>
 
                     {/* Scrollable Form Content */}
-                    <div className="flex-1 overflow-y-auto p-8 md:p-12 bg-white custom-scrollbar">
-                        <div className="max-w-2xl mx-auto">
+                    <div className="flex-1 overflow-y-auto p-5 md:p-12 bg-zinc-50/30 md:bg-white custom-scrollbar">
+                        <div className="max-w-2xl mx-auto py-4 md:py-0">
                             {step === 1 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">1. <T en="Financial Gateway" bm="Sistem Kewangan" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">Coordinate your site's payment infrastructure.</p>
+                                <div className="space-y-6 md:space-y-8 animate-fade-in">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-sm shrink-0">1</div>
+                                        <div className="space-y-1">
+                                            <h2 className="text-xl md:text-2xl font-black text-zinc-900 uppercase leading-tight"><T en="Financial Gateway" bm="Sistem Kewangan" /></h2>
+                                            <p className="text-zinc-500 font-medium text-xs md:text-sm">Coordinate your site's payment infrastructure.</p>
+                                        </div>
                                     </div>
                                     
-                                    <div className="flex gap-3">
+                                    <div className="flex flex-col md:flex-row gap-3">
                                         <button 
                                             onClick={() => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, has_toyyibpay: true } } })}
-                                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
+                                            className={`flex-1 py-4 md:py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl translate-y-[-2px]' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
                                         >
                                             <T en="Established ToyyibPay" bm="ToyyibPay Sedia Ada" />
                                         </button>
                                         <button 
                                             onClick={() => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, has_toyyibpay: false } } })}
-                                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${!editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
+                                            className={`flex-1 py-4 md:py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${!editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl translate-y-[-2px]' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
                                         >
                                             <T en="New Registration Request" bm="Permintaan Pendaftaran Baru" />
                                         </button>
@@ -862,23 +907,23 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     </div>
 
                     {/* Modal Footer Controls */}
-                    <div className="p-8 md:p-10 border-t-2 border-zinc-50 bg-white flex flex-col md:flex-row justify-between gap-6">
-                        <div className="flex gap-4">
+                    <div className="p-6 md:p-10 border-t-2 border-zinc-100/50 bg-white/80 backdrop-blur-md sticky bottom-0 md:relative flex flex-col md:flex-row justify-between gap-4 md:gap-6">
+                        <div className="flex gap-3 md:gap-4 order-2 md:order-1">
                             {step > 1 && (
                                 <button 
                                     onClick={prevStep}
-                                    className="px-8 py-4 bg-zinc-50 border-2 border-zinc-100 text-zinc-400 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-zinc-100 transition-all flex items-center gap-2"
+                                    className="flex-1 md:flex-none px-8 py-4 bg-zinc-100 border-2 border-zinc-200 text-zinc-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-zinc-200 transition-all flex items-center justify-center gap-2"
                                 >
-                                    <ArrowLeft className="w-4 h-4" /> Previous
+                                    <ArrowLeft className="w-4 h-4" /> <T en="Back" bm="Kembali" />
                                 </button>
                             )}
                         </div>
 
-                        <div className="flex gap-4 flex-1 md:flex-none">
+                        <div className="flex gap-3 md:gap-4 flex-1 md:flex-none order-1 md:order-2">
                             {step < 6 ? (
                                 <button 
                                     onClick={nextStep}
-                                    className="flex-1 md:flex-none px-12 py-5 bg-zinc-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95"
+                                    className="w-full md:w-auto px-12 py-4 md:py-5 bg-indigo-600 text-white rounded-2xl md:rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/20 active:scale-95"
                                 >
                                     <T en="Proceed" bm="Teruskan" /> <ArrowRight className="w-4 h-4" />
                                 </button>
@@ -886,7 +931,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <button 
                                     disabled={isSaving}
                                     onClick={handleUpdate}
-                                    className="flex-1 md:flex-none px-12 py-5 bg-zinc-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3 active:scale-95"
+                                    className="w-full md:w-auto px-12 py-4 md:py-5 bg-zinc-900 text-white rounded-2xl md:rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-3 active:scale-95"
                                 >
                                     {isSaving ? <T en="Synchronizing..." bm="Menyegerakkan..." /> : <T en="Synchronize Blueprint" bm="Segerakkan Pelan" />}
                                     <Rocket className="w-4 h-4" />
