@@ -529,13 +529,28 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     {/* Primary Actions */}
                     <div className="flex gap-3">
                         <button 
-                            onClick={() => {
+                            onClick={async () => {
                                 if (project.client_edit_allowed) {
                                     setIsEditing(true);
                                 } else {
-                                    toast.error(lang === "BM" ? "Akses Dihalang" : "Access Denied", {
-                                        description: lang === "BM" ? "Sila minta admin untuk membuka kunci kemaskini." : "Please ask admin to unlock project updates."
-                                    });
+                                    const loadingToast = toast.loading(lang === "BM" ? "Menyemak kebenaran..." : "Checking permission...");
+                                    try {
+                                        // Force re-fetch project data to sync permission
+                                        const res = await api.get(`/projects/${id}`);
+                                        setProject(res.data);
+                                        
+                                        if (res.data.client_edit_allowed) {
+                                            toast.dismiss(loadingToast);
+                                            setIsEditing(true);
+                                        } else {
+                                            toast.error(lang === "BM" ? "Akses Dihalang" : "Access Denied", {
+                                                id: loadingToast,
+                                                description: lang === "BM" ? "Sila minta admin untuk membuka kunci kemaskini." : "Please ask admin to unlock project updates."
+                                            });
+                                        }
+                                    } catch (err) {
+                                        toast.error(lang === "BM" ? "Ralat rangkaian" : "Network error", { id: loadingToast });
+                                    }
                                 }
                             }}
                             className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-2 ${
@@ -1319,8 +1334,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
 
             {/* UPDATE MODAL OVERLAY (COMPREHENSIVE BLUEPRINT EDITOR) */}
             {isEditing && (
-              <div className="fixed inset-0 z-[150] bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300 overflow-y-auto">
-                 <div className="bg-white w-full max-w-4xl min-h-[70vh] md:max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl border-2 border-zinc-200 flex flex-col relative my-8">
+              <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-300 overflow-y-auto">
+                 <div className="bg-white w-full h-full md:h-auto md:max-w-4xl min-h-screen md:min-h-[70vh] md:max-h-[90vh] overflow-hidden md:rounded-[2.5rem] shadow-2xl border-zinc-200 flex flex-col relative">
                     
                     {/* Modal Header & Progress */}
                     <div className="p-8 md:p-10 border-b-2 border-zinc-100 bg-white">
