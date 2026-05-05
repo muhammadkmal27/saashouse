@@ -650,14 +650,28 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                             </div>
                         ) : (project.status === "LIVE" || project.status === "UNDER_DEVELOPMENT") ? (
-                            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4">
-                                <div className="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center text-white shrink-0">
-                                    <CheckCircle2 className="w-5 h-5" />
+                            <div className="space-y-4">
+                                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4">
+                                    <div className="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center text-white shrink-0">
+                                        <CheckCircle2 className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">
+                                            {planName === "One-Time Purchase" ? <T en="Account Settle" bm="Akaun Selesai" /> : <T en="Onboarding Complete" bm="Onboarding Selesai" />}
+                                        </p>
+                                        <p className="text-[10px] font-bold text-slate-500 leading-tight">
+                                            {planName === "One-Time Purchase" ? <T en="Onboarding financials completed." bm="Kewangan onboarding selesai." /> : <T en="Infrastructure is ready" bm="Infrastruktur telah sedia" />}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">Account Settle</p>
-                                    <p className="text-[10px] font-bold text-slate-500 leading-tight">Onboarding financials completed.</p>
-                                </div>
+                                {planName !== "One-Time Purchase" && (
+                                    <Link 
+                                        href="/app/billing"
+                                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"
+                                    >
+                                        <T en="Manage Subscription" bm="Urus Langganan" /> <ArrowRight className="w-3 h-3" />
+                                    </Link>
+                                )}
                             </div>
                         ) : null}
                     </div>
