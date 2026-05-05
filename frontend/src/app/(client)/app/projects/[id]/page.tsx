@@ -1122,7 +1122,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                                 {planName !== "One-Time Purchase" && (
                                     <Link 
-                                        href="/app/billing"
+                                        href={`/app/billing?project=${project.id}`}
                                         className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"
                                     >
                                         <T en="Manage Subscription" bm="Urus Langganan" /> <ArrowRight className="w-3 h-3" />
@@ -1693,7 +1693,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         </div>
                                     </div>
                                     <Link 
-                                        href="/app/billing"
+                                        href={`/app/billing?project=${project.id}`}
                                         className="w-full py-4 bg-zinc-900 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2"
                                     >
                                         <T en="Manage Subscription" bm="Urus Langganan" /> <ArrowRight className="w-3 h-3" />
