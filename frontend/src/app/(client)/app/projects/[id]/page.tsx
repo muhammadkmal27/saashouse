@@ -492,9 +492,412 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
     const planName = project.selected_plan || "Custom Plan";
 
     return (
-        <div className="w-full min-h-screen bg-[#FDFDFF]">
+        <div className="w-full min-h-screen bg-[#FDFDFF] relative">
             <Script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" strategy="afterInteractive" />
             
+            {/* UPDATE MODAL OVERLAY (COMPREHENSIVE BLUEPRINT EDITOR) */}
+            {isEditing && (
+              <div className="fixed inset-0 z-[999] bg-zinc-950/90 flex items-center justify-center p-2 md:p-8 animate-in fade-in duration-200 overflow-y-auto">
+                 <div className="bg-white w-full max-w-4xl min-h-[85vh] md:max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl border-2 border-zinc-200 flex flex-col relative my-4 md:my-8">
+                    
+                    {/* Modal Header & Progress */}
+                    <div className="p-8 md:p-10 border-b-2 border-zinc-100 bg-white">
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <div className="flex items-center gap-3 text-zinc-400 font-black text-[10px] uppercase tracking-widest mb-2 italic underline decoration-indigo-500/30">
+                                    <Cpu className="w-4 h-4" /> <T en="Intelligence Sync Engine" bm="Enjin Sinkronasi Kebijaksanaan" />
+                                </div>
+                                <h2 className="text-4xl font-black uppercase tracking-tight text-zinc-900"><T en="Blueprint Editor" bm="Editor Pelan" /></h2>
+                            </div>
+                            <button 
+                                onClick={() => setIsEditing(false)}
+                                className="w-12 h-12 flex items-center justify-center bg-zinc-50 hover:bg-zinc-100 text-zinc-400 hover:text-red-500 rounded-2xl transition-all font-black border-2 border-zinc-100"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Progress Bar (1-6) */}
+                        <div className="flex gap-1.5">
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-700 ${step >= i ? 'bg-zinc-900' : 'bg-zinc-100'}`} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Scrollable Form Content */}
+                    <div className="flex-1 overflow-y-auto p-8 md:p-12 bg-white custom-scrollbar">
+                        <div className="max-w-2xl mx-auto">
+                            {step === 1 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">1. <T en="Financial Gateway" bm="Sistem Kewangan" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm">Coordinate your site's payment infrastructure.</p>
+                                    </div>
+                                    
+                                    <div className="flex gap-3">
+                                        <button 
+                                            onClick={() => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, has_toyyibpay: true } } })}
+                                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
+                                        >
+                                            <T en="Established ToyyibPay" bm="ToyyibPay Sedia Ada" />
+                                        </button>
+                                        <button 
+                                            onClick={() => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, has_toyyibpay: false } } })}
+                                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${!editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
+                                        >
+                                            <T en="New Registration Request" bm="Permintaan Pendaftaran Baru" />
+                                        </button>
+                                    </div>
+
+                                    {editData.requirements?.payment_setup?.has_toyyibpay ? (
+                                        <div className="space-y-4 pt-4">
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Secret Key</label>
+                                                <input 
+                                                    type="password"
+                                                    className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-mono text-sm"
+                                                    value={editData.requirements?.payment_setup?.secret_key || ""}
+                                                    onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, secret_key: e.target.value, has_toyyibpay: true } } })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Category Code</label>
+                                                <input 
+                                                    type="text"
+                                                    className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-mono text-sm"
+                                                    value={editData.requirements?.payment_setup?.category_code || ""}
+                                                    onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, category_code: e.target.value, has_toyyibpay: true } } })}
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="pt-4 p-10 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50 flex flex-col items-center justify-center gap-6">
+                                            <UploadCloud className="w-12 h-12 text-zinc-200" />
+                                            <div className="text-center">
+                                                <p className="font-black text-zinc-900 uppercase tracking-widest text-xs mb-1">Official SSM Document</p>
+                                                <p className="text-[10px] text-zinc-400 font-bold uppercase">Format: PDF, JPG, PNG (Max 10MB)</p>
+                                                {ssmFile && <p className="text-[10px] text-indigo-600 font-black mt-3 uppercase tracking-widest">Ready: {ssmFile.name}</p>}
+                                            </div>
+                                            <input 
+                                                type="file" 
+                                                className="block w-full max-w-xs text-xs text-zinc-500 file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-zinc-900 file:text-white hover:file:bg-black transition-all cursor-pointer" 
+                                                onChange={(e) => setSsmFile(e.target.files?.[0] || null)}
+                                                accept=".pdf,.png,.jpg,.jpeg" 
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {step === 2 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">2. <T en="Logic Requirements" bm="Keperluan Logik" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm">Select the operational modules for the platform.</p>
+                                    </div>
+                                    
+                                    <div className="grid md:grid-cols-1 gap-4">
+                                        {[
+                                            { title: "Commercial", items: ["Shopping Cart & Checkout", "Payment Gateway Sync", "Promo Code System", "Order Notifications"] },
+                                            { title: "Service & Bookings", items: ["Appointment Scheduler", "Service Catalog", "Location Mapping", "Staff Directory"] },
+                                            { title: "Engagement", items: ["Blog / News Engine", "FAQ Hub", "Floating Chat Support", "Lead Generation Forms"] }
+                                        ].map((cat, idx) => (
+                                            <div key={idx} className="bg-zinc-50 p-6 rounded-2xl border-2 border-zinc-100">
+                                                <h3 className="font-black uppercase tracking-widest text-[9px] text-zinc-400 mb-4 font-mono">
+                                                    {cat.title === "Commercial" ? <T en="Commercial" bm="Komersial" /> :
+                                                     cat.title === "Service & Bookings" ? <T en="Service & Bookings" bm="Perkhidmatan & Tempahan" /> :
+                                                     cat.title === "Engagement" ? <T en="Engagement" bm="Penglibatan" /> : cat.title}
+                                                </h3>
+                                                <div className="grid md:grid-cols-2 gap-3">
+                                                    {cat.items.map(item => (
+                                                        <label key={item} className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer group ${ (editData.requirements?.features || []).includes(item) ? 'bg-white border-zinc-900 text-zinc-900 shadow-sm' : 'bg-transparent border-transparent text-zinc-500 hover:bg-zinc-100'}`}>
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={(editData.requirements?.features || []).includes(item)}
+                                                                onChange={() => {
+                                                                    const current = editData.requirements?.features || [];
+                                                                    const next = current.includes(item) ? current.filter(i => i !== item) : [...current, item];
+                                                                    setEditData({ ...editData, requirements: { ...editData.requirements, features: next } });
+                                                                }}
+                                                                className="w-4 h-4 rounded-md border-zinc-300 text-zinc-900 focus:ring-0"
+                                                            />
+                                                            <span className="text-[11px] font-bold uppercase tracking-tight">{item}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 underline decoration-indigo-500/20">Additional Custom Directives</label>
+                                        <textarea 
+                                            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-zinc-700 font-bold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all min-h-[140px] text-sm"
+                                            value={editData.requirements?.custom_needs || ""}
+                                            onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, custom_needs: e.target.value } })}
+                                            placeholder="Specify any unique technical overrides required..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 3 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">3. <T en="Structural Identity" bm="Identiti Struktur" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm">Define the brand assets and site architecture.</p>
+                                    </div>
+                                    
+                                    <div className="space-y-8">
+                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl space-y-6">
+                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Proposed Navigation Tree" bm="Pepohon Navigasi Cadangan" /></h3>
+                                            <div className="space-y-2">
+                                                {(editData.requirements?.sitemap || []).map((page, idx) => (
+                                                    <div key={idx} className="flex gap-2 group">
+                                                        <input 
+                                                            type="text" 
+                                                            value={page}
+                                                            onChange={(e) => {
+                                                                 const newSitemap = [...(editData.requirements?.sitemap || [])];
+                                                                 newSitemap[idx] = e.target.value;
+                                                                 setEditData({ ...editData, requirements: { ...editData.requirements, sitemap: newSitemap } });
+                                                            }}
+                                                            className="flex-1 bg-white border-2 border-zinc-200 rounded-xl px-4 py-3 text-xs font-black text-zinc-700 focus:border-zinc-900 outline-none"
+                                                        />
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newSitemap = (editData.requirements?.sitemap || []).filter((_, i) => i !== idx);
+                                                                setEditData({ ...editData, requirements: { ...editData.requirements, sitemap: newSitemap } });
+                                                            }}
+                                                            className="p-3 text-zinc-300 hover:text-red-500 transition-all"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <button 
+                                                    onClick={() => {
+                                                        const current = editData.requirements?.sitemap || [];
+                                                        setEditData({ ...editData, requirements: { ...editData.requirements, sitemap: [...current, "New Sub-Module"] } });
+                                                    }}
+                                                    className="w-full py-4 mt-2 border-2 border-dashed border-zinc-200 rounded-xl text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:border-zinc-400 hover:text-zinc-600 transition-all"
+                                                >
+                                                    <T en="+ Add Module" bm="+ Tambah Modul" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl space-y-4">
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline">Visual Benchmark</h3>
+                                                <input 
+                                                    type="url" 
+                                                    value={editData.requirements?.competitor_ref || ""}
+                                                    onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, competitor_ref: e.target.value } })}
+                                                    className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold text-zinc-600 focus:border-zinc-900 outline-none"
+                                                    placeholder="https://example.com"
+                                                />
+                                            </div>
+
+                                            <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl">
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline mb-6">Logo Asset</h3>
+                                                <div className="bg-white p-4 rounded-2xl border-2 border-zinc-100 shadow-sm flex flex-col items-center gap-4">
+                                                    <div className="w-16 h-16 bg-zinc-50 border-2 border-zinc-100 rounded-xl flex items-center justify-center overflow-hidden">
+                                                        {logoPreview || editData.requirements?.brand_assets?.logo_url ? (
+                                                            <img 
+                                                                src={logoPreview || editData.requirements?.brand_assets?.logo_url || ''} 
+                                                                alt="Logo" 
+                                                                className="w-full h-full object-contain p-2" 
+                                                            />
+                                                        ) : (
+                                                            <Camera className="w-6 h-6 text-zinc-200" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <label className="px-6 py-2 bg-zinc-900 text-white text-[9px] font-black uppercase tracking-widest rounded-full hover:bg-black cursor-pointer shadow-lg active:scale-95 transition-all">
+                                                            <T en="CHOOSE FILE" bm="PILIH FAIL" />
+                                                            <input 
+                                                                type="file" 
+                                                                className="hidden" 
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files?.[0] || null;
+                                                                    setLogoFile(file);
+                                                                    if (file) setLogoPreview(URL.createObjectURL(file));
+                                                                }}
+                                                                accept=".png,.jpg,.jpeg" 
+                                                            />
+                                                        </label>
+                                                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
+                                                            {logoFile ? logoFile.name : (lang === "BM" ? "Tiada fail dipilih" : "No file chosen")}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 4 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">4. <T en="Operations Sync" bm="Sinkronasi Operasi" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm"><T en="Official contact data and social synchronization." bm="Data hubungan rasmi dan sinkronasi sosial." /></p>
+                                    </div>
+                                    
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] space-y-4">
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Primary Identifier (WA)" bm="Pengenal Utama (WA)" /></label>
+                                            <input 
+                                                type="text" 
+                                                value={project.whatsapp_number || ""}
+                                                onChange={(e) => setProject({ ...project, whatsapp_number: e.target.value })}
+                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-5 py-4 text-zinc-900 font-black text-lg focus:border-zinc-900 outline-none"
+                                                placeholder="60123456789"
+                                            />
+                                        </div>
+
+                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] space-y-4">
+                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Communication Nodes" bm="Nod Komunikasi" /></h3>
+                                            <input 
+                                                type="email" 
+                                                placeholder={lang === "BM" ? "E-mel Perniagaan" : "Business Email"}
+                                                value={editData.requirements?.business_email || ""}
+                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, business_email: e.target.value } })}
+                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold focus:border-zinc-900 outline-none"
+                                            />
+                                            <textarea 
+                                                placeholder={lang === "BM" ? "Alamat Perniagaan" : "Business Address"}
+                                                value={editData.requirements?.business_address || ""}
+                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, business_address: e.target.value } })}
+                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold min-h-[80px] focus:border-zinc-900 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] grid md:grid-cols-2 gap-8">
+                                        <div className="space-y-3">
+                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Social Hooks" bm="Pautan Sosial" /></h3>
+                                            <input type="text" placeholder={lang === "BM" ? "Pautan Facebook" : "Facebook Link"} value={editData.requirements?.social_media?.facebook || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, facebook: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
+                                            <input type="text" placeholder={lang === "BM" ? "Pautan Instagram" : "Instagram Link"} value={editData.requirements?.social_media?.instagram || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, instagram: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Operations" bm="Operasi" /></h3>
+                                            <input 
+                                                type="text" 
+                                                placeholder={lang === "BM" ? "Waktu Operasi" : "Operation Hours"}
+                                                value={editData.requirements?.operation_hours || ""}
+                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, operation_hours: e.target.value } })}
+                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-4 text-xs font-bold focus:border-zinc-900 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 5 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">5. <T en="Domain Strategy" bm="Strategi Domain" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm"><T en="Coordinate your platform's online identifier." bm="Penyelarasan pengenal dalam talian platform anda." /></p>
+                                    </div>
+                                    
+                                    <div className="space-y-6 bg-zinc-50 p-8 rounded-[2rem] border-2 border-zinc-100">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-2 font-mono underline decoration-indigo-500/40"><T en="Primary Identifier Choice" bm="Pilihan Pengenal Utama" /></label>
+                                            <input 
+                                                type="text" 
+                                                value={editData.requirements?.domain_requested || ""}
+                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, domain_requested: e.target.value } })}
+                                                className="w-full bg-white border-2 border-zinc-200 rounded-2xl px-6 py-5 text-zinc-900 font-black text-xl shadow-sm focus:border-zinc-900 outline-none"
+                                                placeholder={lang === "BM" ? "namajenama.com" : "brandname.com"}
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[9px] font-black uppercase text-zinc-400 mb-2"><T en="Secondary Proto-Choice" bm="Pilihan Proto Kedua" /></label>
+                                                <input type="text" value={editData.requirements?.domain_2 || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, domain_2: e.target.value } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold focus:border-zinc-900 outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[9px] font-black uppercase text-zinc-400 mb-2"><T en="Tertiary Proto-Choice" bm="Pilihan Proto Ketiga" /></label>
+                                                <input type="text" value={editData.requirements?.domain_3 || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, domain_3: e.target.value } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold focus:border-zinc-900 outline-none" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 6 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">6. <T en="Global Objective" bm="Objektif Global" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm">The core strategic vision driving this project.</p>
+                                    </div>
+                                    
+                                    <div className="space-y-6">
+                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl">
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline">Platform Identity Title</label>
+                                            <input 
+                                                type="text" 
+                                                value={editData.title || ""}
+                                                onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                                                className="w-full bg-white border-2 border-zinc-100 rounded-2xl px-6 py-5 text-zinc-900 font-black text-xl shadow-sm focus:border-zinc-900 outline-none"
+                                            />
+                                        </div>
+                                        
+                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2.5rem]">
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline">Strategic Vision (Blueprint Summary)</label>
+                                            <textarea 
+                                                className="w-full bg-white border-2 border-zinc-100 rounded-[2rem] px-8 py-8 text-zinc-700 font-bold focus:outline-none focus:border-zinc-900 min-h-[300px] text-lg leading-relaxed shadow-sm custom-scrollbar"
+                                                value={editData.requirements?.project_vision || ""}
+                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, project_vision: e.target.value } })}
+                                                placeholder="Define the ultimate objective..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Modal Footer Controls */}
+                    <div className="p-8 md:p-10 border-t-2 border-zinc-50 bg-white flex flex-col md:flex-row justify-between gap-6">
+                        <div className="flex gap-4">
+                            {step > 1 && (
+                                <button 
+                                    onClick={prevStep}
+                                    className="px-8 py-4 bg-zinc-50 border-2 border-zinc-100 text-zinc-400 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-zinc-100 transition-all flex items-center gap-2"
+                                >
+                                    <ArrowLeft className="w-4 h-4" /> Previous
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="flex gap-4 flex-1 md:flex-none">
+                            {step < 6 ? (
+                                <button 
+                                    onClick={nextStep}
+                                    className="flex-1 md:flex-none px-12 py-5 bg-zinc-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95"
+                                >
+                                    <T en="Proceed" bm="Teruskan" /> <ArrowRight className="w-4 h-4" />
+                                </button>
+                            ) : (
+                                <button 
+                                    disabled={isSaving}
+                                    onClick={handleUpdate}
+                                    className="flex-1 md:flex-none px-12 py-5 bg-zinc-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3 active:scale-95"
+                                >
+                                    {isSaving ? <T en="Synchronizing..." bm="Menyegerakkan..." /> : <T en="Synchronize Blueprint" bm="Segerakkan Pelan" />}
+                                    <Rocket className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                 </div>
+              </div>
+            )}
+
             {/* ─── MOBILE VIEW (lg:hidden) ─── */}
             <div className="lg:hidden">
                 {/* Header Banner */}
@@ -529,28 +932,14 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     {/* Primary Actions */}
                     <div className="flex gap-3">
                         <button 
-                            onClick={async () => {
+                            onClick={() => {
                                 if (project.client_edit_allowed) {
+                                    toast.info(lang === "BM" ? "Membuka Editor..." : "Opening Editor...");
                                     setIsEditing(true);
                                 } else {
-                                    const loadingToast = toast.loading(lang === "BM" ? "Menyemak kebenaran..." : "Checking permission...");
-                                    try {
-                                        // Force re-fetch project data to sync permission
-                                        const res = await api.get(`/projects/${id}`);
-                                        setProject(res.data);
-                                        
-                                        if (res.data.client_edit_allowed) {
-                                            toast.dismiss(loadingToast);
-                                            setIsEditing(true);
-                                        } else {
-                                            toast.error(lang === "BM" ? "Akses Dihalang" : "Access Denied", {
-                                                id: loadingToast,
-                                                description: lang === "BM" ? "Sila minta admin untuk membuka kunci kemaskini." : "Please ask admin to unlock project updates."
-                                            });
-                                        }
-                                    } catch (err) {
-                                        toast.error(lang === "BM" ? "Ralat rangkaian" : "Network error", { id: loadingToast });
-                                    }
+                                    toast.error(lang === "BM" ? "Akses Dihalang" : "Access Denied", {
+                                        description: lang === "BM" ? "Sila minta admin untuk membuka kunci kemaskini." : "Please ask admin to unlock project updates."
+                                    });
                                 }
                             }}
                             className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-2 ${
@@ -1332,408 +1721,6 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                 </div>
             </div>
 
-            {/* UPDATE MODAL OVERLAY (COMPREHENSIVE BLUEPRINT EDITOR) */}
-            {isEditing && (
-              <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-300 overflow-y-auto">
-                 <div className="bg-white w-full h-full md:h-auto md:max-w-4xl min-h-screen md:min-h-[70vh] md:max-h-[90vh] overflow-hidden md:rounded-[2.5rem] shadow-2xl border-zinc-200 flex flex-col relative">
-                    
-                    {/* Modal Header & Progress */}
-                    <div className="p-8 md:p-10 border-b-2 border-zinc-100 bg-white">
-                        <div className="flex justify-between items-center mb-8">
-                            <div>
-                                <div className="flex items-center gap-3 text-zinc-400 font-black text-[10px] uppercase tracking-widest mb-2 italic underline decoration-indigo-500/30">
-                                    <Cpu className="w-4 h-4" /> <T en="Intelligence Sync Engine" bm="Enjin Sinkronasi Kebijaksanaan" />
-                                </div>
-                                <h2 className="text-4xl font-black uppercase tracking-tight text-zinc-900"><T en="Blueprint Editor" bm="Editor Pelan" /></h2>
-                            </div>
-                            <button 
-                                onClick={() => setIsEditing(false)}
-                                className="w-12 h-12 flex items-center justify-center bg-zinc-50 hover:bg-zinc-100 text-zinc-400 hover:text-red-500 rounded-2xl transition-all font-black border-2 border-zinc-100"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        {/* Progress Bar (1-6) */}
-                        <div className="flex gap-1.5">
-                            {[1, 2, 3, 4, 5, 6].map((i) => (
-                                <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-700 ${step >= i ? 'bg-zinc-900' : 'bg-zinc-100'}`} />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Scrollable Form Content */}
-                    <div className="flex-1 overflow-y-auto p-8 md:p-12 bg-white custom-scrollbar">
-                        <div className="max-w-2xl mx-auto">
-                            {step === 1 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">1. <T en="Financial Gateway" bm="Sistem Kewangan" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">Coordinate your site's payment infrastructure.</p>
-                                    </div>
-                                    
-                                    <div className="flex gap-3">
-                                        <button 
-                                            onClick={() => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, has_toyyibpay: true } } })}
-                                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
-                                        >
-                                            <T en="Established ToyyibPay" bm="ToyyibPay Sedia Ada" />
-                                        </button>
-                                        <button 
-                                            onClick={() => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, has_toyyibpay: false } } })}
-                                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2 transition-all ${!editData.requirements?.payment_setup?.has_toyyibpay ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'}`}
-                                        >
-                                            <T en="New Registration Request" bm="Permintaan Pendaftaran Baru" />
-                                        </button>
-                                    </div>
-
-                                    {editData.requirements?.payment_setup?.has_toyyibpay ? (
-                                        <div className="space-y-4 pt-4">
-                                            <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Secret Key</label>
-                                                <input 
-                                                    type="password"
-                                                    className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-mono text-sm"
-                                                    value={editData.requirements?.payment_setup?.secret_key || ""}
-                                                    onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, secret_key: e.target.value, has_toyyibpay: true } } })}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Category Code</label>
-                                                <input 
-                                                    type="text"
-                                                    className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-mono text-sm"
-                                                    value={editData.requirements?.payment_setup?.category_code || ""}
-                                                    onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, payment_setup: { ...editData.requirements?.payment_setup, category_code: e.target.value, has_toyyibpay: true } } })}
-                                                />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="pt-4 p-10 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50 flex flex-col items-center justify-center gap-6">
-                                            <UploadCloud className="w-12 h-12 text-zinc-200" />
-                                            <div className="text-center">
-                                                <p className="font-black text-zinc-900 uppercase tracking-widest text-xs mb-1">Official SSM Document</p>
-                                                <p className="text-[10px] text-zinc-400 font-bold uppercase">Format: PDF, JPG, PNG (Max 10MB)</p>
-                                                {ssmFile && <p className="text-[10px] text-indigo-600 font-black mt-3 uppercase tracking-widest">Ready: {ssmFile.name}</p>}
-                                            </div>
-                                            <input 
-                                                type="file" 
-                                                className="block w-full max-w-xs text-xs text-zinc-500 file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-zinc-900 file:text-white hover:file:bg-black transition-all cursor-pointer" 
-                                                onChange={(e) => setSsmFile(e.target.files?.[0] || null)}
-                                                accept=".pdf,.png,.jpg,.jpeg" 
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {step === 2 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">2. <T en="Logic Requirements" bm="Keperluan Logik" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">Select the operational modules for the platform.</p>
-                                    </div>
-                                    
-                                    <div className="grid md:grid-cols-1 gap-4">
-                                        {[
-                                            { title: "Commercial", items: ["Shopping Cart & Checkout", "Payment Gateway Sync", "Promo Code System", "Order Notifications"] },
-                                            { title: "Service & Bookings", items: ["Appointment Scheduler", "Service Catalog", "Location Mapping", "Staff Directory"] },
-                                            { title: "Engagement", items: ["Blog / News Engine", "FAQ Hub", "Floating Chat Support", "Lead Generation Forms"] }
-                                        ].map((cat, idx) => (
-                                            <div key={idx} className="bg-zinc-50 p-6 rounded-2xl border-2 border-zinc-100">
-                                                <h3 className="font-black uppercase tracking-widest text-[9px] text-zinc-400 mb-4 font-mono">
-                                                    {cat.title === "Commercial" ? <T en="Commercial" bm="Komersial" /> :
-                                                     cat.title === "Service & Bookings" ? <T en="Service & Bookings" bm="Perkhidmatan & Tempahan" /> :
-                                                     cat.title === "Engagement" ? <T en="Engagement" bm="Penglibatan" /> : cat.title}
-                                                </h3>
-                                                <div className="grid md:grid-cols-2 gap-3">
-                                                    {cat.items.map(item => (
-                                                        <label key={item} className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer group ${ (editData.requirements?.features || []).includes(item) ? 'bg-white border-zinc-900 text-zinc-900 shadow-sm' : 'bg-transparent border-transparent text-zinc-500 hover:bg-zinc-100'}`}>
-                                                            <input 
-                                                                type="checkbox" 
-                                                                checked={(editData.requirements?.features || []).includes(item)}
-                                                                onChange={() => {
-                                                                    const current = editData.requirements?.features || [];
-                                                                    const next = current.includes(item) ? current.filter(i => i !== item) : [...current, item];
-                                                                    setEditData({ ...editData, requirements: { ...editData.requirements, features: next } });
-                                                                }}
-                                                                className="w-4 h-4 rounded-md border-zinc-300 text-zinc-900 focus:ring-0"
-                                                            />
-                                                            <span className="text-[11px] font-bold uppercase tracking-tight">{item}</span>
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 underline decoration-indigo-500/20">Additional Custom Directives</label>
-                                        <textarea 
-                                            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-zinc-700 font-bold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all min-h-[140px] text-sm"
-                                            value={editData.requirements?.custom_needs || ""}
-                                            onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, custom_needs: e.target.value } })}
-                                            placeholder="Specify any unique technical overrides required..."
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {step === 3 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">3. <T en="Structural Identity" bm="Identiti Struktur" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">Define the brand assets and site architecture.</p>
-                                    </div>
-                                    
-                                    <div className="space-y-8">
-                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl space-y-6">
-                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Proposed Navigation Tree" bm="Pepohon Navigasi Cadangan" /></h3>
-                                            <div className="space-y-2">
-                                                {(editData.requirements?.sitemap || []).map((page, idx) => (
-                                                    <div key={idx} className="flex gap-2 group">
-                                                        <input 
-                                                            type="text" 
-                                                            value={page}
-                                                            onChange={(e) => {
-                                                                 const newSitemap = [...(editData.requirements?.sitemap || [])];
-                                                                 newSitemap[idx] = e.target.value;
-                                                                 setEditData({ ...editData, requirements: { ...editData.requirements, sitemap: newSitemap } });
-                                                            }}
-                                                            className="flex-1 bg-white border-2 border-zinc-200 rounded-xl px-4 py-3 text-xs font-black text-zinc-700 focus:border-zinc-900 outline-none"
-                                                        />
-                                                        <button 
-                                                            onClick={() => {
-                                                                const newSitemap = (editData.requirements?.sitemap || []).filter((_, i) => i !== idx);
-                                                                setEditData({ ...editData, requirements: { ...editData.requirements, sitemap: newSitemap } });
-                                                            }}
-                                                            className="p-3 text-zinc-300 hover:text-red-500 transition-all"
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                <button 
-                                                    onClick={() => {
-                                                        const current = editData.requirements?.sitemap || [];
-                                                        setEditData({ ...editData, requirements: { ...editData.requirements, sitemap: [...current, "New Sub-Module"] } });
-                                                    }}
-                                                    className="w-full py-4 mt-2 border-2 border-dashed border-zinc-200 rounded-xl text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:border-zinc-400 hover:text-zinc-600 transition-all"
-                                                >
-                                                    <T en="+ Add Module" bm="+ Tambah Modul" />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl space-y-4">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline">Visual Benchmark</h3>
-                                                <input 
-                                                    type="url" 
-                                                    value={editData.requirements?.competitor_ref || ""}
-                                                    onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, competitor_ref: e.target.value } })}
-                                                    className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold text-zinc-600 focus:border-zinc-900 outline-none"
-                                                    placeholder="https://example.com"
-                                                />
-                                            </div>
-
-                                            <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline mb-6">Logo Asset</h3>
-                                                <div className="bg-white p-4 rounded-2xl border-2 border-zinc-100 shadow-sm flex flex-col items-center gap-4">
-                                                    <div className="w-16 h-16 bg-zinc-50 border-2 border-zinc-100 rounded-xl flex items-center justify-center overflow-hidden">
-                                                        {logoPreview || editData.requirements?.brand_assets?.logo_url ? (
-                                                            <img 
-                                                                src={logoPreview || editData.requirements?.brand_assets?.logo_url || ''} 
-                                                                alt="Logo" 
-                                                                className="w-full h-full object-contain p-2" 
-                                                            />
-                                                        ) : (
-                                                            <Camera className="w-6 h-6 text-zinc-200" />
-                                                        )}
-                                                    </div>
-                                                    <div className="flex flex-col items-center gap-2">
-                                                        <label className="px-6 py-2 bg-zinc-900 text-white text-[9px] font-black uppercase tracking-widest rounded-full hover:bg-black cursor-pointer shadow-lg active:scale-95 transition-all">
-                                                            <T en="CHOOSE FILE" bm="PILIH FAIL" />
-                                                            <input 
-                                                                type="file" 
-                                                                className="hidden" 
-                                                                onChange={(e) => {
-                                                                    const file = e.target.files?.[0] || null;
-                                                                    setLogoFile(file);
-                                                                    if (file) setLogoPreview(URL.createObjectURL(file));
-                                                                }}
-                                                                accept=".png,.jpg,.jpeg" 
-                                                            />
-                                                        </label>
-                                                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
-                                                            {logoFile ? logoFile.name : (lang === "BM" ? "Tiada fail dipilih" : "No file chosen")}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {step === 4 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">4. <T en="Operations Sync" bm="Sinkronasi Operasi" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm"><T en="Official contact data and social synchronization." bm="Data hubungan rasmi dan sinkronasi sosial." /></p>
-                                    </div>
-                                    
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] space-y-4">
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Primary Identifier (WA)" bm="Pengenal Utama (WA)" /></label>
-                                            <input 
-                                                type="text" 
-                                                value={project.whatsapp_number || ""}
-                                                onChange={(e) => setProject({ ...project, whatsapp_number: e.target.value })}
-                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-5 py-4 text-zinc-900 font-black text-lg focus:border-zinc-900 outline-none"
-                                                placeholder="60123456789"
-                                            />
-                                        </div>
-
-                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] space-y-4">
-                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Communication Nodes" bm="Nod Komunikasi" /></h3>
-                                            <input 
-                                                type="email" 
-                                                placeholder={lang === "BM" ? "E-mel Perniagaan" : "Business Email"}
-                                                value={editData.requirements?.business_email || ""}
-                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, business_email: e.target.value } })}
-                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold focus:border-zinc-900 outline-none"
-                                            />
-                                            <textarea 
-                                                placeholder={lang === "BM" ? "Alamat Perniagaan" : "Business Address"}
-                                                value={editData.requirements?.business_address || ""}
-                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, business_address: e.target.value } })}
-                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold min-h-[80px] focus:border-zinc-900 outline-none"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2rem] grid md:grid-cols-2 gap-8">
-                                        <div className="space-y-3">
-                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Social Hooks" bm="Pautan Sosial" /></h3>
-                                            <input type="text" placeholder={lang === "BM" ? "Pautan Facebook" : "Facebook Link"} value={editData.requirements?.social_media?.facebook || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, facebook: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
-                                            <input type="text" placeholder={lang === "BM" ? "Pautan Instagram" : "Instagram Link"} value={editData.requirements?.social_media?.instagram || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, instagram: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Operations" bm="Operasi" /></h3>
-                                            <input 
-                                                type="text" 
-                                                placeholder={lang === "BM" ? "Waktu Operasi" : "Operation Hours"}
-                                                value={editData.requirements?.operation_hours || ""}
-                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, operation_hours: e.target.value } })}
-                                                className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-4 text-xs font-bold focus:border-zinc-900 outline-none"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {step === 5 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">5. <T en="Domain Strategy" bm="Strategi Domain" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm"><T en="Coordinate your platform's online identifier." bm="Penyelarasan pengenal dalam talian platform anda." /></p>
-                                    </div>
-                                    
-                                    <div className="space-y-6 bg-zinc-50 p-8 rounded-[2rem] border-2 border-zinc-100">
-                                        <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-2 font-mono underline decoration-indigo-500/40"><T en="Primary Identifier Choice" bm="Pilihan Pengenal Utama" /></label>
-                                            <input 
-                                                type="text" 
-                                                value={editData.requirements?.domain_requested || ""}
-                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, domain_requested: e.target.value } })}
-                                                className="w-full bg-white border-2 border-zinc-200 rounded-2xl px-6 py-5 text-zinc-900 font-black text-xl shadow-sm focus:border-zinc-900 outline-none"
-                                                placeholder={lang === "BM" ? "namajenama.com" : "brandname.com"}
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-[9px] font-black uppercase text-zinc-400 mb-2"><T en="Secondary Proto-Choice" bm="Pilihan Proto Kedua" /></label>
-                                                <input type="text" value={editData.requirements?.domain_2 || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, domain_2: e.target.value } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold focus:border-zinc-900 outline-none" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[9px] font-black uppercase text-zinc-400 mb-2"><T en="Tertiary Proto-Choice" bm="Pilihan Proto Ketiga" /></label>
-                                                <input type="text" value={editData.requirements?.domain_3 || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, domain_3: e.target.value } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-xs font-bold focus:border-zinc-900 outline-none" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {step === 6 && (
-                                <div className="space-y-8 animate-fade-in">
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">6. <T en="Global Objective" bm="Objektif Global" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">The core strategic vision driving this project.</p>
-                                    </div>
-                                    
-                                    <div className="space-y-6">
-                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl">
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline">Platform Identity Title</label>
-                                            <input 
-                                                type="text" 
-                                                value={editData.title || ""}
-                                                onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                                                className="w-full bg-white border-2 border-zinc-100 rounded-2xl px-6 py-5 text-zinc-900 font-black text-xl shadow-sm focus:border-zinc-900 outline-none"
-                                            />
-                                        </div>
-                                        
-                                        <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2.5rem]">
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline">Strategic Vision (Blueprint Summary)</label>
-                                            <textarea 
-                                                className="w-full bg-white border-2 border-zinc-100 rounded-[2rem] px-8 py-8 text-zinc-700 font-bold focus:outline-none focus:border-zinc-900 min-h-[300px] text-lg leading-relaxed shadow-sm custom-scrollbar"
-                                                value={editData.requirements?.project_vision || ""}
-                                                onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, project_vision: e.target.value } })}
-                                                placeholder="Define the ultimate objective..."
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Modal Footer Controls */}
-                    <div className="p-8 md:p-10 border-t-2 border-zinc-50 bg-white flex flex-col md:flex-row justify-between gap-6">
-                        <div className="flex gap-4">
-                            {step > 1 && (
-                                <button 
-                                    onClick={prevStep}
-                                    className="px-8 py-4 bg-zinc-50 border-2 border-zinc-100 text-zinc-400 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-zinc-100 transition-all flex items-center gap-2"
-                                >
-                                    <ArrowLeft className="w-4 h-4" /> Previous
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="flex gap-4 flex-1 md:flex-none">
-                            {step < 6 ? (
-                                <button 
-                                    onClick={nextStep}
-                                    className="flex-1 md:flex-none px-12 py-5 bg-zinc-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95"
-                                >
-                                    <T en="Proceed" bm="Teruskan" /> <ArrowRight className="w-4 h-4" />
-                                </button>
-                            ) : (
-                                <button 
-                                    disabled={isSaving}
-                                    onClick={handleUpdate}
-                                    className="flex-1 md:flex-none px-12 py-5 bg-zinc-900 text-white rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-black transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3 active:scale-95"
-                                >
-                                    {isSaving ? <T en="Synchronizing..." bm="Menyegerakkan..." /> : <T en="Synchronize Blueprint" bm="Segerakkan Pelan" />}
-                                    <Rocket className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                 </div>
-              </div>
-            )}
             </div>
 
             {/* ASSET VIEWER MODAL */}
