@@ -558,34 +558,46 @@ function CreateProjectForm({ lang }: { lang: string }) {
                             </div>
 
                             {/* Mobile Custom Requirements */}
-                            <div className="mt-8 pt-8 border-t border-slate-50 space-y-4">
-                                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="Custom Requirements" bm="Keperluan Tersuai" /></h3>
-                                <div className="space-y-3">
-                                    {formData.custom_features.map((feature, idx) => (
-                                        <div key={idx} className="flex gap-2">
-                                            <input 
-                                                type="text" 
-                                                value={feature}
-                                                onChange={(e) => handleCustomFeatureChange(idx, e.target.value)}
-                                                className="flex-1 h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-900 outline-none"
-                                                placeholder={lang === "BM" ? "cth. Kawasan Ahli..." : "e.g. Member Area..."}
-                                            />
-                                            <button 
-                                                type="button"
-                                                onClick={() => setFormData(p => ({ ...p, custom_features: p.custom_features.filter((_, i) => i !== idx) }))}
-                                                className="w-12 h-12 flex items-center justify-center text-slate-300"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                    <button 
-                                        type="button"
-                                        onClick={() => setFormData(p => ({ ...p, custom_features: [...p.custom_features, ""] }))}
-                                        className="w-full h-12 border-2 border-dashed border-slate-100 rounded-xl text-violet-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-violet-50 transition-all"
-                                    >
-                                        <span className="text-lg">+</span> <T en="Add Extra Feature" bm="Tambah fungsi Tambahan" />
-                                    </button>
+                            <div className="mt-8 pt-8 border-t border-slate-50 space-y-6">
+                                <div className="space-y-4">
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="Custom Requirements" bm="Keperluan Tersuai" /></h3>
+                                    <div className="space-y-3">
+                                        {formData.custom_features.map((feature, idx) => (
+                                            <div key={idx} className="flex gap-2 animate-in slide-in-from-right-2 duration-200">
+                                                <input 
+                                                    type="text" 
+                                                    value={feature}
+                                                    onChange={(e) => handleCustomFeatureChange(idx, e.target.value)}
+                                                    className="flex-1 h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-violet-500 transition-all"
+                                                    placeholder={lang === "BM" ? "cth. Kawasan Ahli..." : "e.g. Member Area..."}
+                                                />
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setFormData(p => ({ ...p, custom_features: p.custom_features.filter((_, i) => i !== idx) }))}
+                                                    className="w-12 h-12 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button 
+                                            type="button"
+                                            onClick={() => setFormData(p => ({ ...p, custom_features: [...p.custom_features, ""] }))}
+                                            className="w-full h-12 border-2 border-dashed border-slate-100 rounded-xl text-violet-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-violet-50 transition-all"
+                                        >
+                                            <span className="text-lg">+</span> <T en="Add Extra Feature" bm="Tambah fungsi Tambahan" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="Additional Project Notes" bm="Nota Tambahan Projek" /></h3>
+                                    <textarea 
+                                        className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900 text-xs outline-none focus:border-violet-500 min-h-[120px] transition-all"
+                                        placeholder={lang === "BM" ? "Terangkan sebarang keperluan unik atau arahan teknikal tambahan..." : "Describe any unique requirements or extra technical instructions..."}
+                                        value={formData.custom_needs}
+                                        onChange={(e) => setFormData(p => ({ ...p, custom_needs: e.target.value }))}
+                                    />
                                 </div>
                             </div>
                         </div>
