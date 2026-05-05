@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { CreditCard, Zap, CheckCircle2, AlertCircle, Loader2, ArrowLeft, LayoutGrid, User, ShieldCheck, Plus, Clock } from "lucide-react";
 
 import { fetchPrices, DEFAULT_PRICES } from "@/utils/pricing";
@@ -105,6 +106,18 @@ export default function BillingPage() {
       
       setData((prev: any) => ({ ...prev, projects }));
 
+      // Handle URL param selection
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectParam = urlParams.get("project");
+      
+      if (projectParam) {
+          const found = projects.find((p: any) => p.id === projectParam);
+          if (found) {
+              setSelectedProjectId(projectParam);
+              return;
+          }
+      }
+
       // Auto-select if only 1 project
       if (projects.length === 1) {
         setSelectedProjectId(projects[0].id);
@@ -112,9 +125,7 @@ export default function BillingPage() {
     } catch (err) {
       setError("Failed to load project data.");
     } finally {
-      if (!selectedProjectId || (data?.projects?.length === 1)) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
