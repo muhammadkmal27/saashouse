@@ -166,8 +166,12 @@ export default function ServiceAgreementModal({
             clientY = (e as React.MouseEvent).clientY;
         }
 
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
+        // Scale coordinates based on canvas internal size vs display size
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const x = (clientX - rect.left) * scaleX;
+        const y = (clientY - rect.top) * scaleY;
 
         ctx.lineTo(x, y);
         ctx.stroke();
