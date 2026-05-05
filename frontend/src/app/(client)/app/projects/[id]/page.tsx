@@ -529,12 +529,19 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     {/* Primary Actions */}
                     <div className="flex gap-3">
                         <button 
-                            onClick={() => project.client_edit_allowed && setIsEditing(true)}
-                            disabled={!project.client_edit_allowed}
-                            className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 ${
+                            onClick={() => {
+                                if (project.client_edit_allowed) {
+                                    setIsEditing(true);
+                                } else {
+                                    toast.error(lang === "BM" ? "Akses Dihalang" : "Access Denied", {
+                                        description: lang === "BM" ? "Sila minta admin untuk membuka kunci kemaskini." : "Please ask admin to unlock project updates."
+                                    });
+                                }
+                            }}
+                            className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-2 ${
                                 project.client_edit_allowed 
-                                ? 'bg-white text-violet-600 border border-violet-100' 
-                                : 'bg-slate-50 text-slate-300 border border-slate-100'
+                                ? 'bg-white text-violet-600 border-violet-100' 
+                                : 'bg-slate-50 text-slate-400 border-slate-100 opacity-80'
                             }`}
                         >
                             {project.client_edit_allowed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
