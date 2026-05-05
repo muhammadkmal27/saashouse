@@ -46,17 +46,21 @@ pub async fn upload_asset(
 
         let unique_name = format!("{}_{}", Uuid::new_v4(), file_name.replace(" ", "_"));
         let path = format!("uploads/{}", unique_name);
+        let path_clone = path.clone();
 
         // Rule 18: Information Leakage (EXIF removal for images)
         let ext = file_name.split('.').last().unwrap_or("").to_lowercase();
         if ["jpg", "jpeg", "png", "jfif"].contains(&ext.as_str()) {
-            if let Ok(img) = image::load_from_memory(&data) {
-                img.save(&path).map_err(|e| ApiError::Internal(format!("Failed to save stripped image: {}", e)))?;
-            } else {
-                // If image parsing fails but extension was image, fallback to raw save or reject
-                let mut file = File::create(&path).await.map_err(|e| ApiError::Internal(e.to_string()))?;
-                file.write_all(&data).await.map_err(|e| ApiError::Internal(e.to_string()))?;
-            }
+            tokio::task::spawn_blocking(move || {
+                if let Ok(img) = image::load_from_memory(&data) {
+                    img.save(&path_clone).map_err(|e| ApiError::Internal(format!("Failed to save stripped image: {}", e)))?;
+                    Ok::<(), ApiError>(())
+                } else {
+                    // Fallback to raw save if parsing fails but it's an image extension
+                    std::fs::write(&path_clone, &data).map_err(|e| ApiError::Internal(e.to_string()))?;
+                    Ok(())
+                }
+            }).await.map_err(|e| ApiError::Internal(e.to_string()))??;
         } else {
             let mut file = File::create(&path).await.map_err(|e| ApiError::Internal(e.to_string()))?;
             file.write_all(&data).await.map_err(|e| ApiError::Internal(e.to_string()))?;

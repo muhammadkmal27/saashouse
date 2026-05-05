@@ -205,13 +205,18 @@ function CreateProjectForm({ lang }: { lang: string }) {
             throw new Error(`Upload failed: ${res.status} - ${errBody}`);
         }
         const result = await res.json();
+        if (!result.success || !result.files || result.files.length === 0) {
+            throw new Error("Server responded successfully but no file URL was returned.");
+        }
         return result.files[0]; 
     } catch (e: any) {
         console.error("Critical Upload Error:", e.message);
-        toast.error("Upload failed: Check file size and connection.");
+        toast.error(`Upload failed: ${e.message}`);
         throw e; 
     }
   };
+
+  const [loadingText, setLoadingText] = useState("");
 
   const submitForm = async () => {
     // 1. Validation for mandatory fields
@@ -231,26 +236,34 @@ function CreateProjectForm({ lang }: { lang: string }) {
     }
 
     setIsSubmitting(true);
+    setLoadingText(lang === "BM" ? "Mengesahkan Data..." : "Validating Data...");
     const csrfToken = getCookie("csrf_token") || "";
     
     try {
         let finalRequirements = JSON.parse(JSON.stringify(formData));
         
         if (ssmFile && !formData.payment_setup.has_toyyibpay) {
+            setLoadingText(lang === "BM" ? "Memuat naik Dokumen SSM..." : "Uploading SSM Document...");
             const ssmUrl = await handleFileUpload(ssmFile);
-            if (ssmUrl) {
-                finalRequirements.payment_setup.ssm_url = ssmUrl;
-            }
+            finalRequirements.payment_setup.ssm_url = ssmUrl;
         }
 
         if (logoFile) {
+            setLoadingText(lang === "BM" ? "Memuat naik Logo..." : "Uploading Brand Logo...");
             const logoUrl = await handleFileUpload(logoFile);
-            if (logoUrl) {
-                finalRequirements.brand_assets.logo_url = logoUrl;
-            }
+            finalRequirements.brand_assets.logo_url = logoUrl;
         }
 
+        setLoadingText(lang === "BM" ? "Menyegerakkan Seni Bina..." : "Syncing Architecture...");
         const whatsapp = `60${finalRequirements.whatsapp_number.replace(/^60/, "").replace(/^0/, "")}`;
+        
+        // Backend strictly requires 10-15 chars for whatsapp_number
+        if (whatsapp.length < 10) {
+            toast.error(lang === "BM" ? "Nombor WhatsApp tidak sah (minima 10 angka termasuk 60)" : "Invalid WhatsApp number (min 10 digits including 60)");
+            setIsSubmitting(false);
+            return;
+        }
+        
         delete finalRequirements.whatsapp_number;
         
         const plan = formData.selected_plan;
@@ -288,6 +301,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
       toast.error(`System Protocol Error: ${e.message}`);
     } finally {
       setIsSubmitting(false);
+      setLoadingText("");
     }
   };
 
@@ -644,11 +658,12 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="WhatsApp Number" bm="Nombor WhatsApp" /></label>
-                                <div className="flex items-center h-14 bg-slate-50 border border-slate-100 rounded-2xl px-5 group focus-within:border-violet-400 transition-all">
-                                    <span className="text-slate-900 font-black mr-2 text-base tracking-tight">+60</span>
+                                <div className="flex items-center h-16 bg-slate-50 border border-slate-100 rounded-2xl px-5 group focus-within:border-violet-500 transition-all">
+                                    <span className="text-slate-900 font-black text-lg mr-2">+60</span>
                                     <input 
                                         type="text"
-                                        className="flex-1 bg-transparent font-black text-slate-900 text-base outline-none tracking-tight"
+                                        required
+                                        className="flex-1 bg-transparent text-slate-900 font-black text-lg outline-none tracking-tighter placeholder:text-slate-200"
                                         placeholder="123456789"
                                         value={formData.whatsapp_number}
                                         onChange={(e) => {
@@ -784,7 +799,12 @@ function CreateProjectForm({ lang }: { lang: string }) {
                             disabled={isSubmitting}
                             className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 ${step === 6 ? 'bg-emerald-500 text-white shadow-emerald-100 border border-emerald-400' : 'bg-violet-600 text-white shadow-violet-200 border border-violet-500'}`}
                         >
-                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                            {isSubmitting ? (
+                                <div className="flex items-center gap-2">
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <span className="text-[10px] font-bold">{loadingText || (lang === "BM" ? "Menghantar..." : "Sending...")}</span>
+                                </div>
+                            ) : (
                                 <>
                                     {step === 6 ? <><CheckCircle2 className="w-5 h-5" /> <T en="Finalize Build" bm="Hantar Projek" /></> : <><T en="Next Step" bm="Seterusnya" /> <ArrowRight className="w-5 h-5" /></>}
                                 </>
@@ -1352,7 +1372,12 @@ function CreateProjectForm({ lang }: { lang: string }) {
               disabled={isSubmitting}
               className="flex items-center gap-2 px-10 py-4 bg-violet-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-violet-500 transition-all disabled:opacity-50 hover:scale-105 shadow-xl shadow-violet-500/20"
             >
-              {isSubmitting ? <T en="Syncing Logic..." bm="Menyegerakkan Logik..." /> : <T en="Deploy Requirements" bm="Hantar Keperluan" />}
+              {isSubmitting ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs">{loadingText || (lang === "BM" ? "Menghantar..." : "Sending...")}</span>
+                </div>
+              ) : <T en="Deploy Requirements" bm="Hantar Keperluan" />}
             </button>
           )}
         </div>
