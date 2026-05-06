@@ -34,49 +34,60 @@ pub async fn list_all_clients(
             *
         FROM (
             SELECT
-                s.id as id,
-                COALESCE(p.full_name, u.email) as full_name,
-                u.email as email,
-                pr.id as project_id,
-                pr.title as project_title,
-                s.plan_name as plan_name,
-                pr.status as project_status,
-                s.id as subscription_id,
-                LOWER(s.status) as subscription_status,
-                0.0::FLOAT8 as amount,
-                'Stripe' as payment_source,
-                'Monthly Subscription' as description,
-                s.created_at as created_at
-            FROM subscriptions s
-            JOIN users u ON s.client_id = u.id
-            LEFT JOIN user_profiles p ON u.id = p.user_id
-            LEFT JOIN projects pr ON s.project_id = pr.id
-            WHERE s.status::TEXT = 'active'
-
-            UNION ALL
-
-            SELECT
-                b.id as id,
+                u.id as id,
                 COALESCE(profiles.full_name, u.email) as full_name,
                 u.email as email,
-                pr.id as project_id,
-                pr.title as project_title,
-                NULL::TEXT as plan_name,
-                pr.status as project_status,
-                NULL::UUID as subscription_id,
-                NULL::TEXT as subscription_status,
-                b.amount::FLOAT8 as amount,
-                (CASE 
-                    WHEN b.stripe_payment_id LIKE 'pi_%' OR b.stripe_payment_id LIKE 'ch_%' THEN 'Stripe' 
-                    ELSE 'ToyyibPay' 
-                END) as payment_source,
-                b.description as description,
-                b.created_at as created_at
-            FROM billings b
-            JOIN projects pr ON b.project_id = pr.id
-            JOIN users u ON pr.client_id = u.id
+                sub_query.project_id,
+                sub_query.project_title,
+                sub_query.plan_name,
+                sub_query.project_status,
+                sub_query.subscription_id,
+                sub_query.subscription_status,
+                sub_query.amount,
+                sub_query.payment_source,
+                sub_query.description,
+                COALESCE(sub_query.created_at, u.created_at) as created_at
+            FROM users u
             LEFT JOIN user_profiles profiles ON u.id = profiles.user_id
-            WHERE b.status::TEXT = 'PAID'
+            LEFT JOIN (
+                SELECT
+                    s.client_id as user_id,
+                    pr.id as project_id,
+                    pr.title as project_title,
+                    s.plan_name as plan_name,
+                    pr.status as project_status,
+                    s.id as subscription_id,
+                    LOWER(s.status) as subscription_status,
+                    0.0::FLOAT8 as amount,
+                    'Stripe' as payment_source,
+                    'Monthly Subscription' as description,
+                    s.created_at as created_at
+                FROM subscriptions s
+                LEFT JOIN projects pr ON s.project_id = pr.id
+                WHERE s.status::TEXT = 'active'
+
+                UNION ALL
+
+                SELECT
+                    pr.client_id as user_id,
+                    pr.id as project_id,
+                    pr.title as project_title,
+                    NULL::TEXT as plan_name,
+                    pr.status as project_status,
+                    NULL::UUID as subscription_id,
+                    NULL::TEXT as subscription_status,
+                    b.amount::FLOAT8 as amount,
+                    (CASE 
+                        WHEN b.stripe_payment_id LIKE 'pi_%' OR b.stripe_payment_id LIKE 'ch_%' THEN 'Stripe' 
+                        ELSE 'ToyyibPay' 
+                    END) as payment_source,
+                    b.description as description,
+                    b.created_at as created_at
+                FROM billings b
+                JOIN projects pr ON b.project_id = pr.id
+                WHERE b.status::TEXT = 'PAID'
+            ) sub_query ON u.id = sub_query.user_id
+            WHERE u.role::TEXT = 'CLIENT'
         ) combined
         ORDER BY created_at DESC
         "#
