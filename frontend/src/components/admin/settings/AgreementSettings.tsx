@@ -5,6 +5,7 @@ import {
   FileText, Plus, Trash2, ChevronUp, ChevronDown, 
   Info, AlertCircle, Save, Loader2, Zap, Server 
 } from "lucide-react";
+import { T } from "@/components/Translate";
 
 interface Section {
   title: string;
@@ -76,10 +77,10 @@ export default function AgreementSettings({
         <div className="space-y-1">
           <h2 className="text-lg font-black text-zinc-900 flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-500" />
-            Agreement Templates
+            <T en="Agreement Templates" bm="Templat Perjanjian" />
           </h2>
           <p className="text-sm text-zinc-400 font-medium">
-            Customize the clauses and sections for legal agreements.
+            <T en="Customize the clauses and sections for legal agreements." bm="Suaikan klausa dan bahagian untuk perjanjian undang-undang." />
           </p>
         </div>
         
@@ -111,13 +112,13 @@ export default function AgreementSettings({
               <div key={idx} className="group relative bg-zinc-50 border border-zinc-200 rounded-[1.5rem] p-5 md:p-6 transition-all hover:border-zinc-300">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 block">Section {idx + 1}</span>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 block"><T en="Section" bm="Bahagian" /> {idx + 1}</span>
                     <input 
                       type="text"
                       value={section.title}
                       onChange={(e) => updateSection(idx, "title", e.target.value)}
                       className="w-full bg-transparent text-sm font-black text-zinc-900 outline-none border-b border-transparent focus:border-zinc-300 pb-1"
-                      placeholder="Section Title"
+                      placeholder={typeof window !== 'undefined' && localStorage.getItem('language') === 'BM' ? "Tajuk Bahagian" : "Section Title"}
                     />
                   </div>
                   
@@ -132,7 +133,7 @@ export default function AgreementSettings({
                   value={section.content}
                   onChange={(e) => updateSection(idx, "content", e.target.value)}
                   className="w-full h-40 bg-white border border-zinc-200 rounded-2xl p-5 text-sm font-medium text-zinc-600 outline-none focus:ring-2 ring-blue-100 resize-none transition-all shadow-inner"
-                  placeholder="Enter section content here... You can use **Markdown** for styling."
+                  placeholder={typeof window !== 'undefined' && localStorage.getItem('language') === 'BM' ? "Masukkan kandungan bahagian di sini... Anda boleh menggunakan **Markdown** untuk penggayaan." : "Enter section content here... You can use **Markdown** for styling."}
                 />
               </div>
             ))}
@@ -142,7 +143,7 @@ export default function AgreementSettings({
             onClick={addSection}
             className="w-full py-5 border-2 border-dashed border-zinc-200 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" /> Add New Clause
+            <Plus className="w-4 h-4" /> <T en="Add New Clause" bm="Tambah Klausa Baru" />
           </button>
         </div>
 
@@ -153,7 +154,7 @@ export default function AgreementSettings({
               <summary className="list-none cursor-pointer">
                 <h3 className="text-xs font-black uppercase tracking-widest text-blue-900 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Info className="w-4 h-4" /> Placeholders
+                    <Info className="w-4 h-4" /> <T en="Placeholders" bm="Penanda Tempat" />
                   </div>
                   <ChevronDown className="w-3 h-3 transition-transform group-open:rotate-180 md:hidden" />
                 </h3>
@@ -161,19 +162,21 @@ export default function AgreementSettings({
               
               <ul className="space-y-3 pt-2 md:pt-0">
                 {[
-                  { key: "{{project_name}}", label: "Project Title" },
-                  { key: "{{client_name}}", label: "Client Full Name" },
-                  { key: "{{provider_name}}", label: "Your Company Name" },
-                  { key: "{{total_cost}}", label: "Total Project Cost" },
-                  { key: "{{deposit_amount}}", label: "Deposit Amount" },
-                  { key: "{{monthly_price}}", label: "SaaS Monthly Fee" },
-                  { key: "{{saas_setup_fee}}", label: "SaaS Setup Fee" },
-                  { key: "{{balance_amount}}", label: "Final Balance Owed" },
-                  { key: "{{today}}", label: "Today's Date" },
+                  { key: "{{project_name}}", label: { en: "Project Title", bm: "Tajuk Projek" } },
+                  { key: "{{client_name}}", label: { en: "Client Full Name", bm: "Nama Penuh Klien" } },
+                  { key: "{{provider_name}}", label: { en: "Your Company Name", bm: "Nama Syarikat Anda" } },
+                  { key: "{{total_cost}}", label: { en: "Total Project Cost", bm: "Kos Keseluruhan Projek" } },
+                  { key: "{{deposit_amount}}", label: { en: "Deposit Amount", bm: "Jumlah Deposit" } },
+                  { key: "{{monthly_price}}", label: { en: "SaaS Monthly Fee", bm: "Yuran Bulanan SaaS" } },
+                  { key: "{{saas_setup_fee}}", label: { en: "SaaS Setup Fee", bm: "Yuran Persediaan SaaS" } },
+                  { key: "{{balance_amount}}", label: { en: "Final Balance Owed", bm: "Baki Akhir Terhutang" } },
+                  { key: "{{today}}", label: { en: "Today's Date", bm: "Tarikh Hari Ini" } },
                 ].map((p) => (
                   <li key={p.key} className="flex flex-col">
                     <code className="text-[11px] font-black text-blue-600">{p.key}</code>
-                    <span className="text-[10px] font-medium text-blue-400">{p.label}</span>
+                    <span className="text-[10px] font-medium text-blue-400">
+                      {typeof window !== 'undefined' && localStorage.getItem('language') === 'BM' ? p.label.bm : p.label.en}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -182,11 +185,10 @@ export default function AgreementSettings({
 
           <div className="bg-amber-50/50 border border-amber-100 rounded-[1.5rem] p-6 hidden md:block">
             <h3 className="text-xs font-black uppercase tracking-widest text-amber-900 mb-2 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" /> Pro Tip
+              <AlertCircle className="w-4 h-4" /> <T en="Pro Tip" bm="Petua Pro" />
             </h3>
             <p className="text-[11px] text-amber-700 leading-relaxed font-medium">
-              You can use **Markdown** syntax for bold text, bullet points, and more. 
-              The preview will render these automatically.
+              <T en="You can use **Markdown** syntax for bold text, bullet points, and more. The preview will render these automatically." bm="Anda boleh menggunakan sintaks **Markdown** untuk teks tebal, senarai bulet, dan banyak lagi. Pratonton akan memaparkannya secara automatik." />
             </p>
           </div>
 
@@ -196,8 +198,8 @@ export default function AgreementSettings({
                disabled={saving === (mode === "otp" ? "agreement_template_otp" : "agreement_template_saas")}
                className="w-full py-5 bg-zinc-900 hover:bg-black text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-2xl shadow-zinc-900/20 active:scale-[0.98] disabled:opacity-50"
              >
-               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-               Save {mode.toUpperCase()} Template
+               {saving === (mode === "otp" ? "agreement_template_otp" : "agreement_template_saas") ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+               <T en={`Save ${mode.toUpperCase()} Template`} bm={`Simpan Templat ${mode.toUpperCase()}`} />
              </button>
           </div>
         </div>

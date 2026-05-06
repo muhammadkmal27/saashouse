@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { FileText, ShieldCheck, Download, X, CheckCircle2, Clock, Trash2, PenTool } from "lucide-react";
 import { toast } from "sonner";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 interface Section {
     title: string;
@@ -30,8 +33,9 @@ interface ServiceAgreementModalProps {
     template?: Section[];
 }
 
-const replacePlaceholders = (text: string, data: Record<string, string | number>) => {
+const replacePlaceholders = (text: string, data: Record<string, string | number>, lang: string) => {
     return text.replace(/{{(\w+)}}/g, (_, key) => {
+        if (key === 'client_name' && data[key] === 'Pelanggan' && lang === 'EN') return 'Client';
         return data[key]?.toString() || `{{${key}}}`;
     });
 };
@@ -86,6 +90,7 @@ export default function ServiceAgreementModal({
     planName,
     template = []
 }: ServiceAgreementModalProps) {
+    const { lang } = useLanguage();
     const [clientName, setClientName] = useState("");
     const [isSigning, setIsSigning] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -96,7 +101,7 @@ export default function ServiceAgreementModal({
     const totalCost = isOTP ? (costs?.deposit || 0) + (costs?.final || 0) : saasMonthlyPrice;
     const finalDeposit = isOTP ? (costs?.deposit || 0) : saasSetupFee;
 
-    const today = new Date().toLocaleDateString('ms-MY', {
+    const today = new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'ms-MY', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -104,7 +109,7 @@ export default function ServiceAgreementModal({
 
     const data = {
         project_name: project.title,
-        client_name: clientName || "Pelanggan",
+        client_name: clientName || (lang === 'EN' ? "Client" : "Pelanggan"),
         provider_name: providerName || "Mohamad Akmal Bin Sis",
         total_cost: totalCost.toFixed(2),
         deposit_amount: finalDeposit.toFixed(2),
@@ -191,11 +196,11 @@ export default function ServiceAgreementModal({
 
     const handleSign = async () => {
         if (!clientName.trim()) {
-            toast.error("Sila masukkan nama penuh anda.");
+            toast.error(lang === 'EN' ? "Please enter your full name." : "Sila masukkan nama penuh anda.");
             return;
         }
         if (!hasSignature) {
-            toast.error("Sila turunkan tandatangan anda.");
+            toast.error(lang === 'EN' ? "Please provide your signature." : "Sila turunkan tandatangan anda.");
             return;
         }
 
@@ -223,14 +228,14 @@ export default function ServiceAgreementModal({
 
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                throw new Error(errData.message || "Gagal menyimpan perjanjian");
+                throw new Error(errData.message || (lang === 'EN' ? "Failed to save agreement" : "Gagal menyimpan perjanjian"));
             }
             
             const agreement = await res.json();
             onSigned(agreement);
         } catch (e: any) {
             console.error("SIGN_AGREEMENT_ERROR:", e);
-            toast.error(e.message || "Ralat semasa menandatangani");
+            toast.error(translateError(e.message || "Error signing agreement", lang));
         } finally {
             setIsSigning(false);
         }
@@ -247,8 +252,8 @@ export default function ServiceAgreementModal({
                             <FileText className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold', lineHeight: 1.2, color: '#18181b', margin: 0 }}>Perjanjian Perkhidmatan</h2>
-                            <p style={{ fontSize: '0.75rem', fontWeight: '500', fontStyle: 'italic', color: '#71717a', margin: 0 }}>Sila semak terma & turunkan tandatangan</p>
+                            <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold', lineHeight: 1.2, color: '#18181b', margin: 0 }}><T en="Service Agreement" bm="Perjanjian Perkhidmatan" /></h2>
+                            <p style={{ fontSize: '0.75rem', fontWeight: '500', fontStyle: 'italic', color: '#71717a', margin: 0 }}><T en="Please review terms & provide signature" bm="Sila semak terma & turunkan tandatangan" /></p>
                         </div>
                     </div>
                     <button 
@@ -276,17 +281,17 @@ export default function ServiceAgreementModal({
                     }}>
                         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                             <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '0.8rem' : '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#18181b', margin: '0 0 8px 0', textDecoration: 'underline', textDecorationColor: 'rgba(139, 92, 246, 0.3)', textUnderlineOffset: '8px', lineHeight: 1.4 }}>
-                                PERJANJIAN PERKHIDMATAN PEMBANGUNAN LAMAN WEB
+                                <T en="WEB DEVELOPMENT SERVICE AGREEMENT" bm="PERJANJIAN PERKHIDMATAN PEMBANGUNAN LAMAN WEB" />
                             </h3>
-                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}>Tarikh: {today}</p>
+                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}><T en="Date" bm="Tarikh" />: {today}</p>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', lineHeight: 1.5 }}>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>ANTARA:</span> {providerName || "Penyedia Perkhidmatan"}, selepas ini dirujuk sebagai "Penyedia Perkhidmatan".
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="BETWEEN" bm="ANTARA" />:</span> {providerName || (lang === 'EN' ? "Service Provider" : "Penyedia Perkhidmatan")}, <T en="hereinafter referred to as the 'Service Provider'." bm="selepas ini dirujuk sebagai 'Penyedia Perkhidmatan'." />
                             </p>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>DAN:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, selepas ini dirujuk sebagai "Pelanggan".
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="AND" bm="DAN" />:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, <T en="hereinafter referred to as the 'Client'." bm="selepas ini dirujuk sebagai 'Pelanggan'." />
                             </p>
                         </div>
 
@@ -299,12 +304,12 @@ export default function ServiceAgreementModal({
                                             {idx + 1}. {section.title}
                                         </h4>
                                         <div style={{ paddingLeft: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', color: '#52525b', lineHeight: 1.5 }}>
-                                            {renderMarkdown(replacePlaceholders(section.content, data))}
+                                            {renderMarkdown(replacePlaceholders(section.content, data, lang))}
                                         </div>
                                     </section>
                                 ))
                             ) : (
-                                <p style={{ textAlign: 'center', fontStyle: 'italic', color: '#a1a1aa', padding: '2.5rem 0' }}>Memuatkan template perjanjian...</p>
+                                <p style={{ textAlign: 'center', fontStyle: 'italic', color: '#a1a1aa', padding: '2.5rem 0' }}><T en="Loading agreement template..." bm="Memuatkan template perjanjian..." /></p>
                             )}
                         </div>
 
@@ -323,10 +328,10 @@ export default function ServiceAgreementModal({
                                     {providerSignature ? (
                                         <img src={providerSignature} alt="Provider Signature" style={{ maxHeight: '100%' }} />
                                     ) : (
-                                        <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}>Tiada tandatangan</div>
+                                        <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}><T en="No signature" bm="Tiada tandatangan" /></div>
                                     )}
                                 </div>
-                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>Penyedia</p>
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}><T en="Provider" bm="Penyedia" /></p>
                                 <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{providerName || "SaaS House"}</p>
                             </div>
                             
@@ -336,7 +341,7 @@ export default function ServiceAgreementModal({
                                         <img src={liveSignature} alt="Client Signature Preview" style={{ maxHeight: '100%' }} />
                                     )}
                                 </div>
-                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>Pelanggan</p>
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}><T en="Client" bm="Pelanggan" /></p>
                                 <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{clientName || ".........."}</p>
                             </div>
                         </div>
@@ -345,10 +350,10 @@ export default function ServiceAgreementModal({
                     {/* Digital Signature Pad */}
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Nama Penuh Pelanggan (Individu/Syarikat)</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1"><T en="Full Client Name (Individual/Company)" bm="Nama Penuh Pelanggan (Individu/Syarikat)" /></label>
                             <input 
                                 type="text"
-                                placeholder="Masukkan nama penuh anda..."
+                                placeholder={lang === 'EN' ? "Enter your full name..." : "Masukkan nama penuh anda..."}
                                 className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-violet-500 focus:bg-white transition-all font-bold"
                                 value={clientName}
                                 onChange={(e) => setClientName(e.target.value)}
@@ -358,13 +363,13 @@ export default function ServiceAgreementModal({
                         <div className="space-y-3">
                             <div className="flex justify-between items-center px-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                    <PenTool className="w-3 h-3" /> Tandatangan Digital Di Sini
+                                    <PenTool className="w-3 h-3" /> <T en="Digital Signature Here" bm="Tandatangan Digital Di Sini" />
                                 </label>
                                 <button 
                                     onClick={clearSignature}
                                     className="text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
                                 >
-                                    <Trash2 className="w-3 h-3" /> Padam
+                                    <Trash2 className="w-3 h-3" /> <T en="Clear" bm="Padam" />
                                 </button>
                             </div>
                             
@@ -386,7 +391,7 @@ export default function ServiceAgreementModal({
                         </div>
 
                         <p className="text-[11px] font-medium text-zinc-400 leading-relaxed text-center px-4">
-                            Dengan menandatangani secara digital, anda mengesahkan bahawa anda telah membaca, memahami, dan bersetuju dengan terma-terma di atas.
+                            <T en="By signing digitally, you confirm that you have read, understood, and agreed to the terms above." bm="Dengan menandatangani secara digital, anda mengesahkan bahawa anda telah membaca, memahami, dan bersetuju dengan terma-terma di atas." />
                         </p>
                     </div>
                 </div>
@@ -397,7 +402,7 @@ export default function ServiceAgreementModal({
                         onClick={onClose}
                         className="flex-1 py-3 md:py-4 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] text-zinc-400 hover:text-zinc-600 transition-all border-2 border-transparent"
                     >
-                        Batal
+                        <T en="Cancel" bm="Batal" />
                     </button>
                     <button 
                         onClick={handleSign}
@@ -413,7 +418,7 @@ export default function ServiceAgreementModal({
                         ) : (
                             <ShieldCheck className="w-4 h-4" />
                         )}
-                        Setuju & Sahkan Perjanjian
+                        <T en="Agree & Confirm Agreement" bm="Setuju & Sahkan Perjanjian" />
                     </button>
                 </div>
             </div>

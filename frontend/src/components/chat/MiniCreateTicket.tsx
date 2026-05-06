@@ -5,6 +5,7 @@ import { Loader2, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { T } from "../Translate";
 import { useLanguage } from "../providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 export default function MiniCreateTicket({ 
   onCreated, 
@@ -53,12 +54,12 @@ export default function MiniCreateTicket({
       const data = await res.json();
       if (data.files && data.files.length > 0) {
         setAttachments(prev => [...prev, data.files[0]]);
-        toast.success("Image attached!");
+        toast.success(lang === "EN" ? "Image attached!" : "Imej dilampirkan!");
       } else {
         throw new Error("No URL returned from backend.");
       }
-    } catch (error) {
-      toast.error("Failed to upload image");
+    } catch (error: any) {
+      toast.error(translateError(error.message || "Failed to upload image", lang));
     } finally {
       setUploading(false);
     }
@@ -82,12 +83,15 @@ export default function MiniCreateTicket({
         })
       });
 
-      if (!res.ok) throw new Error("Creation failed");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Creation failed");
+      }
       const data = await res.json();
-      toast.success("Ticket created!");
+      toast.success(lang === "EN" ? "Ticket created!" : "Tiket dicipta!");
       onCreated(data); // Returns the newly created ticket to ChatWidget
-    } catch (err) {
-      toast.error("An error occurred");
+    } catch (err: any) {
+      toast.error(translateError(err.message || "An error occurred", lang));
     } finally {
       setSubmitting(false);
     }

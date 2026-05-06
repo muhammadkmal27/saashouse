@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
 import {
   TrendingUp, FolderKanban, Users, Zap, Download,
   AlertCircle, CheckCircle2, XCircle, Loader2, Plus, ArrowUpRight,
   Info, ArrowRight, Clock
 } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
+import { toast } from "sonner";
 
 /* ─── Types ─── */
 type Stats = {
@@ -74,20 +77,11 @@ function getInitialColor(name: string): string {
   return colors[idx];
 }
 
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return "—";
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-GB", { month: "short", day: "2-digit" });
-  } catch {
-    return "—";
-  }
-}
-
 /* ─── Constants ─── */
 
 /* ─── Page Component ─── */
 export default function AdminBillingPage() {
+  const { lang } = useLanguage();
   const [stats, setStats]       = useState<Stats | null>(null);
   const [ledger, setLedger]     = useState<LedgerRow[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -101,11 +95,9 @@ export default function AdminBillingPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    console.log("DEBUG: fetchData triggered. daysFilter =", daysFilter);
     try {
       const daysParam = daysFilter === "All" ? "" : `?days=${daysFilter.replace("d", "")}`;
       const url = `/api/admin/stats${daysParam}`;
-      console.log("DEBUG: Fetching stats from:", url);
 
       const [statsRes, ledgerRes] = await Promise.all([
         fetch(url, { credentials: "include", cache: "no-store" }),
@@ -114,14 +106,11 @@ export default function AdminBillingPage() {
       
       const statsData = statsRes.ok ? await statsRes.json() : null;
       const ledgerData = ledgerRes.ok ? await ledgerRes.json() : [];
-      
-      console.log("DEBUG: Received stats:", statsData);
-      console.log("DEBUG: Received ledger size:", ledgerData.length);
 
       if (statsData) setStats(statsData);
       if (ledgerData) setLedger(ledgerData);
     } catch (err) {
-      console.error("DEBUG error: Failed to load billing data", err);
+      console.error("Failed to load billing data", err);
     } finally {
       setLoading(false);
     }
@@ -160,7 +149,8 @@ export default function AdminBillingPage() {
   useEffect(() => { fetchData(); }, [daysFilter]);
 
   const handleCancel = async (subscriptionId: string) => {
-    if (!confirm("Cancel this subscription? This cannot be undone.")) return;
+    const msg = lang === "EN" ? "Cancel this subscription? This cannot be undone." : "Batalkan langganan ini? Tindakan ini tidak boleh diundur.";
+    if (!confirm(msg)) return;
     setCanceling(subscriptionId);
     try {
       const res = await fetch(`/api/admin/subscription/${subscriptionId}/cancel`, {
@@ -168,12 +158,14 @@ export default function AdminBillingPage() {
         credentials: "include",
       });
       if (res.ok) {
+        toast.success(lang === "EN" ? "Subscription cancelled." : "Langganan dibatalkan.");
         await fetchData();
       } else {
-        alert("Failed to cancel subscription.");
+        const data = await res.json();
+        toast.error(translateError(data.error || "Failed to cancel subscription.", lang));
       }
     } catch {
-      alert("Network error.");
+      toast.error(translateError("Network error.", lang));
     } finally {
       setCanceling(null);
     }
@@ -217,9 +209,9 @@ export default function AdminBillingPage() {
       {/* ─── Header ─── */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-zinc-900">Revenue overview</h1>
+          <h1 className="text-3xl font-black tracking-tight text-zinc-900"><T en="Revenue overview" bm="Gambaran keseluruhan hasil" /></h1>
           <p className="text-sm text-zinc-400 font-medium mt-1">
-            Snapshot of subscriptions, MRR and upcoming invoices.
+            <T en="Snapshot of subscriptions, MRR and upcoming invoices." bm="Ringkasan langganan, MRR dan invois akan datang." />
           </p>
         </div>
 
@@ -237,7 +229,7 @@ export default function AdminBillingPage() {
                     : "text-zinc-500 hover:text-zinc-700"
                 }`}
               >
-                {t}
+                {t === "All" ? <T en="All" bm="Semua" /> : t}
               </button>
             ))}
           </div>
@@ -247,7 +239,7 @@ export default function AdminBillingPage() {
             onClick={handleExport}
             className="flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 bg-zinc-900 text-white rounded-2xl text-xs font-bold hover:bg-zinc-800 transition-all active:scale-95"
           >
-            <Download className="w-3.5 h-3.5" /> Export Data
+            <Download className="w-3.5 h-3.5" /> <T en="Export Data" bm="Eksport Data" />
           </button>
         </div>
       </div>
@@ -261,12 +253,12 @@ export default function AdminBillingPage() {
               <TrendingUp className="w-6 h-6 text-emerald-600" />
             </div>
             <div className="flex items-center gap-1 text-emerald-600 font-black text-[10px] uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded-lg">
-              LIVE <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <T en="LIVE" bm="LANGSUNG" /> <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Total Verified Revenue</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1"><T en="Total Verified Revenue" bm="Jumlah Hasil Disahkan" /></p>
           <p className="text-2xl font-black text-zinc-900 tracking-tight">
-            RM {stats?.total_revenue?.toLocaleString("en-MY") ?? "0"}
+            RM {stats?.total_revenue?.toLocaleString(lang === "EN" ? "en-US" : "ms-MY") ?? "0"}
           </p>
         </div>
 
@@ -277,9 +269,9 @@ export default function AdminBillingPage() {
               <FolderKanban className="w-6 h-6 text-emerald-600" />
             </div>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Active Client Repositories</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1"><T en="Active Client Repositories" bm="Repositori Klien Aktif" /></p>
           <p className="text-2xl font-black text-zinc-900 tracking-tight">
-            {stats?.active_projects ?? 0} <span className="text-sm font-bold text-zinc-400 ml-1">Nodes</span>
+            {stats?.active_projects ?? 0} <span className="text-sm font-bold text-zinc-400 ml-1"><T en="Nodes" bm="Nod" /></span>
           </p>
         </div>
 
@@ -290,9 +282,9 @@ export default function AdminBillingPage() {
               <Users className="w-6 h-6 text-emerald-600" />
             </div>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Global Intelligence Base</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1"><T en="Global Intelligence Base" bm="Pangkalan Risikan Global" /></p>
           <p className="text-2xl font-black text-zinc-900 tracking-tight">
-            {stats?.total_clients ?? 0} <span className="text-sm font-bold text-zinc-400 ml-1">Partners</span>
+            {stats?.total_clients ?? 0} <span className="text-sm font-bold text-zinc-400 ml-1"><T en="Partners" bm="Rakan Kongsi" /></span>
           </p>
         </div>
       </div>
@@ -302,15 +294,15 @@ export default function AdminBillingPage() {
         {/* Table Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-6 border-b border-zinc-100 gap-4">
           <div>
-            <h2 className="text-lg font-black tracking-tight text-zinc-900">Verified Payments</h2>
+            <h2 className="text-lg font-black tracking-tight text-zinc-900"><T en="Verified Payments" bm="Pembayaran Disahkan" /></h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">{filteredLedger.length} Records Synchronized</p>
+              <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">{filteredLedger.length} <T en="Records Synchronized" bm="Rekod Diselaraskan" /></p>
             </div>
           </div>
 
           <div className="text-[9px] text-zinc-400 font-black uppercase tracking-[0.3em] bg-zinc-50 px-4 py-2 rounded-xl border border-zinc-100">
-             Live Ledger Feed
+             <T en="Live Ledger Feed" bm="Suapan Lejar Langsung" />
           </div>
         </div>
 
@@ -323,8 +315,8 @@ export default function AdminBillingPage() {
                     <Info className="w-8 h-8 text-zinc-200" />
                  </div>
                  <div>
-                    <p className="text-sm font-bold text-zinc-400">No verified payments found.</p>
-                    <p className="text-[10px] text-zinc-300 uppercase tracking-widest font-black mt-1">Refine your time filter or check Stripe dashboard</p>
+                    <p className="text-sm font-bold text-zinc-400"><T en="No verified payments found." bm="Tiada pembayaran disahkan ditemui." /></p>
+                    <p className="text-[10px] text-zinc-300 uppercase tracking-widest font-black mt-1"><T en="Refine your time filter or check Stripe dashboard" bm="Laraskan penapis masa anda atau semak papan pemuka Stripe" /></p>
                  </div>
               </div>
             </div>
@@ -349,7 +341,7 @@ export default function AdminBillingPage() {
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-sm font-black text-zinc-900">RM {amount.toFixed(2)}</p>
-                          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Verified</span>
+                          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest"><T en="Verified" bm="Disahkan" /></span>
                         </div>
                       </div>
 
@@ -358,14 +350,14 @@ export default function AdminBillingPage() {
                         <div className="flex items-start gap-3">
                           <FolderKanban className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-xs font-bold text-zinc-800">{row.project_title || "Direct Subscription"}</p>
-                            <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-tight">{row.description || (row.plan_name ? `${row.plan_name} Plan` : "Core Service")}</p>
+                            <p className="text-xs font-bold text-zinc-800">{row.project_title || (lang === "EN" ? "Direct Subscription" : "Langganan Terus")}</p>
+                            <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-tight">{row.description || (row.plan_name ? `${row.plan_name} Plan` : (lang === "EN" ? "Core Service" : "Perkhidmatan Teras"))}</p>
                           </div>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t border-zinc-200/50">
                           <div className="flex items-center gap-2 text-zinc-500">
                             <Clock className="w-3.5 h-3.5 text-zinc-300" />
-                            <span className="text-[10px] font-bold">{row.created_at ? new Date(row.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short' }) : "-"}</span>
+                            <span className="text-[10px] font-bold">{row.created_at ? new Date(row.created_at).toLocaleDateString(lang === "EN" ? 'en-US' : 'ms-MY', { day: 'numeric', month: 'short' }) : "-"}</span>
                           </div>
                           <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
                             row.payment_source?.toLowerCase() === 'toyyibpay' 
@@ -395,7 +387,7 @@ export default function AdminBillingPage() {
                             disabled={canceling === row.subscription_id}
                             className="flex-1 py-3 border border-red-100 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 active:bg-red-100 transition-colors"
                           >
-                            {canceling === row.subscription_id ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Cancel Sub"}
+                            {canceling === row.subscription_id ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : <T en="Cancel Sub" bm="Batal Sub" />}
                           </button>
                         )}
                       </div>
@@ -409,9 +401,12 @@ export default function AdminBillingPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/30">
-                      {["Client / Email", "Project / Description", "Source", "Verified Amount", "Payment Date", "Actions"].map(h => (
-                        <th key={h} className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{h}</th>
-                      ))}
+                      <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400"><T en="Client / Email" bm="Klien / E-mel" /></th>
+                      <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400"><T en="Project / Description" bm="Projek / Penerangan" /></th>
+                      <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400"><T en="Source" bm="Sumber" /></th>
+                      <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400"><T en="Verified Amount" bm="Jumlah Disahkan" /></th>
+                      <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400"><T en="Payment Date" bm="Tarikh Pembayaran" /></th>
+                      <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400"><T en="Actions" bm="Tindakan" /></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-50">
@@ -434,7 +429,7 @@ export default function AdminBillingPage() {
 
                           {/* Project & Description */}
                           <td className="py-5 px-8">
-                             <p className="font-bold text-zinc-800 text-sm">{row.project_title || "Direct Product Sub"}</p>
+                             <p className="font-bold text-zinc-800 text-sm">{row.project_title || (lang === "EN" ? "Direct Product Sub" : "Langganan Produk Terus")}</p>
                              <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tight">{row.description || (row.plan_name ? `${row.plan_name} Plan` : "")}</p>
                           </td>
        
@@ -453,7 +448,7 @@ export default function AdminBillingPage() {
                           <td className="py-5 px-8 whitespace-nowrap">
                              <div className="flex flex-col">
                                 <span className="text-sm font-black text-zinc-900">RM {amount.toFixed(2)}</span>
-                                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Verified</span>
+                                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest"><T en="Verified" bm="Disahkan" /></span>
                              </div>
                           </td>
 
@@ -461,7 +456,7 @@ export default function AdminBillingPage() {
                           <td className="py-5 px-8 whitespace-nowrap">
                              <div className="flex items-center gap-3 text-zinc-500">
                                 <Clock className="w-4 h-4 text-zinc-300" />
-                                <span className="text-xs font-bold">{row.created_at ? new Date(row.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : "-"}</span>
+                                <span className="text-xs font-bold">{row.created_at ? new Date(row.created_at).toLocaleDateString(lang === "EN" ? 'en-US' : 'ms-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : "-"}</span>
                              </div>
                           </td>
 
@@ -474,7 +469,7 @@ export default function AdminBillingPage() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="w-10 h-10 flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 rounded-xl transition-all group/link"
-                                  title="View on Stripe"
+                                  title={lang === "EN" ? "View on Stripe" : "Lihat di Stripe"}
                                 >
                                    <ArrowRight className="w-4 h-4 text-zinc-400 group-hover/link:text-zinc-900" />
                                 </a>
@@ -485,7 +480,7 @@ export default function AdminBillingPage() {
                                   disabled={canceling === row.subscription_id}
                                   className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/40 hover:text-red-600 transition-colors disabled:opacity-30"
                                 >
-                                  {canceling === row.subscription_id ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Cancel"}
+                                  {canceling === row.subscription_id ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <T en="Cancel" bm="Batal" />}
                                 </button>
                               )}
                             </div>
@@ -503,7 +498,7 @@ export default function AdminBillingPage() {
         {/* Premium Footer */}
         <div className="px-8 py-5 border-t border-zinc-100 bg-zinc-50/40 flex justify-between items-center">
            <p className="text-[10px] text-zinc-400 font-black uppercase tracking-[0.2em]">
-              {filteredLedger.length} Verified Nodes Listed
+              {filteredLedger.length} <T en="Verified Nodes Listed" bm="Nod Disahkan Disenaraikan" />
            </p>
            <p className="text-[10px] text-zinc-300 font-black uppercase tracking-[0.2em]">
               SaaS House Architecture

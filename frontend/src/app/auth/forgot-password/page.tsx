@@ -4,8 +4,11 @@ import { useState } from "react";
 import { Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 export default function ForgotPasswordPage() {
+  const { lang } = useLanguage();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -23,13 +26,13 @@ export default function ForgotPasswordPage() {
 
       if (res.ok) {
         setSuccess(true);
-        toast.success("Reset link sent!");
+        toast.success(lang === "EN" ? "Reset link sent!" : "Pautan set semula dihantar!");
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to request reset.");
+        toast.error(translateError(data.error || "Failed to request reset.", lang));
       }
     } catch (err) {
-      toast.error("Connection error.");
+      toast.error(translateError("Connection error.", lang));
     } finally {
       setLoading(false);
     }

@@ -25,6 +25,7 @@ import { useSocket } from "@/components/providers/SocketProvider";
 import { getCookie } from "@/utils/cookies";
 import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 type Comment = {
     id: string;
@@ -104,7 +105,7 @@ export default function TicketDetailPage() {
         // Condition 1: Direct Status Update Signal or Manual Pulse
         if ((lastEvent.type === 'TicketStatusUpdate' || lastEvent.type === 'StatusPulse') && lastEvent.request_id === id) {
             console.log("Omega-Sync: Received Pulse/Update signal", lastEvent);
-            toast.info("Status focus: Ticket state has changed.");
+            toast.info(lang === "EN" ? "Status focus: Ticket state has changed." : "Fokus status: Keadaan tiket telah berubah.");
             fetchTicketData();
         }
 
@@ -118,7 +119,7 @@ export default function TicketDetailPage() {
 
             if (lastEvent.comment.message.includes("CLOSED") || lastEvent.comment.message.includes("[SYSTEM]")) {
                 console.log("Omega-Sync: System closure detected in comment string.");
-                toast.success("Ticket closed by admin.");
+                toast.success(lang === "EN" ? "Ticket closed by admin." : "Tiket ditutup oleh admin.");
                 fetchTicketData();
             }
 
@@ -189,10 +190,10 @@ export default function TicketDetailPage() {
                     ...prev,
                     attachment_urls: [...prev.attachment_urls, result.files[0]]
                 }));
-                toast.success("File uploaded successfully.");
+                toast.success(lang === "EN" ? "File uploaded successfully." : "Fail berjaya dimuat naik.");
             }
         } catch (err) {
-            toast.error("Upload failed.");
+            toast.error(translateError("Upload failed.", lang));
         } finally {
             setUploading(false);
         }
@@ -218,19 +219,20 @@ export default function TicketDetailPage() {
             if (res.ok) {
                 setCommentData({ message: "", attachment_urls: [] });
                 // Rely on WebSocket for real-time addition
-                toast.success("Reply sent.");
+                toast.success(lang === "EN" ? "Reply sent." : "Balasan dihantar.");
             } else {
-                toast.error("Failed to send reply.");
+                const data = await res.json();
+                toast.error(translateError(data.error || "Failed to send reply.", lang));
             }
         } catch (err) {
-            toast.error("Network error.");
+            toast.error(translateError("Network error.", lang));
         } finally {
             setSubmitting(false);
         }
     };
 
     if (loading) return <div className="p-12 flex justify-center"><Loader2 className="w-10 h-10 animate-spin text-violet-600" /></div>;
-    if (!ticket) return <div className="p-12 text-center text-slate-400 font-medium italic">Ticket not found.</div>;
+    if (!ticket) return <div className="p-12 text-center text-slate-400 font-medium italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-20 relative">

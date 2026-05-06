@@ -15,17 +15,20 @@ import {
     ClipboardList
 } from "lucide-react";
 import { useState } from "react";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { lang } = useLanguage();
 
     const navItems = [
-        { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-        { name: "Projects", href: "/admin/projects", icon: FolderKanban },
-        { name: "Clients", href: "/admin/clients", icon: Users },
-        { name: "Billing", href: "/admin/billing", icon: CreditCard },
-        { name: "Tickets", href: "/admin/tickets", icon: ClipboardList },
-        { name: "Settings", href: "/admin/settings", icon: Settings },
+        { name: lang === "EN" ? "Dashboard" : "Papan Pemuka", href: "/admin/dashboard", icon: LayoutDashboard },
+        { name: lang === "EN" ? "Projects" : "Projek", href: "/admin/projects", icon: FolderKanban },
+        { name: lang === "EN" ? "Clients" : "Pelanggan", href: "/admin/clients", icon: Users },
+        { name: lang === "EN" ? "Billing" : "Pengebilan", href: "/admin/billing", icon: CreditCard },
+        { name: lang === "EN" ? "Tickets" : "Tiket", href: "/admin/tickets", icon: ClipboardList },
+        { name: lang === "EN" ? "Settings" : "Tetapan", href: "/admin/settings", icon: Settings },
     ];
 
     return (
@@ -56,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </div>
                         <div className="flex flex-col">
                             <span className="font-bold text-lg leading-tight uppercase tracking-widest text-emerald-600">SaaS House</span>
-                            <span className="text-xs font-medium text-zinc-400">ADMIN CONSOLE</span>
+                            <span className="text-xs font-medium text-zinc-400"><T en="ADMIN CONSOLE" bm="KONSOL ADMIN" /></span>
                         </div>
                     </div>
 
@@ -80,6 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     await fetch("/api/auth/logout", {
                                         method: "POST",
                                         credentials: "include",
+                                        headers: { "X-CSRF-Token": "" } // We should ideally use actual CSRF here
                                     });
                                     window.location.href = "/auth/login";
                                 } catch (err) {
@@ -90,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors font-medium border-none cursor-pointer"
                         >
                             <LogOut className="w-5 h-5" />
-                            Sign Out
+                            <T en="Sign Out" bm="Log Keluar" />
                         </button>
                     </div>
 

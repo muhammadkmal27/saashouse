@@ -2,31 +2,36 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { T } from "@/components/Translate";
 import { toast } from "sonner";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 function ResetPasswordContent() {
+  const { lang } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (!token) {
-      toast.error("Invalid or missing reset token.");
+      toast.error(lang === "EN" ? "Invalid or missing reset token." : "Token penetapan semula tidak sah atau hilang.");
       router.push("/auth/login");
     }
-  }, [token, router]);
+  }, [token, router, lang]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error(lang === "EN" ? "Passwords do not match." : "Kata laluan tidak sepadan.");
       return;
     }
 
@@ -41,13 +46,13 @@ function ResetPasswordContent() {
 
       if (res.ok) {
         setSuccess(true);
-        toast.success("Password reset successfully!");
+        toast.success(lang === "EN" ? "Password reset successfully!" : "Kata laluan berjaya ditetapkan semula!");
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to reset password.");
+        toast.error(translateError(data.error || "Failed to reset password.", lang));
       }
     } catch (err) {
-      toast.error("Connection error.");
+      toast.error(translateError("Connection error.", lang));
     } finally {
       setLoading(false);
     }
@@ -94,12 +99,20 @@ function ResetPasswordContent() {
             <input
               id="password"
               placeholder="••••••••"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-12 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
+              className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-12 pr-12 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
               required
+              suppressHydrationWarning
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
@@ -112,12 +125,20 @@ function ResetPasswordContent() {
             <input
               id="confirmPassword"
               placeholder="••••••••"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-12 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
+              className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-12 pr-12 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:ring-violet-400"
               required
+              suppressHydrationWarning
             />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
         </div>
         

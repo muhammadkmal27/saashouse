@@ -9,15 +9,18 @@ import {
 import { toast } from "sonner";
 import { getCookie } from "@/utils/cookies";
 import AgreementSettings from "@/components/admin/settings/AgreementSettings";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 type SettingMap = Record<string, any>;
 
 const TABS = [
-  { id: "general",     label: "General",     icon: Settings },
-  { id: "pricing",     label: "Pricing",     icon: Server },
-  { id: "otp",         label: "Payments & OTP", icon: Zap },
-  { id: "agreement",   label: "Agreement",   icon: FileText },
-  { id: "maintenance", label: "Maintenance",  icon: Wrench },
+  { id: "general",     label: { en: "General", bm: "Umum" },     icon: Settings },
+  { id: "pricing",     label: { en: "Pricing", bm: "Harga" },     icon: Server },
+  { id: "otp",         label: { en: "Payments & OTP", bm: "Pembayaran & OTP" }, icon: Zap },
+  { id: "agreement",   label: { en: "Agreement", bm: "Perjanjian" },   icon: FileText },
+  { id: "maintenance", label: { en: "Maintenance", bm: "Penyelenggaraan" },  icon: Wrench },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -41,6 +44,7 @@ async function patchSetting(key: string, value: unknown) {
 }
 
 export default function AdminSettingsPage() {
+  const { lang } = useLanguage();
   const [activeTab, setActiveTab]   = useState<TabId>("general");
   const [settings, setSettings]     = useState<SettingMap>({});
   const [loading, setLoading]       = useState(true);
@@ -153,9 +157,9 @@ export default function AdminSettingsPage() {
     setSaving(key);
     try {
       await patchSetting(key, value);
-      toast.success(`${label} saved successfully.`);
+      toast.success(lang === 'EN' ? `${label} saved successfully.` : `${label} berjaya disimpan.`);
     } catch (err: any) {
-      toast.error(err.message ?? "Save failed.");
+      toast.error(translateError(err.message ?? "Save failed.", lang));
     } finally {
       setSaving(null);
     }
@@ -175,10 +179,10 @@ export default function AdminSettingsPage() {
       <div className="border-b border-zinc-100 pb-8">
         <h1 className="text-3xl font-black tracking-tight text-zinc-900 flex items-center gap-3">
           <Settings className="w-8 h-8 text-zinc-500" />
-          System Settings
+          <T en="System Settings" bm="Tetapan Sistem" />
         </h1>
         <p className="text-sm text-zinc-400 font-medium mt-1">
-          Manage system-wide configuration. Changes take effect immediately.
+          <T en="Manage system-wide configuration. Changes take effect immediately." bm="Urus konfigurasi seluruh sistem. Perubahan berkuat kuasa serta-merta." />
         </p>
       </div>
 
@@ -201,11 +205,11 @@ export default function AdminSettingsPage() {
               <span className="text-[9px] md:text-sm font-black uppercase tracking-tight md:tracking-widest whitespace-nowrap">
                 {tab.id === "otp" ? (
                   <>
-                    <span className="md:hidden">PAYMENTS</span>
-                    <span className="hidden md:inline">PAYMENTS & OTP</span>
+                    <span className="md:hidden"><T en="PAYMENTS" bm="PEMBAYARAN" /></span>
+                    <span className="hidden md:inline"><T en="PAYMENTS & OTP" bm="PEMBAYARAN & OTP" /></span>
                   </>
                 ) : (
-                  tab.label
+                  <T en={tab.label.en} bm={tab.label.bm} />
                 )}
               </span>
             </button>
@@ -220,16 +224,16 @@ export default function AdminSettingsPage() {
             <div>
               <h2 className="text-lg font-black text-zinc-900 mb-1 flex items-center gap-2">
                 <Mail className="w-5 h-5 text-indigo-500" />
-                Admin Notification Email
+                <T en="Admin Notification Email" bm="E-mel Notifikasi Admin" />
               </h2>
               <p className="text-sm text-zinc-400 font-medium leading-relaxed">
-                All system notifications will be sent to this address.
+                <T en="All system notifications will be sent to this address." bm="Semua notifikasi sistem akan dihantar ke alamat ini." />
               </p>
             </div>
 
             <div className="space-y-3">
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                Admin Email Address
+                <T en="Admin Email Address" bm="Alamat E-mel Admin" />
               </label>
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
@@ -246,7 +250,7 @@ export default function AdminSettingsPage() {
                   className="flex items-center justify-center gap-2 px-8 py-4 bg-zinc-900 hover:bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 active:scale-95 shadow-lg shadow-zinc-900/10"
                 >
                   {saving === "admin_email" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save
+                  <T en="Save" bm="Simpan" />
                 </button>
               </div>
             </div>
@@ -255,12 +259,12 @@ export default function AdminSettingsPage() {
           <div className="pt-10 border-t border-zinc-100 space-y-10">
             <h2 className="text-lg font-black text-zinc-900 mb-1 flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-violet-500" />
-              Service Agreement Branding
+              <T en="Service Agreement Branding" bm="Penjenamaan Perjanjian Perkhidmatan" />
             </h2>
             
             <div className="space-y-3">
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                Service Provider Name
+                <T en="Service Provider Name" bm="Nama Pembekal Perkhidmatan" />
               </label>
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
@@ -277,20 +281,20 @@ export default function AdminSettingsPage() {
                   className="flex items-center justify-center gap-2 px-8 py-4 bg-zinc-900 hover:bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 active:scale-95 shadow-lg shadow-zinc-900/10"
                 >
                   {saving === "service_provider_name" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save
+                  <T en="Save" bm="Simpan" />
                 </button>
               </div>
             </div>
 
             <div className="space-y-4">
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                Official Provider Signature
+                <T en="Official Provider Signature" bm="Tandatangan Rasmi Pembekal" />
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                    <div className="flex justify-between items-center px-1">
-                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Draw New Signature</span>
-                      <button onClick={clearCanvas} className="text-[10px] font-black text-red-500 uppercase hover:underline">Clear Canvas</button>
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight"><T en="Draw New Signature" bm="Lukis Tandatangan Baru" /></span>
+                      <button onClick={clearCanvas} className="text-[10px] font-black text-red-500 uppercase hover:underline"><T en="Clear Canvas" bm="Kosongkan Kanvas" /></button>
                    </div>
                    {/* Canvas wrapper to ensure responsive behavior without breaking desktop logic */}
                    <div className="relative w-full overflow-hidden bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-[1.5rem] shadow-inner">
@@ -314,17 +318,17 @@ export default function AdminSettingsPage() {
                     className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-200 transition-all flex items-center justify-center gap-2 active:scale-95"
                    >
                      {saving === "service_provider_signature" ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenTool className="w-4 h-4" />}
-                     Save Official Signature
+                     <T en="Save Official Signature" bm="Simpan Tandatangan Rasmi" />
                    </button>
                 </div>
                 
                 <div className="space-y-4">
-                   <span className="text-[10px] font-bold text-zinc-400 uppercase px-1 tracking-tight">Current System Signature</span>
+                   <span className="text-[10px] font-bold text-zinc-400 uppercase px-1 tracking-tight"><T en="Current System Signature" bm="Tandatangan Sistem Semasa" /></span>
                    <div className="w-full h-[150px] md:h-[215px] bg-white border border-zinc-100 rounded-[1.5rem] flex items-center justify-center p-6 shadow-sm">
                      {providerSignature ? (
                         <img src={providerSignature} alt="Current Provider Signature" className="max-h-full transition-transform hover:scale-105" />
                      ) : (
-                        <p className="text-[10px] text-zinc-300 italic font-medium uppercase tracking-widest">No signature data</p>
+                        <p className="text-[10px] text-zinc-300 italic font-medium uppercase tracking-widest"><T en="No signature data" bm="Tiada data tandatangan" /></p>
                      )}
                    </div>
                 </div>
@@ -342,10 +346,10 @@ export default function AdminSettingsPage() {
               <div>
                 <h2 className="text-lg font-black text-zinc-900 mb-1 flex items-center gap-2">
                   <Server className="w-5 h-5 text-emerald-500" />
-                  Package Pricing
+                  <T en="Package Pricing" bm="Harga Pakej" />
                 </h2>
                 <p className="text-sm text-zinc-400 font-medium">
-                  Update monthly subscription fees for each node.
+                  <T en="Update monthly subscription fees for each node." bm="Kemas kini yuran langganan bulanan untuk setiap nod." />
                 </p>
               </div>
             </div>
@@ -354,7 +358,7 @@ export default function AdminSettingsPage() {
               {Object.entries(packagePrices).map(([name, price]) => (
                 <div key={name} className="space-y-3">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                    {name} (RM / Month)
+                    {name} (<T en="RM / Month" bm="RM / Bulan" />)
                   </label>
                   <div className="relative">
                     <span className="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-black text-zinc-400">RM</span>
@@ -371,12 +375,12 @@ export default function AdminSettingsPage() {
 
             <div className="pt-10 flex flex-col sm:flex-row justify-end">
               <button
-                onClick={() => handleSave("package_prices", packagePrices, "Package Prices")}
+                onClick={() => handleSave("package_prices", packagePrices, lang === 'EN' ? "Package Prices" : "Harga Pakej")}
                 disabled={saving === "package_prices"}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-4 bg-zinc-900 hover:bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 shadow-xl shadow-zinc-900/10 active:scale-95"
               >
                 {saving === "package_prices" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Update All Nodes
+                <T en="Update All Nodes" bm="Kemas Kini Semua Nod" />
               </button>
             </div>
           </div>
@@ -391,11 +395,10 @@ export default function AdminSettingsPage() {
             <div className="space-y-1">
               <h2 className="text-lg font-black text-zinc-900 flex items-center gap-2">
                 <Zap className="w-5 h-5 text-indigo-500" />
-                Payments & OTP Mode
+                <T en="Payments & OTP Mode" bm="Pembayaran & Mod OTP" />
               </h2>
               <p className="text-sm text-zinc-400 max-w-lg font-medium">
-                Manage deposit settings for both SaaS and One-Time Purchase modes. 
-                If OTP Mode is enabled, subscription packages will be hidden.
+                <T en="Manage deposit settings for both SaaS and One-Time Purchase modes. If OTP Mode is enabled, subscription packages will be hidden." bm="Urus tetapan deposit untuk kedua-dua mod SaaS dan Pembelian Sekali. Jika Mod OTP diaktifkan, pakej langganan akan disembunyikan." />
               </p>
             </div>
             <button
@@ -403,7 +406,7 @@ export default function AdminSettingsPage() {
               onClick={() => {
                 const newVal = !otpMode;
                 setOtpMode(newVal);
-                handleSave("otp_mode_active", newVal, "OTP Mode");
+                handleSave("otp_mode_active", newVal, lang === 'EN' ? "OTP Mode" : "Mod OTP");
               }}
               className={`relative flex-shrink-0 w-16 h-9 rounded-full transition-all duration-300 focus:outline-none ${
                 otpMode ? "bg-indigo-500 shadow-lg shadow-indigo-200" : "bg-zinc-200"
@@ -420,7 +423,7 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="space-y-4">
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                Deposit Price (RM)
+                <T en="Deposit Price (RM)" bm="Harga Deposit (RM)" />
               </label>
               <input
                 type="number"
@@ -429,18 +432,18 @@ export default function AdminSettingsPage() {
                 className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black text-zinc-900 outline-none focus:ring-2 ring-indigo-300 transition-all"
               />
               <button
-                onClick={() => handleSave("otp_deposit_price", otpDeposit, "Deposit Price")}
+                onClick={() => handleSave("otp_deposit_price", otpDeposit, lang === 'EN' ? "Deposit Price" : "Harga Deposit")}
                 disabled={saving === "otp_deposit_price"}
                 className="w-full py-4 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {saving === "otp_deposit_price" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Update Deposit
+                <T en="Update Deposit" bm="Kemas Kini Deposit" />
               </button>
             </div>
 
             <div className="space-y-4">
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                Final Payment (RM)
+                <T en="Final Payment (RM)" bm="Bayaran Akhir (RM)" />
               </label>
               <input
                 type="number"
@@ -449,12 +452,12 @@ export default function AdminSettingsPage() {
                 className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black text-zinc-900 outline-none focus:ring-2 ring-indigo-300 transition-all"
               />
               <button
-                onClick={() => handleSave("otp_final_price", otpFinal, "Final Payment")}
+                onClick={() => handleSave("otp_final_price", otpFinal, lang === 'EN' ? "Final Payment" : "Bayaran Akhir")}
                 disabled={saving === "otp_final_price"}
                 className="w-full py-4 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {saving === "otp_final_price" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Update Final
+                <T en="Update Final" bm="Kemas Kini Bayaran Akhir" />
               </button>
             </div>
           </div>
@@ -472,9 +475,9 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-10 border-t border-zinc-100">
             <div className="space-y-4">
               <label className="block text-[10px] font-black uppercase tracking-widest text-emerald-500">
-                SaaS Onboarding Deposit (RM)
+                <T en="SaaS Onboarding Deposit (RM)" bm="Deposit Onboarding SaaS (RM)" />
               </label>
-              <p className="text-xs text-zinc-400 font-medium">One-time setup fee for SaaS clients before subscription starts.</p>
+              <p className="text-xs text-zinc-400 font-medium"><T en="One-time setup fee for SaaS clients before subscription starts." bm="Yuran persediaan sekali gus untuk klien SaaS sebelum langganan bermula." /></p>
               <input
                 type="number"
                 value={saasDeposit}
@@ -482,12 +485,12 @@ export default function AdminSettingsPage() {
                 className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black text-zinc-900 outline-none focus:ring-2 ring-emerald-300 transition-all"
               />
               <button
-                onClick={() => handleSave("saas_deposit_price", saasDeposit, "SaaS Deposit")}
+                onClick={() => handleSave("saas_deposit_price", saasDeposit, lang === 'EN' ? "SaaS Deposit" : "Deposit SaaS")}
                 disabled={saving === "saas_deposit_price"}
                 className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 {saving === "saas_deposit_price" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Update SaaS Deposit
+                <T en="Update SaaS Deposit" bm="Kemas Kini Deposit SaaS" />
               </button>
             </div>
           </div>
@@ -500,7 +503,7 @@ export default function AdminSettingsPage() {
           <AgreementSettings 
             otpTemplate={otpTemplate}
             saasTemplate={saasTemplate}
-            onSave={(key, value) => handleSave(key, value, "Agreement Template")}
+            onSave={(key, value) => handleSave(key, value, lang === 'EN' ? "Agreement Template" : "Templat Perjanjian")}
             saving={saving}
           />
         </div>
@@ -516,11 +519,10 @@ export default function AdminSettingsPage() {
               <div className="space-y-2">
                 <h2 className="text-lg font-black text-zinc-900 flex items-center gap-2">
                   <Wrench className="w-5 h-5 text-amber-500" />
-                  Maintenance Mode
+                  <T en="Maintenance Mode" bm="Mod Penyelenggaraan" />
                 </h2>
                 <p className="text-sm text-zinc-400 max-w-lg font-medium leading-relaxed">
-                  When enabled, all public-facing nodes will display a maintenance notice.
-                  Partner access remains restricted during this state.
+                  <T en="When enabled, all public-facing nodes will display a maintenance notice. Partner access remains restricted during this state." bm="Apabila diaktifkan, semua nod awam akan memaparkan notis penyelenggaraan. Akses rakan kongsi kekal terhad semasa keadaan ini." />
                 </p>
               </div>
 
@@ -548,14 +550,14 @@ export default function AdminSettingsPage() {
                 <div className="flex items-center gap-4 px-6 py-5 bg-amber-50 border border-amber-200 rounded-[1.5rem]">
                   <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0" />
                   <p className="text-sm font-black text-amber-900 uppercase tracking-tight">
-                    System Status: Offline / Maintenance
+                    <T en="System Status: Offline / Maintenance" bm="Status Sistem: Luar Talian / Penyelenggaraan" />
                   </p>
                 </div>
               ) : (
                 <div className="flex items-center gap-4 px-6 py-5 bg-emerald-50 border border-emerald-200 rounded-[1.5rem]">
                   <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
                   <p className="text-sm font-black text-emerald-900 uppercase tracking-tight">
-                    System Status: Operational / Live
+                    <T en="System Status: Operational / Live" bm="Status Sistem: Beroperasi / Aktif" />
                   </p>
                 </div>
               )}
@@ -563,14 +565,14 @@ export default function AdminSettingsPage() {
               <div className="flex items-start gap-4 px-6 py-5 bg-zinc-50 border border-zinc-200 rounded-[1.5rem]">
                 <ShieldAlert className="w-6 h-6 text-zinc-400 flex-shrink-0 mt-0.5" />
                 <p className="text-[10px] md:text-xs text-zinc-500 font-bold uppercase tracking-tight leading-relaxed break-all">
-                  Internal Flag: /api/admin/settings/maintenance_mode. Administrative access remains unrestricted.
+                  <T en="Internal Flag: /api/admin/settings/maintenance_mode. Administrative access remains unrestricted." bm="Bendera Dalaman: /api/admin/settings/maintenance_mode. Akses pentadbiran kekal tidak terhad." />
                 </p>
               </div>
             </div>
 
             <div className="flex justify-end pt-4">
               <button
-                onClick={() => handleSave("maintenance_mode", maintenance, "Maintenance Mode")}
+                onClick={() => handleSave("maintenance_mode", maintenance, lang === 'EN' ? "Maintenance Mode" : "Mod Penyelenggaraan")}
                 disabled={saving === "maintenance_mode"}
                 className={`w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 active:scale-95 shadow-xl ${
                   maintenance
@@ -579,7 +581,7 @@ export default function AdminSettingsPage() {
                 }`}
               >
                 {saving === "maintenance_mode" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {maintenance ? "Activate Maintenance" : "Go Live"}
+                {maintenance ? <T en="Activate Maintenance" bm="Aktifkan Penyelenggaraan" /> : <T en="Go Live" bm="Aktifkan Sistem" />}
               </button>
             </div>
           </div>

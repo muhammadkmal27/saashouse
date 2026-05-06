@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { KeyRound, ArrowRight, ShieldCheck, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 export default function Verify2FAPage() {
+  const { lang } = useLanguage();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,10 +35,10 @@ export default function Verify2FAPage() {
       if (res.ok) {
         router.push("/admin/dashboard");
       } else {
-        setError(data.error || "Invalid verification code.");
+        setError(translateError(data.error || "Invalid verification code.", lang));
       }
     } catch (err) {
-      setError("Server connection error.");
+      setError(translateError("Server connection error.", lang));
     } finally {
       setLoading(false);
     }
@@ -57,12 +60,12 @@ export default function Verify2FAPage() {
         setTimeout(() => setResendSuccess(false), 5000);
       } else {
         const data = await res.json();
-        setError(data.error || "Failed to resend code.");
+        setError(translateError(data.error || "Failed to resend code.", lang));
       }
     } catch (err) {
-      setError("Server connection error.");
+      setError(translateError("Server connection error.", lang));
     } finally {
-      setLoading(false);
+      setResending(false);
     }
   };
 

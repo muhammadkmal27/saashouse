@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { getCookie } from "@/utils/cookies";
 import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 export default function LoginPage() {
   const { lang } = useLanguage();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -44,13 +46,14 @@ export default function LoginPage() {
             router.push("/app/dashboard");
         }
       } else {
-        setError(data.error || "Invalid email or password.");
+        setError(translateError(data.error || "Invalid email or password.", lang));
       }
     } catch (err: any) {
       console.error("Login Error:", err);
-      setError(err.message === "Failed to fetch" 
-        ? "Cannot connect to server. Please check your network or try again later." 
-        : `Connection Error: ${err.message}`);
+      const connError = err.message === "Failed to fetch" 
+        ? (lang === "EN" ? "Cannot connect to server. Please check your network or try again later." : "Tidak dapat menyambung ke pelayan. Sila periksa rangkaian anda atau cuba lagi nanti.")
+        : (lang === "EN" ? `Connection Error: ${err.message}` : `Ralat Sambungan: ${err.message}`);
+      setError(connError);
     } finally {
       setLoading(false);
     }
@@ -103,14 +106,21 @@ export default function LoginPage() {
             <Lock className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
+              className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-12 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
               required
               suppressHydrationWarning
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
         </div>
         

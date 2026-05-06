@@ -63,6 +63,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { T } from "@/components/Translate";
 import ServiceAgreementModal from "@/components/modals/ServiceAgreementModal";
 import ProjectOnboardingReport from "@/components/ProjectOnboardingReport";
+import { translateError } from "@/utils/error-translator";
 
 interface Requirements {
     selected_plan?: string;
@@ -164,7 +165,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
 
     const handleFileUpload = async (file: File) => {
         if (file.size > 10 * 1024 * 1024) {
-            toast.error(`File "${file.name}" exceeds 10MB capacity.`);
+            toast.error(lang === 'EN' ? `File "${file.name}" exceeds 10MB capacity.` : `Fail "${file.name}" melebihi kapasiti 10MB.`);
             throw new Error("File too large");
         }
 
@@ -184,7 +185,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             return result.files[0]; 
         } catch (e: any) {
             console.error("Critical Upload Error:", e.message);
-            toast.error("Upload failed: Check file size and connection.");
+            toast.error(translateError("Upload failed: Check file size and connection.", lang));
             throw e; 
         }
     };
@@ -213,7 +214,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                 setLoading(false);
             })
             .catch(err => {
-                setError(err.message);
+                setError(translateError(err.message || "Failed to load project data.", lang));
                 setLoading(false);
             });
 
@@ -246,8 +247,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             const isAllowed = lastEvent.data.allowed;
             setProject(prev => prev ? { ...prev, client_edit_allowed: isAllowed } : null);
             
-            toast.info(isAllowed ? "Project Unlocked" : "Project Locked", {
-                description: isAllowed ? "You can now update the project blueprint." : "Please contact the admin if you need update access.",
+            toast.info(isAllowed ? (lang === 'EN' ? "Project Unlocked" : "Projek Dibuka") : (lang === 'EN' ? "Project Locked" : "Projek Dikunci"), {
+                description: isAllowed ? (lang === 'EN' ? "You can now update the project blueprint." : "Anda kini boleh mengemas kini pelan projek.") : (lang === 'EN' ? "Please contact the admin if you need update access." : "Sila hubungi admin jika anda memerlukan akses kemas kini."),
                 icon: isAllowed ? <Unlock className="w-4 h-4 text-emerald-500" /> : <Lock className="w-4 h-4 text-amber-500" />,
                 duration: 5000,
             });
@@ -262,8 +263,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                 prod_url 
             } : null);
             
-            toast.success("Project Updated", {
-                description: "Your project status or environment links have been updated.",
+            toast.success(lang === 'EN' ? "Project Updated" : "Projek Dikemaskini", {
+                description: lang === 'EN' ? "Your project status or environment links have been updated." : "Status projek atau pautan persekitaran anda telah dikemaskini.",
                 duration: 5000,
             });
         }
@@ -296,10 +297,10 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             if (data.checkout_url) {
                 window.location.href = data.checkout_url;
             } else {
-                toast.error("Failed to generate checkout link");
+                toast.error(translateError("Failed to generate checkout link", lang));
             }
         } catch (e) {
-            toast.error("Failed to initiate payment");
+            toast.error(translateError("Failed to initiate payment", lang));
         }
     };
 
@@ -312,8 +313,9 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
         if (!editData.requirements?.business_address) missingFields.push("Business Address");
 
         if (missingFields.length > 0) {
-            toast.error(`Please complete: ${missingFields.join(", ")}`, {
-                description: "This information is required for blueprint synchronization.",
+            const translatedMissing = lang === "EN" ? `Please complete: ${missingFields.join(", ")}` : `Sila lengkapkan: ${missingFields.join(", ")}`;
+            toast.error(translatedMissing, {
+                description: lang === "EN" ? "This information is required for blueprint synchronization." : "Maklumat ini diperlukan untuk sinkronasi pelan.",
             });
             return;
         }
@@ -324,7 +326,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             
             // Handle File Uploads
             if (ssmFile) {
-                toast.info("Uploading SSM Document...");
+                toast.info(lang === 'EN' ? "Uploading SSM Document..." : "Memuat naik Dokumen SSM...");
                 const ssmUrl = await handleFileUpload(ssmFile);
                 if (ssmUrl) {
                     if (!finalRequirements.payment_setup) finalRequirements.payment_setup = { has_toyyibpay: false };
@@ -333,7 +335,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             }
 
             if (logoFile) {
-                toast.info("Uploading Brand Logo...");
+                toast.info(lang === 'EN' ? "Uploading Brand Logo..." : "Memuat naik Logo Jenama...");
                 const logoUrl = await handleFileUpload(logoFile);
                 if (logoUrl) {
                     if (!finalRequirements.brand_assets) finalRequirements.brand_assets = { theme_color: "#10B981" };
@@ -363,20 +365,20 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     setProject(refreshed);
                 }
                 setIsEditing(false);
-                toast.success("Strategic Blueprint Synchronized!");
+                toast.success(lang === "EN" ? "Strategic Blueprint Synchronized!" : "Pelan Strategik Telah Disinkronasi!");
             } else {
                 const contentType = res.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const errData = await res.json();
-                    toast.error(errData.error || "Failed to synchronize updates");
+                    toast.error(translateError(errData.error || "Failed to synchronize updates", lang));
                 } else {
                     const errText = await res.text();
-                    toast.error(`Server error: ${errText.substring(0, 100)}`);
+                    toast.error(translateError("Server connection error.", lang));
                 }
             }
         } catch (err: any) {
             console.error("SYNC_ERROR:", err);
-            toast.error(`Sync error: ${err.message || "Unknown communication failure"}`);
+            toast.error(translateError("Network error.", lang));
         } finally {
             setIsSaving(false);
         }
@@ -414,7 +416,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
         try {
             // @ts-ignore
             if (typeof window.html2pdf !== 'function') {
-                toast.error("PDF components are still loading. Please wait a moment.");
+                toast.error(lang === 'EN' ? "PDF components are still loading. Please wait a moment." : "Komponen PDF masih dimuatkan. Sila tunggu sebentar.");
                 setIsExporting(false);
                 return;
             }
@@ -422,7 +424,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             await window.html2pdf().set(options).from(element).save();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to generate PDF.");
+            toast.error(lang === 'EN' ? "Failed to generate PDF." : "Gagal menjana PDF.");
         } finally {
             setIsExporting(false);
         }
@@ -430,14 +432,14 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
 
     const handleExportAgreement = async () => {
         if (!project || !agreement) {
-            toast.error("No signed agreement found.");
+            toast.error(lang === 'EN' ? "No signed agreement found." : "Tiada perjanjian bertandatangan ditemui.");
             return;
         }
 
         setIsExporting(true);
         const element = document.getElementById('agreement-document-client');
         if (!element) {
-            toast.error("Agreement element not found.");
+            toast.error(lang === 'EN' ? "Agreement element not found." : "Elemen perjanjian tidak ditemui.");
             setIsExporting(false);
             return;
         }
@@ -446,7 +448,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             // @ts-ignore
             const html2pdf = window.html2pdf;
             if (!html2pdf) {
-                toast.error("PDF Library not loaded yet. Please wait a moment.");
+                toast.error(lang === 'EN' ? "PDF Library not loaded yet. Please wait a moment." : "Perpustakaan PDF belum dimuatkan. Sila tunggu sebentar.");
                 setIsExporting(false);
                 return;
             }
@@ -465,10 +467,10 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
             };
 
             await html2pdf().set(opt).from(element).save();
-            toast.success("Agreement Exported Successfully!");
+            toast.success(lang === 'EN' ? "Agreement Exported Successfully!" : "Perjanjian Berjaya Dieksport!");
         } catch (error) {
             console.error("PDF Export Error:", error);
-            toast.error("Failed to export PDF.");
+            toast.error(lang === 'EN' ? "Failed to export PDF." : "Gagal mengeksport PDF.");
         } finally {
             setIsExporting(false);
         }
@@ -576,7 +578,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-sm shrink-0">1</div>
                                         <div className="space-y-1">
                                             <h2 className="text-xl md:text-2xl font-black text-zinc-900 uppercase leading-tight"><T en="Financial Gateway" bm="Sistem Kewangan" /></h2>
-                                            <p className="text-zinc-500 font-medium text-xs md:text-sm">Coordinate your site's payment infrastructure.</p>
+                                            <p className="text-zinc-500 font-medium text-xs md:text-sm"><T en="Coordinate your site's payment infrastructure." bm="Penyelarasan infrastruktur pembayaran laman web anda." /></p>
                                         </div>
                                     </div>
                                     
@@ -598,7 +600,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     {editData.requirements?.payment_setup?.has_toyyibpay ? (
                                         <div className="space-y-4 pt-4">
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Secret Key</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2"><T en="Secret Key" bm="Kunci Rahsia" /></label>
                                                 <input 
                                                     type="password"
                                                     className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-mono text-sm"
@@ -607,7 +609,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Category Code</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2"><T en="Category Code" bm="Kod Kategori" /></label>
                                                 <input 
                                                     type="text"
                                                     className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-5 py-4 text-zinc-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-mono text-sm"
@@ -620,9 +622,9 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         <div className="pt-4 p-10 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50 flex flex-col items-center justify-center gap-6">
                                             <UploadCloud className="w-12 h-12 text-zinc-200" />
                                             <div className="text-center">
-                                                <p className="font-black text-zinc-900 uppercase tracking-widest text-xs mb-1">Official SSM Document</p>
-                                                <p className="text-[10px] text-zinc-400 font-bold uppercase">Format: PDF, JPG, PNG (Max 10MB)</p>
-                                                {ssmFile && <p className="text-[10px] text-indigo-600 font-black mt-3 uppercase tracking-widest">Ready: {ssmFile.name}</p>}
+                                                <p className="font-black text-zinc-900 uppercase tracking-widest text-xs mb-1"><T en="Official SSM Document" bm="Dokumen SSM Rasmi" /></p>
+                                                <p className="text-[10px] text-zinc-400 font-bold uppercase"><T en="Format: PDF, JPG, PNG (Max 10MB)" bm="Format: PDF, JPG, PNG (Maks 10MB)" /></p>
+                                                {ssmFile && <p className="text-[10px] text-indigo-600 font-black mt-3 uppercase tracking-widest"><T en="Ready:" bm="Sedia:" /> {ssmFile.name}</p>}
                                             </div>
                                             <input 
                                                 type="file" 
@@ -639,7 +641,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
                                         <h2 className="text-2xl font-black text-zinc-900 uppercase">2. <T en="Logic Requirements" bm="Keperluan Logik" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">Select the operational modules for the platform.</p>
+                                        <p className="text-zinc-500 font-medium text-sm"><T en="Select the operational modules for the platform." bm="Pilih modul operasi untuk platform anda." /></p>
                                     </div>
                                     
                                     <div className="grid md:grid-cols-1 gap-4">
@@ -676,12 +678,12 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 underline decoration-indigo-500/20">Additional Custom Directives</label>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 underline decoration-indigo-500/20"><T en="Additional Custom Directives" bm="Arahan Tambahan Tersuai" /></label>
                                         <textarea 
                                             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-zinc-700 font-bold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all min-h-[140px] text-sm"
                                             value={editData.requirements?.custom_needs || ""}
                                             onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, custom_needs: e.target.value } })}
-                                            placeholder="Specify any unique technical overrides required..."
+                                            placeholder={lang === "EN" ? "Specify any unique technical overrides required..." : "Tentukan sebarang pintasan teknikal unik yang diperlukan..."}
                                         />
                                     </div>
                                 </div>
@@ -691,7 +693,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
                                         <h2 className="text-2xl font-black text-zinc-900 uppercase">3. <T en="Structural Identity" bm="Identiti Struktur" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">Define the brand assets and site architecture.</p>
+                                        <p className="text-zinc-500 font-medium text-sm"><T en="Define the brand assets and site architecture." bm="Takrifkan aset jenama dan seni bina laman web." /></p>
                                     </div>
                                     
                                     <div className="space-y-8">
@@ -735,7 +737,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
 
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl space-y-4">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline">Visual Benchmark</h3>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline"><T en="Visual Benchmark" bm="Penanda Aras Visual" /></h3>
                                                 <input 
                                                     type="url" 
                                                     value={editData.requirements?.competitor_ref || ""}
@@ -746,7 +748,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                             </div>
 
                                             <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline mb-6">Logo Asset</h3>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono underline mb-6"><T en="Logo Asset" bm="Aset Logo" /></h3>
                                                 <div className="bg-white p-4 rounded-2xl border-2 border-zinc-100 shadow-sm flex flex-col items-center gap-4">
                                                     <div className="w-16 h-16 bg-zinc-50 border-2 border-zinc-100 rounded-xl flex items-center justify-center overflow-hidden">
                                                         {logoPreview || editData.requirements?.brand_assets?.logo_url ? (
@@ -877,12 +879,12 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
                                         <h2 className="text-2xl font-black text-zinc-900 uppercase">6. <T en="Global Objective" bm="Objektif Global" /></h2>
-                                        <p className="text-zinc-500 font-medium text-sm">The core strategic vision driving this project.</p>
+                                        <p className="text-zinc-500 font-medium text-sm"><T en="The core strategic vision driving this project." bm="Visi strategik teras yang memacu projek ini." /></p>
                                     </div>
                                     
                                     <div className="space-y-6">
                                         <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-3xl">
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline">Platform Identity Title</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline"><T en="Platform Identity Title" bm="Tajuk Identiti Platform" /></label>
                                             <input 
                                                 type="text" 
                                                 value={editData.title || ""}
@@ -892,12 +894,12 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         </div>
                                         
                                         <div className="p-8 bg-zinc-50 border-2 border-zinc-100 rounded-[2.5rem]">
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline">Strategic Vision (Blueprint Summary)</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-4 font-mono underline"><T en="Strategic Vision (Blueprint Summary)" bm="Visi Strategik (Ringkasan Pelan)" /></label>
                                             <textarea 
                                                 className="w-full bg-white border-2 border-zinc-100 rounded-[2rem] px-8 py-8 text-zinc-700 font-bold focus:outline-none focus:border-zinc-900 min-h-[300px] text-lg leading-relaxed shadow-sm custom-scrollbar"
                                                 value={editData.requirements?.project_vision || ""}
                                                 onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, project_vision: e.target.value } })}
-                                                placeholder="Define the ultimate objective..."
+                                                placeholder={lang === "EN" ? "Define the ultimate objective..." : "Takrifkan objektif utama..."}
                                             />
                                         </div>
                                     </div>
@@ -1009,7 +1011,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                     <div className="bg-white rounded-3xl p-5 shadow-xl shadow-slate-200/50 border border-slate-50">
                         <div className="flex items-center justify-between mb-4">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400"><T en="Environment" bm="Persekitaran" /></span>
-                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest rounded-md border border-emerald-100">Live Node</span>
+                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest rounded-md border border-emerald-100"><T en="Live Node" bm="Nod Langsung" /></span>
                         </div>
                         {project.prod_url ? (
                             <a href={project.prod_url} target="_blank" className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 active:scale-[0.98] transition-all">
@@ -1086,15 +1088,15 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     <CheckCircle2 className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">Payment Received</p>
-                                    <p className="text-[10px] font-bold text-slate-500 leading-tight">Infrastructure is being prepared.</p>
+                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1"><T en="Payment Received" bm="Pembayaran Diterima" /></p>
+                                    <p className="text-[10px] font-bold text-slate-500 leading-tight"><T en="Infrastructure is being prepared." bm="Infrastruktur sedang disediakan." /></p>
                                 </div>
                             </div>
                         ) : project.status === "UNDER_DEVELOPMENT" && planName === "One-Time Purchase" ? (
                             <div className="space-y-4">
                                 <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex justify-between items-center">
                                     <div>
-                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-0.5">Final Installment</p>
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-0.5"><T en="Final Installment" bm="Ansuran Akhir" /></p>
                                         <p className="text-xl font-black text-slate-900">RM {systemSettings?.otp_final_price || "500.00"}</p>
                                     </div>
                                     <button 
@@ -1187,7 +1189,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 {req.social_media?.facebook && <a href={req.social_media.facebook} target="_blank" className="text-slate-900 font-bold text-[10px]">FACEBOOK</a>}
                                 {req.social_media?.instagram && <a href={req.social_media.instagram} target="_blank" className="text-slate-900 font-bold text-[10px]">INSTAGRAM</a>}
                                 {req.social_media?.tiktok && <a href={req.social_media.tiktok} target="_blank" className="text-slate-900 font-bold text-[10px]">TIKTOK</a>}
-                                {!req.social_media?.facebook && !req.social_media?.instagram && !req.social_media?.tiktok && <span className="text-[10px] text-slate-300 font-bold italic">No links added</span>}
+                                {!req.social_media?.facebook && !req.social_media?.instagram && !req.social_media?.tiktok && <span className="text-[10px] text-slate-300 font-bold italic"><T en="No links added" bm="Tiada pautan ditambah" /></span>}
                             </div>
                         </div>
                     </div>
@@ -1228,7 +1230,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     <ExternalLink className="w-3.5 h-3.5 text-rose-400 shrink-0" />
                                 </a>
                             ) : (
-                                <p className="text-[10px] text-slate-400 italic text-center py-1">No visual reference.</p>
+                                <p className="text-[10px] text-slate-400 italic text-center py-1"><T en="No visual reference." bm="Tiada rujukan visual." /></p>
                             )}
                         </div>
 
@@ -1615,33 +1617,33 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                     <div>
-                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Deposit Settled</p>
-                                        <p className="text-xs font-bold text-zinc-600">Waiting for development to start</p>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest"><T en="Deposit Settled" bm="Deposit Selesai" /></p>
+                                        <p className="text-xs font-bold text-zinc-600"><T en="Waiting for development to start" bm="Menunggu pembangunan dimulakan" /></p>
                                     </div>
                                 </div>
-                            )}
-
-                            {project.status === "UNDER_DEVELOPMENT" && (
+                             {project.status === "UNDER_DEVELOPMENT" && (
                                 <div className="space-y-4">
                                     <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">Final Payment</p>
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1"><T en="Final Payment" bm="Pembayaran Akhir" /></p>
                                         <p className="text-xl font-black text-zinc-900">RM {systemSettings?.otp_final_price || "500.00"}</p>
                                     </div>
                                     <button 
                                         onClick={() => handleToyyibpayCheckout("FINAL")}
                                         className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
                                     >
-                                        Pay Final & Go Live
+                                        <T en="Pay Final & Go Live" bm="Bayar Akhir & Lancarkan" />
                                     </button>
                                 </div>
+                            )}
+
                             )}
 
                             {project.status === "LIVE" && (
                                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                     <div>
-                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Fully Paid</p>
-                                        <p className="text-xs font-bold text-zinc-600">All installments completed</p>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest"><T en="Fully Paid" bm="Dibayar Sepenuhnya" /></p>
+                                        <p className="text-xs font-bold text-zinc-600"><T en="All installments completed" bm="Semua ansuran selesai" /></p>
                                     </div>
                                 </div>
                             )}
@@ -1677,8 +1679,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                     <div>
-                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Setup Paid</p>
-                                        <p className="text-xs font-bold text-zinc-600">Waiting for development to start</p>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest"><T en="Setup Paid" bm="Persediaan Dibayar" /></p>
+                                        <p className="text-xs font-bold text-zinc-600"><T en="Waiting for development to start" bm="Menunggu pembangunan dimulakan" /></p>
                                     </div>
                                 </div>
                             )}
@@ -1688,8 +1690,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
                                         <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                         <div>
-                                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Onboarding Complete</p>
-                                            <p className="text-xs font-bold text-zinc-600">Infrastructure is ready</p>
+                                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest"><T en="Onboarding Complete" bm="Onboarding Selesai" /></p>
+                                            <p className="text-xs font-bold text-zinc-600"><T en="Infrastructure is ready" bm="Infrastruktur telah sedia" /></p>
                                         </div>
                                     </div>
                                     <Link 
@@ -1751,7 +1753,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                  <button 
                                      onClick={() => {
                                          if (!agreement) {
-                                             toast.info("Sila tandatangan perjanjian terlebih dahulu.");
+                                             toast.info(lang === "EN" ? "Please sign the agreement first." : "Sila tandatangan perjanjian terlebih dahulu.");
                                          } else {
                                              setIsAgreementPreviewOpen(true);
                                          }
@@ -1779,8 +1781,8 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     <FileSearch className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900">Intelligence Asset Viewer</h3>
-                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tight">Viewing Global Repository Asset</p>
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900"><T en="Intelligence Asset Viewer" bm="Pelihat Aset Pintar" /></h3>
+                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tight"><T en="Viewing Global Repository Asset" bm="Melihat Aset Repositori Global" /></p>
                                 </div>
                             </div>
                             <button 
@@ -1812,7 +1814,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
 
                         {/* Footer Info */}
                         <div className="p-6 bg-zinc-900 text-center">
-                            <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em]">Corporate Strategic Asset Vault</p>
+                            <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em]"><T en="Corporate Strategic Asset Vault" bm="Bilik Kebal Aset Strategik Korporat" /></p>
                         </div>
                     </div>
                 </div>

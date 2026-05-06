@@ -3,7 +3,9 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
     http::StatusCode,
+    Json,
 };
+use serde_json::json;
 use crate::AppState;
 use redis::AsyncCommands;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -66,7 +68,11 @@ pub async fn rate_limit_middleware(
         Ok((_, _, count, _)) => {
             if count > limit {
                 println!("RATE_LIMIT: Blocked IP {} for path {}", ip, path);
-                return (StatusCode::TOO_MANY_REQUESTS, "Terlalu banyak permintaan. Sila cuba sebentar lagi.").into_response();
+                let body = Json(json!({
+                    "error": "Too many requests. Please try again later.",
+                    "message": "Too many requests. Please try again later."
+                }));
+                return (StatusCode::TOO_MANY_REQUESTS, body).into_response();
             }
         }
         Err(e) => {

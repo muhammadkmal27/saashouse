@@ -15,6 +15,10 @@ import {
     ClipboardList
 } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
+import { toast } from "sonner";
 
 type Ticket = {
     id: string;
@@ -30,6 +34,7 @@ type Ticket = {
 };
 
 export default function AdminTicketsPage() {
+    const { lang } = useLanguage();
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -63,9 +68,13 @@ export default function AdminTicketsPage() {
             });
             if (res.ok) {
                 fetchTickets();
+                toast.success(lang === "EN" ? "Status updated successfully." : "Status berjaya dikemas kini.");
+            } else {
+                const data = await res.json();
+                toast.error(translateError(data.error || "Failed to update status.", lang));
             }
         } catch (err) {
-            alert("Failed to update status.");
+            toast.error(translateError("Network error.", lang));
         }
     };
 
@@ -77,6 +86,17 @@ export default function AdminTicketsPage() {
 
     if (loading) return <div className="p-12 flex justify-center"><Loader2 className="w-10 h-10 animate-spin text-zinc-400" /></div>;
 
+    const translateStatus = (s: string) => {
+        switch(s) {
+            case "ALL": return <T en="ALL" bm="SEMUA" />;
+            case "OPEN": return <T en="OPEN" bm="BUKA" />;
+            case "IN_PROGRESS": return <T en="IN PROGRESS" bm="DALAM PROSES" />;
+            case "RESOLVED": return <T en="RESOLVED" bm="SELESAI" />;
+            case "CLOSED": return <T en="CLOSED" bm="DITUTUP" />;
+            default: return s;
+        }
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex items-center gap-4">
@@ -84,8 +104,8 @@ export default function AdminTicketsPage() {
                     <ClipboardList className="w-8 h-8" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-zinc-900">Task & Ticket Management</h1>
-                    <p className="text-sm text-zinc-400 font-medium mt-1">Manage tasks and report errors from all your clients.</p>
+                    <h1 className="text-3xl font-black tracking-tight text-zinc-900"><T en="Task & Ticket Management" bm="Pengurusan Tugasan & Tiket" /></h1>
+                    <p className="text-sm text-zinc-400 font-medium mt-1"><T en="Manage tasks and report errors from all your clients." bm="Urus tugasan dan laporan ralat daripada semua klien anda." /></p>
                 </div>
             </div>
 
@@ -95,10 +115,11 @@ export default function AdminTicketsPage() {
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
                     <input 
                         type="text"
-                        placeholder="Search tickets..."
+                        placeholder={lang === "EN" ? "Search tickets..." : "Cari tiket..."}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-14 pr-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
+                        suppressHydrationWarning
                     />
                 </div>
                 
@@ -114,7 +135,7 @@ export default function AdminTicketsPage() {
                                 : 'bg-white text-zinc-400 border border-zinc-100 hover:bg-zinc-50'
                             }`}
                         >
-                            {s.replace('_', ' ')}
+                            {translateStatus(s)}
                         </button>
                     ))}
                 </div>
@@ -129,8 +150,8 @@ export default function AdminTicketsPage() {
                                 <Filter className="w-8 h-8 text-zinc-200" />
                             </div>
                             <div>
-                                <p className="text-sm font-bold text-zinc-400 italic">No tickets match your intelligence query.</p>
-                                <p className="text-[10px] text-zinc-300 uppercase tracking-widest font-black mt-1">Adjust your filters or search term</p>
+                                <p className="text-sm font-bold text-zinc-400 italic"><T en="No tickets match your intelligence query." bm="Tiada tiket yang sepadan dengan carian anda." /></p>
+                                <p className="text-[10px] text-zinc-300 uppercase tracking-widest font-black mt-1"><T en="Adjust your filters or search term" bm="Laraskan penapis atau istilah carian anda" /></p>
                             </div>
                         </div>
                     ) : (
@@ -152,7 +173,7 @@ export default function AdminTicketsPage() {
                                                 ticket.status === 'IN_PROGRESS' ? 'bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-500/20' : 
                                                 'bg-zinc-100 text-zinc-400 border-zinc-200'
                                             }`}>
-                                                {ticket.status}
+                                                {translateStatus(ticket.status)}
                                             </span>
                                         </div>
 
@@ -172,7 +193,7 @@ export default function AdminTicketsPage() {
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-2 text-zinc-400">
                                                     <Clock className="w-3.5 h-3.5" />
-                                                    <span className="text-[10px] font-bold">{new Date(ticket.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                    <span className="text-[10px] font-bold">{new Date(ticket.created_at).toLocaleDateString(lang === "EN" ? 'en-US' : 'ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                                 </div>
                                                 <p className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.2em]">Ticket #{ticket.id.substring(0, 8)}</p>
                                             </div>
@@ -183,10 +204,10 @@ export default function AdminTicketsPage() {
                                                     className="flex-1 bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
                                                     value={ticket.status}
                                                 >
-                                                    <option value="OPEN">Mark Open</option>
-                                                    <option value="IN_PROGRESS">In Progress</option>
-                                                    <option value="RESOLVED">Resolved</option>
-                                                    <option value="CLOSED">Closed</option>
+                                                    <option value="OPEN">{lang === "EN" ? "Mark Open" : "Buka"}</option>
+                                                    <option value="IN_PROGRESS">{lang === "EN" ? "In Progress" : "Dalam Proses"}</option>
+                                                    <option value="RESOLVED">{lang === "EN" ? "Resolved" : "Selesai"}</option>
+                                                    <option value="CLOSED">{lang === "EN" ? "Closed" : "Ditutup"}</option>
                                                 </select>
                                                 <Link 
                                                     href={`/admin/tickets/${ticket.id}`}
@@ -205,10 +226,10 @@ export default function AdminTicketsPage() {
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="border-b border-zinc-50">
-                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Type & Status</th>
-                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Title & Intelligence Source</th>
-                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Date Logged</th>
-                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right pr-12">System Actions</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Type & Status" bm="Jenis & Status" /></th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Title & Intelligence Source" bm="Tajuk & Sumber Maklumat" /></th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Date Logged" bm="Tarikh Log" /></th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right pr-12"><T en="System Actions" bm="Tindakan Sistem" /></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-50">
@@ -224,7 +245,7 @@ export default function AdminTicketsPage() {
                                                             ticket.status === 'IN_PROGRESS' ? 'bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-500/20' : 
                                                             'bg-zinc-100 text-zinc-400 border-zinc-200'
                                                         }`}>
-                                                            {ticket.status}
+                                                            {translateStatus(ticket.status)}
                                                         </span>
                                                     </div>
                                                 </td>
@@ -237,7 +258,7 @@ export default function AdminTicketsPage() {
                                                 <td className="px-8 py-7">
                                                     <div className="flex items-center gap-2 text-zinc-500">
                                                         <Clock className="w-3.5 h-3.5 text-zinc-300" />
-                                                        <span className="text-xs font-bold">{new Date(ticket.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                        <span className="text-xs font-bold">{new Date(ticket.created_at).toLocaleDateString(lang === "EN" ? 'en-US' : 'ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-7 text-right pr-12">
@@ -247,10 +268,10 @@ export default function AdminTicketsPage() {
                                                             className="bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
                                                             value={ticket.status}
                                                         >
-                                                            <option value="OPEN">Mark Open</option>
-                                                            <option value="IN_PROGRESS">In Progress</option>
-                                                            <option value="RESOLVED">Resolved</option>
-                                                            <option value="CLOSED">Closed</option>
+                                                            <option value="OPEN">{lang === "EN" ? "Mark Open" : "Buka"}</option>
+                                                            <option value="IN_PROGRESS">{lang === "EN" ? "In Progress" : "Dalam Proses"}</option>
+                                                            <option value="RESOLVED">{lang === "EN" ? "Resolved" : "Selesai"}</option>
+                                                            <option value="CLOSED">{lang === "EN" ? "Closed" : "Ditutup"}</option>
                                                         </select>
                                                         <Link 
                                                             href={`/admin/tickets/${ticket.id}`}

@@ -9,8 +9,12 @@ import { fetchPrices, DEFAULT_PRICES } from "@/utils/pricing";
 import ServiceAgreementModal from "@/components/modals/ServiceAgreementModal";
 import { T } from "@/components/Translate";
 import { getAssetUrl } from "@/utils/url";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
+import { toast } from "sonner";
 
 export default function BillingPage() {
+  const { lang } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -123,7 +127,7 @@ export default function BillingPage() {
         setSelectedProjectId(projects[0].id);
       }
     } catch (err) {
-      setError("Failed to load project data.");
+      setError(translateError("Failed to load project data.", lang));
     } finally {
       setLoading(false);
     }
@@ -165,10 +169,10 @@ export default function BillingPage() {
       if (res.ok) {
         await fetchSubscriptionData(projectId);
       } else {
-        alert("Failed to update auto-renewal settings.");
+        toast.error(translateError("Failed to update auto-renewal settings.", lang));
       }
     } catch (err) {
-      alert("Network error.");
+      toast.error(translateError("Network error.", lang));
     } finally {
       setActionLoading(false);
     }
@@ -217,10 +221,10 @@ export default function BillingPage() {
       if (res.ok && (result.url || result.checkout_url)) {
         window.location.href = result.url || result.checkout_url;
       } else {
-        alert("Failed to start checkout session.");
+        toast.error(translateError("Failed to start checkout session.", lang));
       }
     } catch (err) {
-      alert("Network error.");
+      toast.error(translateError("Network error.", lang));
     } finally {
       setActionLoading(false);
     }

@@ -5,6 +5,8 @@ import { useSocket } from "@/components/providers/SocketProvider";
 import { Search, Eye, Lock, Unlock } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 interface Project {
   id: string;
@@ -50,6 +52,7 @@ const getStatusLabel = (status: string): string => {
 const processedProjectIds = new Set<string>();
 
 export default function AdminProjects() {
+  const { lang } = useLanguage();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState("");
@@ -86,8 +89,8 @@ export default function AdminProjects() {
       const isFresh = (now - createdAt) < 15000; // 15 seconds threshold
 
       if (isFresh) {
-        toast.success("New Project Deployed", {
-          description: `${newProject.title} has been added by a client.`,
+        toast.success(lang === "EN" ? "New Project Deployed" : "Projek Baru Dilancarkan", {
+          description: lang === "EN" ? `${newProject.title} has been added by a client.` : `${newProject.title} telah ditambah oleh klien.`,
           duration: 10000,
         });
       }
@@ -137,9 +140,9 @@ export default function AdminProjects() {
 
       {/* ─── Header ─── */}
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-zinc-900">Projects</h1>
+        <h1 className="text-3xl font-black tracking-tight text-zinc-900"><T en="Projects" bm="Projek" /></h1>
         <p className="text-sm text-zinc-400 font-medium mt-1">
-          Manage and monitor all client projects across your platform.
+          <T en="Manage and monitor all client projects across your platform." bm="Urus dan pantau semua projek klien di seluruh platform anda." />
         </p>
       </div>
 
@@ -152,7 +155,7 @@ export default function AdminProjects() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search projects..."
+            placeholder={lang === "EN" ? "Search projects..." : "Cari projek..."}
             className="w-full pl-10 pr-4 py-3 lg:py-2.5 bg-white border border-zinc-200 rounded-xl text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-emerald-400 transition-colors shadow-sm"
           />
         </div>
@@ -160,7 +163,7 @@ export default function AdminProjects() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 lg:gap-6">
           {/* Subscription Filter */}
           <div className="flex flex-col gap-2 w-full sm:w-auto">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Subscription</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1"><T en="Subscription" bm="Langganan" /></span>
             <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner w-full sm:w-auto overflow-x-auto no-scrollbar">
               {(["all", "active", "inactive"] as const).map(f => (
                 <button
@@ -180,7 +183,7 @@ export default function AdminProjects() {
 
           {/* Payment Filter */}
           <div className="flex flex-col gap-2 w-full sm:w-auto">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Payment</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1"><T en="Payment" bm="Pembayaran" /></span>
             <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner w-full sm:w-auto overflow-x-auto no-scrollbar">
               {(["all", "paid", "unpaid"] as const).map(f => (
                 <button
@@ -204,7 +207,7 @@ export default function AdminProjects() {
       <div className="md:hidden space-y-4">
         {filtered.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl border border-zinc-100 text-zinc-400 text-sm italic">
-            No projects found.
+            <T en="No projects found." bm="Tiada projek ditemui." />
           </div>
         ) : (
           filtered.map(project => (
@@ -222,12 +225,12 @@ export default function AdminProjects() {
               
               <div className="grid grid-cols-2 gap-4 py-3 border-y border-zinc-50">
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Owner</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400"><T en="Owner" bm="Pemilik" /></p>
                   <p className="font-bold text-emerald-600 text-xs truncate">{project.client_name}</p>
                   <p className="text-[9px] text-zinc-400 truncate font-medium">{project.client_email}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Plan & Subscription</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400"><T en="Plan & Subscription" bm="Pelan & Langganan" /></p>
                   <div className="flex flex-wrap gap-1.5">
                     <span className="inline-flex px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[9px] font-black uppercase tracking-wide">
                       {normalizePlanName(project.plan_name)}
@@ -237,7 +240,7 @@ export default function AdminProjects() {
                         ? "bg-emerald-500 text-white border-emerald-600" 
                         : "bg-zinc-100 text-zinc-400 border-zinc-200"
                     }`}>
-                      {project.subscription_status ? project.subscription_status.replace(/_/g, " ") : "No Sub"}
+                      {project.subscription_status ? project.subscription_status.replace(/_/g, " ") : <T en="No Sub" bm="Tiada Langganan" />}
                     </span>
                   </div>
                 </div>
@@ -250,8 +253,8 @@ export default function AdminProjects() {
                     : "bg-zinc-100 border-zinc-200 text-zinc-500"
                 }`}>
                   {project.client_edit_allowed
-                    ? <><Unlock className="w-3 h-3" /> Sync Active</>
-                    : <><Lock className="w-3 h-3" /> Locked</>
+                    ? <><Unlock className="w-3 h-3" /> <T en="Sync Active" bm="Sinkronasi Aktif" /></>
+                    : <><Lock className="w-3 h-3" /> <T en="Locked" bm="Dikunci" /></>
                   }
                 </div>
                 <Link
@@ -272,9 +275,17 @@ export default function AdminProjects() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-100">
-                {["Project", "Owner", "Plan", "Sync Mode", "Subscription", "Status", "Actions"].map(h => (
-                  <th key={h} className="text-left py-3.5 px-5 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                    {h}
+                {[
+                  { en: "Project", bm: "Projek" },
+                  { en: "Owner", bm: "Pemilik" },
+                  { en: "Plan", bm: "Pelan" },
+                  { en: "Sync Mode", bm: "Mod Sinkronasi" },
+                  { en: "Subscription", bm: "Langganan" },
+                  { en: "Status", bm: "Status" },
+                  { en: "Actions", bm: "Tindakan" }
+                ].map(h => (
+                  <th key={h.en} className="text-left py-3.5 px-5 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                    <T en={h.en} bm={h.bm} />
                   </th>
                 ))}
               </tr>
@@ -283,7 +294,7 @@ export default function AdminProjects() {
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-16 text-zinc-400 text-sm italic">
-                    No projects found.
+                    <T en="No projects found." bm="Tiada projek ditemui." />
                   </td>
                 </tr>
               ) : filtered.map(project => (
@@ -316,8 +327,8 @@ export default function AdminProjects() {
                         : "bg-zinc-100 border-zinc-200 text-zinc-500"
                     }`}>
                       {project.client_edit_allowed
-                        ? <><Unlock className="w-3 h-3" /> Sync Active</>
-                        : <><Lock className="w-3 h-3" /> Locked</>
+                        ? <><Unlock className="w-3 h-3" /> <T en="Sync Active" bm="Sinkronasi Aktif" /></>
+                        : <><Lock className="w-3 h-3" /> <T en="Locked" bm="Dikunci" /></>
                       }
                     </div>
                   </td>
@@ -330,7 +341,7 @@ export default function AdminProjects() {
                         : "bg-zinc-100 text-zinc-400 border-zinc-200"
                     }`}>
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${project.subscription_status === "active" ? "bg-white/70" : "bg-zinc-300"}`} />
-                      {project.subscription_status ? project.subscription_status.replace(/_/g, " ") : "No Sub"}
+                      {project.subscription_status ? project.subscription_status.replace(/_/g, " ") : <T en="No Sub" bm="Tiada Langganan" />}
                     </span>
                   </td>
 
@@ -348,7 +359,7 @@ export default function AdminProjects() {
                       href={`/admin/projects/${project.id}`}
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
                     >
-                      <Eye className="w-3.5 h-3.5" /> Inspect
+                      <Eye className="w-3.5 h-3.5" /> <T en="Inspect" bm="Periksa" />
                     </Link>
                   </td>
 
@@ -360,7 +371,10 @@ export default function AdminProjects() {
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-zinc-100 text-xs text-zinc-400 font-medium">
-          Showing <span className="font-bold text-zinc-600">{filtered.length}</span> projects
+          <T 
+            en={<>Showing <span className="font-bold text-zinc-600">{filtered.length}</span> projects</>} 
+            bm={<>Memaparkan <span className="font-bold text-zinc-600">{filtered.length}</span> projek</>} 
+          />
         </div>
       </div>
 

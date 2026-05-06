@@ -10,6 +10,8 @@ import {
     Clock
 } from "lucide-react";
 import Link from "next/link";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 interface AdminStats {
     total_mrr: number;
@@ -26,6 +28,7 @@ interface RecentProject {
 }
 
 export default function AdminDashboard() {
+    const { lang } = useLanguage();
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
     const [loading, setLoading] = useState(true);
@@ -70,18 +73,18 @@ export default function AdminDashboard() {
         }
     };
 
-    if (loading) return <div className="p-8 text-zinc-500 font-bold animate-pulse">Loading System Oversight...</div>;
+    if (loading) return <div className="p-8 text-zinc-500 font-bold animate-pulse"><T en="Loading System Oversight..." bm="Memuatkan Pemantauan Sistem..." /></div>;
 
     return (
         <div className="space-y-10 animate-fade-in">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-extra-bold tracking-tight">System Oversight</h1>
-                    <p className="text-zinc-500 mt-1 uppercase tracking-widest text-xs font-bold">Agency Performance & Monitoring</p>
+                    <h1 className="text-3xl font-extra-bold tracking-tight"><T en="System Oversight" bm="Pemantauan Sistem" /></h1>
+                    <p className="text-zinc-500 mt-1 uppercase tracking-widest text-xs font-bold"><T en="Agency Performance & Monitoring" bm="Prestasi & Pemantauan Agensi" /></p>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium">
                     <Clock className="w-4 h-4 text-emerald-500" />
-                    Real-time Data Active
+                    <T en="Real-time Data Active" bm="Data Masa Nyata Aktif" />
                 </div>
             </header>
 
@@ -96,7 +99,7 @@ export default function AdminDashboard() {
                             +0% <ArrowUpRight className="w-4 h-4" />
                         </div>
                     </div>
-                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1">Total Collected</h3>
+                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1"><T en="Total Collected" bm="Jumlah Kutipan" /></h3>
                     <p className="text-3xl font-black">RM {stats?.total_revenue?.toLocaleString() || "0.00"}</p>
                 </div>
 
@@ -106,8 +109,8 @@ export default function AdminDashboard() {
                             <Briefcase className="w-6 h-6" />
                         </div>
                     </div>
-                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1">Active Projects</h3>
-                    <p className="text-3xl font-black">{stats?.active_projects || 0} Projects</p>
+                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1"><T en="Active Projects" bm="Projek Aktif" /></h3>
+                    <p className="text-3xl font-black">{stats?.active_projects || 0} <T en="Projects" bm="Projek" /></p>
                 </div>
 
                 <div className="p-8 rounded-[2rem] bg-white border border-zinc-200 shadow-sm relative overflow-hidden group">
@@ -116,8 +119,8 @@ export default function AdminDashboard() {
                             <Users className="w-6 h-6" />
                         </div>
                     </div>
-                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1">Total Clients</h3>
-                    <p className="text-3xl font-black">{stats?.total_clients || 0} Klien</p>
+                    <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-1"><T en="Total Clients" bm="Jumlah Pelanggan" /></h3>
+                    <p className="text-3xl font-black">{stats?.total_clients || 0} <T en="Clients" bm="Pelanggan" /></p>
                 </div>
             </div>
 
@@ -126,17 +129,17 @@ export default function AdminDashboard() {
                 <div className="bg-white border border-zinc-200 rounded-[2.5rem] overflow-hidden">
                     <div className="p-8 border-b border-zinc-100 flex items-center justify-between">
                         <h3 className="text-xl font-bold flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-emerald-500" /> Recent Activity
+                            <BarChart3 className="w-5 h-5 text-emerald-500" /> <T en="Recent Activity" bm="Aktiviti Terkini" />
                         </h3>
-                        <Link href="/admin/projects" className="text-sm font-bold text-emerald-600">View All</Link>
+                        <Link href="/admin/projects" className="text-sm font-bold text-emerald-600"><T en="View All" bm="Lihat Semua" /></Link>
                     </div>
                     <div className="p-6 overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="text-xs font-bold uppercase text-zinc-400">
                                 <tr>
-                                    <th className="px-4 py-3">Project</th>
-                                    <th className="px-4 py-3">Status</th>
-                                    <th className="px-4 py-3">Subscription</th>
+                                    <th className="px-4 py-3"><T en="Project" bm="Projek" /></th>
+                                    <th className="px-4 py-3"><T en="Status" bm="Status" /></th>
+                                    <th className="px-4 py-3"><T en="Subscription" bm="Langganan" /></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-100 animate-slide-up">
@@ -150,7 +153,7 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-4 py-6">
                                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${row.subscription_status === 'active' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
-                                                {row.subscription_status === 'active' ? 'Active' : 'No subscription'}
+                                                {row.subscription_status === 'active' ? <T en="Active" bm="Aktif" /> : <T en="No subscription" bm="Tiada langganan" />}
                                             </span>
                                         </td>
                                     </tr>
@@ -158,7 +161,7 @@ export default function AdminDashboard() {
                             </tbody>
                         </table>
                         {recentProjects.length === 0 && (
-                            <div className="p-12 text-center text-zinc-500 italic">No recent activity detected.</div>
+                            <div className="p-12 text-center text-zinc-500 italic"><T en="No recent activity detected." bm="Tiada aktiviti terkini dikesan." /></div>
                         )}
                     </div>
                 </div>
@@ -167,27 +170,27 @@ export default function AdminDashboard() {
                 <div className="space-y-6">
                     <div className="p-8 rounded-[2.5rem] bg-emerald-600 text-white shadow-2xl shadow-emerald-600/20 relative overflow-hidden">
                         <div className="relative z-10">
-                            <h3 className="text-2xl font-bold mb-2">Agency Support</h3>
+                            <h3 className="text-2xl font-bold mb-2"><T en="Agency Support" bm="Sokongan Agensi" /></h3>
                             <p className="text-emerald-100 text-sm leading-relaxed mb-8">
-                                System is automatically monitoring project statuses. You can review submissions in real-time.
+                                <T en="System is automatically monitoring project statuses. You can review submissions in real-time." bm="Sistem sedang memantau status projek secara automatik. Anda boleh menyemak penyerahan secara masa nyata." />
                             </p>
                             <Link 
                                 href="/admin/tickets" 
                                 className="inline-block px-6 py-3 bg-white text-emerald-700 font-bold rounded-xl shadow-lg hover:bg-emerald-50 transition-colors"
                             >
-                                Review Submissions
+                                <T en="Review Submissions" bm="Semak Penyerahan" />
                             </Link>
                         </div>
                         <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
                     </div>
 
                     <div className="p-8 rounded-[2.5rem] bg-white border border-zinc-200">
-                        <h3 className="text-xl font-bold mb-6">System Health</h3>
+                        <h3 className="text-xl font-bold mb-6"><T en="System Health" bm="Kesihatan Sistem" /></h3>
                         <div className="space-y-6">
                             {[
-                                { name: "PostgreSQL Database", status: "Operational", color: "bg-emerald-500" },
-                                { name: "Axum API Engine", status: "Operational", color: "bg-emerald-500" },
-                                { name: "Stripe Webhooks", status: "Standby", color: "bg-orange-500" },
+                                { name: <T en="PostgreSQL Database" bm="Pangkalan Data PostgreSQL" />, status: <T en="Operational" bm="Beroperasi" />, color: "bg-emerald-500" },
+                                { name: <T en="Axum API Engine" bm="Enjin API Axum" />, status: <T en="Operational" bm="Beroperasi" />, color: "bg-emerald-500" },
+                                { name: <T en="Stripe Webhooks" bm="Webhook Stripe" />, status: <T en="Standby" bm="Bersedia" />, color: "bg-orange-500" },
                             ].map((s, i) => (
                                 <div key={i} className="flex items-center justify-between">
                                     <span className="text-sm font-medium text-zinc-400">{s.name}</span>

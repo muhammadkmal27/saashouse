@@ -9,6 +9,9 @@ import {
     Loader2
 } from "lucide-react";
 import { toast } from "sonner";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 interface ClientLedgerRow {
     id: string;
@@ -24,6 +27,7 @@ interface ClientLedgerRow {
 }
 
 export default function AdminClients() {
+    const { lang } = useLanguage();
     const [clients, setClients] = useState<ClientLedgerRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -36,18 +40,11 @@ export default function AdminClients() {
                 console.log("DEBUG: Clients fetched successfully, count:", data.length);
                 setClients(data);
             } else {
-                const errorText = await res.text();
-                console.error(`API Error (${res.status}):`, errorText);
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    toast.error(`Server error: ${errorJson.error || res.statusText}`);
-                } catch (e) {
-                    toast.error(`Server error (${res.status}): ${errorText.substring(0, 50)}`);
-                }
+                const errorData = await res.json().catch(() => ({}));
+                toast.error(translateError(errorData.error || "Server error", lang));
             }
         } catch (error) {
-            console.error("Failed to fetch clients:", error);
-            toast.error("Network error. Please check your connection.");
+            toast.error(translateError("Network error.", lang));
         } finally {
             setLoading(false);
         }
@@ -77,8 +74,8 @@ export default function AdminClients() {
         <div className="space-y-8 animate-fade-in">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-extra-bold tracking-tight">Client Ledger</h1>
-                    <p className="text-zinc-500 mt-1 uppercase tracking-widest text-xs font-bold">Account Oversight & Subscription Control</p>
+                    <h1 className="text-3xl font-extra-bold tracking-tight"><T en="Client Ledger" bm="Lejar Klien" /></h1>
+                    <p className="text-zinc-500 mt-1 uppercase tracking-widest text-xs font-bold"><T en="Account Oversight & Subscription Control" bm="Pengawasan Akaun & Kawalan Langganan" /></p>
                 </div>
             </header>
 
@@ -89,7 +86,7 @@ export default function AdminClients() {
                         <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                         <input 
                             type="text" 
-                            placeholder="Find client or project..." 
+                            placeholder={lang === "EN" ? "Find client or project..." : "Cari klien atau projek..."}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 lg:py-2 bg-white border border-zinc-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
@@ -97,7 +94,7 @@ export default function AdminClients() {
                         />
                     </div>
                     <div className="hidden md:block text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                        Active Records: <span className="text-zinc-900">{filteredClients.length}</span>
+                        <T en="Active Records" bm="Rekod Aktif" />: <span className="text-zinc-900">{filteredClients.length}</span>
                     </div>
                 </div>
 
@@ -105,11 +102,11 @@ export default function AdminClients() {
                     {loading ? (
                         <div className="flex flex-col items-center justify-center p-20 gap-3 text-center">
                             <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Synchronizing Ledger...</p>
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest"><T en="Synchronizing Ledger..." bm="Menyelaraskan Lejar..." /></p>
                         </div>
                     ) : filteredClients.length === 0 ? (
                         <div className="text-center py-20 px-6">
-                            <p className="text-zinc-500 font-bold italic">No intelligence records match your query.</p>
+                            <p className="text-zinc-500 font-bold italic"><T en="No intelligence records match your query." bm="Tiada rekod risikan yang sepadan dengan pertanyaan anda." /></p>
                         </div>
                     ) : (
                         <>
@@ -128,23 +125,23 @@ export default function AdminClients() {
                                                     ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20' 
                                                     : 'bg-zinc-100 text-zinc-400 border border-zinc-200'
                                                 }`}>
-                                                    {client.project_status}
+                                                    <T en={client.project_status} bm={client.project_status === 'LIVE' ? 'AKTIF' : 'TIDAK AKTIF'} />
                                                 </span>
                                             ) : (
-                                                <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">Inactive</span>
+                                                <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100"><T en="Inactive" bm="Tidak Aktif" /></span>
                                             )}
                                         </div>
 
                                         <div className="bg-zinc-50 rounded-2xl p-4 space-y-2 border border-zinc-100">
                                             <div className="flex items-center gap-2">
                                                 <ServerIcon className="w-3.5 h-3.5 text-emerald-500" />
-                                                <span className="text-xs font-bold text-zinc-700 truncate">{client.project_title || "No Active Repository"}</span>
+                                                <span className="text-xs font-bold text-zinc-700 truncate">{client.project_title || (lang === 'EN' ? "No Active Repository" : "Tiada Repositori Aktif")}</span>
                                             </div>
                                             {client.plan_name && (
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-3.5 h-3.5" /> {/* Spacer */}
                                                     <span className="text-[9px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 uppercase font-black tracking-tight">
-                                                        Plan: {normalizePlanName(client.plan_name)}
+                                                        <T en="Plan" bm="Pelan" />: {normalizePlanName(client.plan_name)}
                                                     </span>
                                                 </div>
                                             )}
@@ -158,9 +155,9 @@ export default function AdminClients() {
                                 <table className="w-full text-left">
                                     <thead className="text-[10px] font-black uppercase text-zinc-400 tracking-widest border-b border-zinc-50">
                                         <tr>
-                                            <th className="px-8 py-5">Client & Email</th>
-                                            <th className="px-8 py-5">Active Project & Plan</th>
-                                            <th className="px-8 py-5 text-right pr-12">Status</th>
+                                            <th className="px-8 py-5"><T en="Client & Email" bm="Klien & E-mel" /></th>
+                                            <th className="px-8 py-5"><T en="Active Project & Plan" bm="Projek Aktif & Pelan" /></th>
+                                            <th className="px-8 py-5 text-right pr-12"><T en="Status" bm="Status" /></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-50">
@@ -176,10 +173,10 @@ export default function AdminClients() {
                                                     <div className="flex flex-col gap-1.5">
                                                         <div className="flex items-center gap-2">
                                                             <ServerIcon className="w-4 h-4 text-emerald-500/70" />
-                                                            <span className="text-sm font-bold text-zinc-800">{client.project_title || "No Active Project"}</span>
+                                                            <span className="text-sm font-bold text-zinc-800">{client.project_title || (lang === 'EN' ? "No Active Project" : "Tiada Projek Aktif")}</span>
                                                         </div>
                                                         {client.plan_name && (
-                                                            <span className="text-[10px] text-zinc-400 ml-6 uppercase font-black tracking-widest">Plan: {normalizePlanName(client.plan_name)}</span>
+                                                            <span className="text-[10px] text-zinc-400 ml-6 uppercase font-black tracking-widest"><T en="Plan" bm="Pelan" />: {normalizePlanName(client.plan_name)}</span>
                                                         )}
                                                     </div>
                                                 </td>
@@ -191,10 +188,10 @@ export default function AdminClients() {
                                                             : 'bg-zinc-100 text-zinc-400 border-zinc-200'
                                                         }`}>
                                                             {client.project_status === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" />}
-                                                            {client.project_status}
+                                                            <T en={client.project_status} bm={client.project_status === 'LIVE' ? 'AKTIF' : 'TIDAK AKTIF'} />
                                                         </span>
                                                     ) : (
-                                                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest opacity-50 italic">No Status</span>
+                                                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest opacity-50 italic"><T en="No Status" bm="Tiada Status" /></span>
                                                     )}
                                                 </td>
                                             </tr>

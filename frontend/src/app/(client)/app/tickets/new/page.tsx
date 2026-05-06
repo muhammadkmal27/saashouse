@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { getCookie } from "@/utils/cookies";
+import { translateError } from "@/utils/error-translator";
 
 function NewTicketForm() {
     const router = useRouter();
@@ -75,12 +76,12 @@ function NewTicketForm() {
                     ...prev,
                     attachment_urls: [...prev.attachment_urls, result.files[0]]
                 }));
-                toast.success("File uploaded successfully.");
+                toast.success(lang === "EN" ? "File uploaded successfully." : "Fail berjaya dimuat naik.");
             } else {
-                toast.error(result.error || "Failed to upload file.");
+                toast.error(translateError(result.error || "Failed to upload file.", lang));
             }
         } catch (err) {
-            toast.error("Upload failed.");
+            toast.error(translateError("Upload failed.", lang));
         } finally {
             setLoading(false);
         }
@@ -89,7 +90,7 @@ function NewTicketForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.project_id || !formData.title || !formData.description) {
-            toast.warning("Please fill in all required fields.");
+            toast.warning(lang === "EN" ? "Please fill in all required fields." : "Sila lengkapkan semua medan yang diperlukan.");
             return;
         }
 
@@ -107,14 +108,14 @@ function NewTicketForm() {
             });
 
             if (res.ok) {
-                toast.success("Ticket created successfully!");
+                toast.success(lang === "EN" ? "Ticket created successfully!" : "Tiket berjaya dicipta!");
                 router.push("/app/tickets");
             } else {
                 const errorData = await res.json().catch(() => ({}));
-                toast.error(errorData.error || "Failed to create ticket.");
+                toast.error(translateError(errorData.error || "Failed to create ticket.", lang));
             }
         } catch (err) {
-            toast.error("Network error. Please try again later.");
+            toast.error(translateError("Network error. Please try again later.", lang));
         } finally {
             setSubmitting(false);
         }

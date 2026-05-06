@@ -23,6 +23,9 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useSocket } from "@/components/providers/SocketProvider";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 
 import { getCookie } from "@/utils/cookies";
 
@@ -52,6 +55,7 @@ type Ticket = {
 export default function AdminTicketDetailPage() {
     const { id } = useParams();
     const router = useRouter();
+    const { lang } = useLanguage();
     
     const [ticket, setTicket] = useState<Ticket | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
@@ -180,15 +184,18 @@ export default function AdminTicketDetailPage() {
                 fetchTicketData();
                 fetchComments();
                 
-                toast.success(`Ticket marked as ${newStatus}`);
+                const statusLabel = newStatus === 'OPEN' ? (lang === 'EN' ? 'Open' : 'Terbuka') :
+                                    newStatus === 'IN_PROGRESS' ? (lang === 'EN' ? 'In Progress' : 'Dalam Proses') :
+                                    newStatus === 'RESOLVED' ? (lang === 'EN' ? 'Resolved' : 'Selesai') :
+                                    (lang === 'EN' ? 'Closed' : 'Ditutup');
+                
+                toast.success(lang === 'EN' ? `Ticket marked as ${statusLabel}` : `Tiket ditandakan sebagai ${statusLabel}`);
             } else {
                 const errData = await res.json().catch(() => ({}));
-                console.error("Admin: Status update failed server-side:", errData);
-                toast.error("Server rejected status update.");
+                toast.error(translateError(errData.error || "Server rejected status update.", lang));
             }
         } catch (err) {
-            console.error("Admin: Status update fetch error:", err);
-            toast.error("Failed to connect to server.");
+            toast.error(translateError("Failed to connect to server.", lang));
         } finally {
             setUpdatingStatus(false);
         }
@@ -214,10 +221,12 @@ export default function AdminTicketDetailPage() {
                     ...prev, 
                     attachment_urls: [...prev.attachment_urls, data.files[0]] 
                 }));
-                toast.success("File uploaded.");
+                toast.success(lang === 'EN' ? "File uploaded." : "Fail dimuat naik.");
+            } else {
+                toast.error(translateError(data.error || "Upload failed.", lang));
             }
         } catch(_) {
-            toast.error("Upload failed.");
+            toast.error(translateError("Upload failed.", lang));
         } finally { 
             setUploading(false); 
         }
@@ -241,17 +250,20 @@ export default function AdminTicketDetailPage() {
             if (res.ok) {
                 setCommentData({ message: "", attachment_urls: [] });
                 // We rely on WebSocket for real-time addition
-                toast.success("Message sent.");
+                toast.success(lang === 'EN' ? "Message sent." : "Pesanan dihantar.");
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast.error(translateError(data.error || "Send failed.", lang));
             }
         } catch(_) {
-            toast.error("Send failed.");
+            toast.error(translateError("Send failed.", lang));
         } finally {
             setSubmitting(false);
         }
     };
 
     if (loading) return <div className="p-12 flex justify-center"><Loader2 className="w-10 h-10 animate-spin text-zinc-400" /></div>;
-    if (!ticket) return <div className="p-12 text-center text-zinc-400 italic">Ticket not found.</div>;
+    if (!ticket) return <div className="p-12 text-center text-zinc-400 italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-20">
@@ -262,7 +274,7 @@ export default function AdminTicketDetailPage() {
                         href="/admin/tickets"
                         className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 font-black uppercase tracking-widest text-[10px] group mb-4"
                     >
-                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> Admin Console / Tickets
+                        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" /> <T en="Admin Console" bm="Konsol Admin" /> / <T en="Tickets" bm="Tiket" />
                     </Link>
                     <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${ticket.type_ === 'BUG' ? 'bg-orange-50 text-orange-600' : 'bg-indigo-50 text-indigo-600'}`}>
@@ -279,7 +291,7 @@ export default function AdminTicketDetailPage() {
                             disabled={updatingStatus}
                             className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-2xl px-6 py-3 text-xs font-black uppercase transition-colors shadow-sm disabled:opacity-50"
                         >
-                            {updatingStatus ? "Closing..." : "Close Ticket"}
+                            {updatingStatus ? (lang === "EN" ? "Closing..." : "Menutup...") : <T en="Close Ticket" bm="Tutup Tiket" />}
                         </button>
                     )}
                     <select 
@@ -288,10 +300,10 @@ export default function AdminTicketDetailPage() {
                         className="bg-white border border-zinc-200 rounded-2xl px-6 py-3 text-xs font-black uppercase outline-none focus:ring-2 ring-zinc-900 transition-all cursor-pointer"
                         value={ticket.status}
                     >
-                        <option value="OPEN">Mark Open</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="RESOLVED">Resolved</option>
-                        <option value="CLOSED">Closed</option>
+                        <option value="OPEN">{lang === "EN" ? "Mark Open" : "Tanda Buka"}</option>
+                        <option value="IN_PROGRESS">{lang === "EN" ? "In Progress" : "Dalam Proses"}</option>
+                        <option value="RESOLVED">{lang === "EN" ? "Resolved" : "Selesai"}</option>
+                        <option value="CLOSED">{lang === "EN" ? "Closed" : "Ditutup"}</option>
                     </select>
                 </div>
             </div>
@@ -305,7 +317,7 @@ export default function AdminTicketDetailPage() {
                                 <UserCircle2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="font-black text-sm text-zinc-900 uppercase tracking-widest">Client Message</p>
+                                <p className="font-black text-sm text-zinc-900 uppercase tracking-widest"><T en="Client Message" bm="Mesej Pelanggan" /></p>
                                 <p className="text-xs text-zinc-400">{ticket.creator_email} • {new Date(ticket.created_at).toLocaleString()}</p>
                             </div>
                         </div>
@@ -345,14 +357,14 @@ export default function AdminTicketDetailPage() {
                                 <div className="flex-1 bg-white rounded-[2rem] p-6 border border-zinc-100 shadow-lg shadow-zinc-200/30">
                                     <div className="flex items-center justify-between mb-4">
                                         <p className="font-black text-[10px] uppercase tracking-widest text-zinc-400">
-                                            {comment.user_id === ticket.created_by ? 'Client' : 'You (Admin)'}
+                                            {comment.user_id === ticket.created_by ? <T en="Client" bm="Pelanggan" /> : <T en="You (Admin)" bm="Anda (Admin)" />}
                                         </p>
                                         <div className="flex items-center gap-2">
                                             <p className="text-[10px] font-medium text-zinc-300">
                                                 {new Date(comment.created_at).toLocaleTimeString()}
                                             </p>
                                             {comment.user_id !== ticket.created_by && comment.is_read && (
-                                                <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter">Read</span>
+                                                <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter"><T en="Read" bm="Dibaca" /></span>
                                             )}
                                         </div>
                                     </div>
@@ -389,7 +401,7 @@ export default function AdminTicketDetailPage() {
                                 <textarea 
                                     value={commentData.message}
                                     onChange={(e) => setCommentData(prev => ({ ...prev, message: e.target.value }))}
-                                    placeholder="Reply to client... (Markdown supported)"
+                                    placeholder={lang === "EN" ? "Reply to client... (Markdown supported)" : "Balas kepada pelanggan... (Markdown disokong)"}
                                     className="w-full px-6 py-4 bg-zinc-800 rounded-2xl border-none outline-none focus:ring-1 ring-zinc-700 font-medium text-sm text-white placeholder:text-zinc-500 resize-none"
                                     rows={2}
                                 />
@@ -424,7 +436,7 @@ export default function AdminTicketDetailPage() {
                                         disabled={submitting || (!commentData.message.trim() && commentData.attachment_urls.length === 0)}
                                         className="px-8 py-3 bg-white text-zinc-900 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-zinc-100 transition-all disabled:opacity-50"
                                     >
-                                        {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Send Response</>}
+                                        {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> <T en="Send Response" bm="Hantar Balasan" /></>}
                                     </button>
                                 </div>
                             </form>
@@ -432,8 +444,8 @@ export default function AdminTicketDetailPage() {
                     ) : (
                         <div className="mt-8 bg-zinc-50 border border-zinc-200 rounded-[2.5rem] p-8 text-center">
                              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-4" />
-                             <p className="text-sm font-black text-zinc-900 uppercase tracking-widest">This ticket is CLOSED</p>
-                             <p className="text-xs text-zinc-400 font-medium">No further responses can be sent from this portal.</p>
+                             <p className="text-sm font-black text-zinc-900 uppercase tracking-widest"><T en="This ticket is CLOSED" bm="Tiket ini telah DITUTUP" /></p>
+                             <p className="text-xs text-zinc-400 font-medium"><T en="No further responses can be sent from this portal." bm="Tiada balasan lanjut boleh dihantar dari portal ini." /></p>
                         </div>
                     )}
                 </div>
@@ -442,15 +454,15 @@ export default function AdminTicketDetailPage() {
                 <div className="space-y-6">
                     <div className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-200/40">
                         <h3 className="text-xl font-black text-zinc-900 mb-6 flex items-center gap-2">
-                            <Mail className="w-5 h-5 text-indigo-500" /> Client Info
+                            <Mail className="w-5 h-5 text-indigo-500" /> <T en="Client Info" bm="Maklumat Pelanggan" />
                         </h3>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Email Address</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1"><T en="Email Address" bm="Alamat E-mel" /></p>
                                 <p className="text-sm font-bold text-zinc-900 break-all">{ticket.creator_email}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Ticket ID</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1"><T en="Ticket ID" bm="ID Tiket" /></p>
                                 <p className="text-[10px] font-mono font-medium text-zinc-400">{ticket.id}</p>
                             </div>
                         </div>
@@ -458,15 +470,15 @@ export default function AdminTicketDetailPage() {
 
                     <div className="bg-zinc-50 rounded-[2.5rem] p-8 border border-zinc-200/50">
                         <h3 className="text-xl font-black text-zinc-900 mb-6 flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-zinc-400" /> Timeline
+                            <Clock className="w-5 h-5 text-zinc-400" /> <T en="Timeline" bm="Garis Masa" />
                         </h3>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Created</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Created" bm="Dicipta" /></span>
                                 <span className="text-xs font-bold text-zinc-900">{new Date(ticket.created_at).toISOString().split('T')[0]}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Last Update</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Last Update" bm="Kemaskini Terakhir" /></span>
                                 <span className="text-xs font-bold text-zinc-900">{new Date().toISOString().split('T')[0]}</span>
                             </div>
                         </div>

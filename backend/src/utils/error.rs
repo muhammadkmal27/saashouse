@@ -65,7 +65,7 @@ impl IntoResponse for ApiError {
             }
             ApiError::TooManyRequests(msg) => {
                 println!("ERROR [RateLimit]: {}", msg);
-                (StatusCode::TOO_MANY_REQUESTS, "Terlalu banyak permintaan. Sila cuba sebentar lagi.".to_string())
+                (StatusCode::TOO_MANY_REQUESTS, "Too many requests. Please try again later.".to_string())
             }
         };
 

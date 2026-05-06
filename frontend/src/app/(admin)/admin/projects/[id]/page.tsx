@@ -36,6 +36,9 @@ import {
     RotateCcw,
     FileText
 } from "lucide-react";
+import { T } from "@/components/Translate";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translateError } from "@/utils/error-translator";
 import Script from 'next/script';
 import Link from "next/link";
 import { getAssetUrl } from "@/utils/url";
@@ -104,6 +107,7 @@ interface ServiceAgreement {
 
 
 export default function AdminProjectDetails() {
+  const { lang } = useLanguage();
   const { id } = useParams();
   const router = useRouter();
   const [project, setProject] = useState<ProjectData | null>(null);
@@ -203,14 +207,16 @@ export default function AdminProjectDetails() {
 
         if (res.ok) {
             setProject({ ...project, client_edit_allowed: newValue });
-            showNotification(newValue ? "Client Blueprint Access: UNLOCKED" : "Client Blueprint Access: LOCKED", "success");
+            showNotification(lang === "EN" 
+              ? (newValue ? "Client Blueprint Access: UNLOCKED" : "Client Blueprint Access: LOCKED")
+              : (newValue ? "Akses Blueprint Klien: DIBUKA" : "Akses Blueprint Klien: DIKUNCI"), "success");
         } else {
             const errBody = await res.text();
             console.error("SYNC ERROR:", errBody);
-            showNotification("Failed to update security parameters", "error");
+            showNotification(lang === "EN" ? "Failed to update security parameters" : "Gagal mengemas kini parameter keselamatan", "error");
         }
     } catch (err) {
-        showNotification("Network synchronization error", "error");
+        showNotification(lang === "EN" ? "Network synchronization error" : "Ralat sinkronasi rangkaian", "error");
     } finally {
         setPermissionLoading(false);
     }
@@ -233,20 +239,20 @@ export default function AdminProjectDetails() {
 
         if (res.ok) {
             setProject(prev => prev ? { ...prev, ...params } : null);
-            if (!silent) showNotification("Architecture Synchronized Successfully");
+            if (!silent) showNotification(lang === "EN" ? "Architecture Synchronized Successfully" : "Seni Bina Berjaya Disinkronkan");
             setIsEditingStaging(false);
             setIsEditingProd(false);
             if (params.status) router.refresh();
             return true;
         } else {
             const errorMsg = `Server responded with ${res.status}`;
-            if (!silent) showNotification(`Update Failed: ${errorMsg}`, "error");
+            if (!silent) showNotification(lang === "EN" ? `Update Failed: ${errorMsg}` : `Kemas Kini Gagal: ${errorMsg}`, "error");
             console.error("Link update failed:", errorMsg);
             return false;
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error("Network Error:", err);
-        if (!silent) showNotification("Network Error: Could not reach backend", "error");
+        if (!silent) showNotification(translateError(err.message ?? "Network Error", lang), "error");
         return false;
     } finally {
         if (!silent) setUpdating(false);
@@ -261,9 +267,9 @@ export default function AdminProjectDetails() {
     }, true);
     
     if (success) {
-        showNotification("Environment Deployed: Project is now Under Development");
+        showNotification(lang === "EN" ? "Environment Deployed: Project is now Under Development" : "Persekitaran Dilancarkan: Projek kini dalam Pembangunan");
     } else {
-        showNotification("Staging Deployment Failed", "error");
+        showNotification(lang === "EN" ? "Staging Deployment Failed" : "Pelancaran Staging Gagal", "error");
     }
     setUpdating(false);
   };
@@ -276,9 +282,9 @@ export default function AdminProjectDetails() {
     }, true);
     
     if (success) {
-        showNotification("Production Environment Live!");
+        showNotification(lang === "EN" ? "Production Environment Live!" : "Persekitaran Pengeluaran Kini Aktif!");
     } else {
-        showNotification("Production Deployment Failed", "error");
+        showNotification(lang === "EN" ? "Production Deployment Failed" : "Pelancaran Pengeluaran Gagal", "error");
     }
     setUpdating(false);
   };
@@ -301,11 +307,11 @@ export default function AdminProjectDetails() {
             showNotification(data.message);
             setProject(p => p ? { ...p, status: "PAYMENT_PENDING" } : null);
         } else {
-            showNotification("Failed to generate financial record", "error");
+            showNotification(lang === "EN" ? "Failed to generate financial record" : "Gagal menjana rekod kewangan", "error");
         }
     } catch (err) {
         console.error(err);
-        showNotification("Error: Script execution failed", "error");
+        showNotification(lang === "EN" ? "Error: Script execution failed" : "Ralat: Pelaksanaan skrip gagal", "error");
     } finally {
         setUpdating(false);
     }
@@ -344,7 +350,7 @@ export default function AdminProjectDetails() {
     try {
         // @ts-ignore
         if (typeof window.html2pdf !== 'function') {
-            showNotification("PDF components are still loading. Please wait a moment.", "error");
+            showNotification(lang === "EN" ? "PDF components are still loading. Please wait a moment." : "Komponen PDF masih dimuatkan. Sila tunggu sebentar.", "error");
             setIsExporting(false);
             return;
         }
@@ -381,8 +387,8 @@ export default function AdminProjectDetails() {
     }
   };
 
-  if (loading) return <div className="p-20 text-center font-bold text-zinc-500 animate-pulse">Analyzing Project Requirements...</div>;
-  if (!project) return <div className="p-20 text-center text-red-500">Project blueprint not found.</div>;
+  if (loading) return <div className="p-20 text-center font-bold text-zinc-500 animate-pulse"><T en="Analyzing Project Requirements..." bm="Menganalisis Keperluan Projek..." /></div>;
+  if (!project) return <div className="p-20 text-center text-red-500"><T en="Project blueprint not found." bm="Blueprint projek tidak ditemui." /></div>;
 
   const req = project.requirements || {};
 
@@ -407,7 +413,7 @@ export default function AdminProjectDetails() {
                 balance_amount: 0,
                 provider_name: (status as any)?.service_provider_name || agreement.provider_name
             } : {
-                client_name: "PELANGGAN CONTOH",
+                client_name: lang === "EN" ? "SAMPLE CLIENT" : "PELANGGAN CONTOH",
                 provider_name: (status as any)?.service_provider_name || "SaaS House Development",
                 title: project.title,
                 total_cost: currentMonthlyPrice,
@@ -444,7 +450,7 @@ export default function AdminProjectDetails() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
             <Link href="/admin/projects" className="inline-flex items-center gap-2 text-zinc-500 hover:text-indigo-600 transition-colors font-bold text-sm group">
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-                Back to Projects
+                <T en="Back to Projects" bm="Kembali ke Projek" />
             </Link>
             
             <div className="flex flex-wrap items-center gap-3">
@@ -453,7 +459,7 @@ export default function AdminProjectDetails() {
                     disabled={isExporting}
                     className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
                 >
-                    <Download className="w-4 h-4" /> {isExporting ? 'Generating...' : 'Download PDF (HQ)'}
+                    <Download className="w-4 h-4" /> {isExporting ? <T en="Generating..." bm="Menjana..." /> : <T en="Download PDF (HQ)" bm="Muat Turun PDF (HQ)" />}
                 </button>
 
                 <button 
@@ -466,7 +472,7 @@ export default function AdminProjectDetails() {
                   }`}
                 >
                   {project.client_edit_allowed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                  {project.client_edit_allowed ? "Blueprint Unlocked" : "Lock Editor"}
+                  {project.client_edit_allowed ? <T en="Blueprint Unlocked" bm="Blueprint Dibuka" /> : <T en="Lock Editor" bm="Kunci Editor" />}
                 </button>
             </div>
         </div>
@@ -480,17 +486,17 @@ export default function AdminProjectDetails() {
                             {project.status.replace('_', ' ')}
                         </span>
                         <span className="px-3 py-1 text-[10px] font-bold bg-zinc-100 text-zinc-500 rounded-lg uppercase tracking-wider">
-                            Plan: {project.selected_plan || 'Custom Plan'}
+                            <T en="Plan:" bm="Pelan:" /> {project.selected_plan || <T en="Custom Plan" bm="Pelan Tersuai" />}
                         </span>
                         <span className="px-3 py-1 text-[10px] font-bold bg-zinc-100 text-zinc-500 rounded-lg uppercase tracking-wider">
-                            Sub: {project.subscription_status ? (project.subscription_status.charAt(0).toUpperCase() + project.subscription_status.slice(1)) : (project.selected_plan?.toUpperCase().includes('ONE-TIME') && !['REVIEW', 'DRAFT'].includes(project.status.toUpperCase())) ? 'Active (OTP)' : 'Inactive'}
+                            <T en="Sub:" bm="Langganan:" /> {project.subscription_status ? (project.subscription_status.charAt(0).toUpperCase() + project.subscription_status.slice(1)) : (project.selected_plan?.toUpperCase().includes('ONE-TIME') && !['REVIEW', 'DRAFT'].includes(project.status.toUpperCase())) ? <T en="Active (OTP)" bm="Aktif (OTP)" /> : <T en="Inactive" bm="Tidak Aktif" />}
                         </span>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-zinc-900 tracking-tight leading-none uppercase">
                         {project.title}
                     </h1>
                     <p className="text-zinc-500 font-medium max-w-2xl text-lg">
-                        {project.description || "Detailed project parameters and technical infrastructure requirements."}
+                        {project.description || <T en="Detailed project parameters and technical infrastructure requirements." bm="Parameter projek terperinci dan keperluan infrastruktur teknikal." />}
                     </p>
                 </div>
                 {project.whatsapp_number && (
@@ -499,7 +505,7 @@ export default function AdminProjectDetails() {
                       target="_blank" 
                       className="print:hidden flex items-center gap-3 px-6 py-4 bg-emerald-50 border-2 border-emerald-100 text-emerald-700 hover:bg-emerald-100 rounded-2xl font-bold transition-all"
                     >
-                      <MessageCircle className="w-5 h-5" /> Chat via WhatsApp
+                      <MessageCircle className="w-5 h-5" /> <T en="Chat via WhatsApp" bm="Sembang melalui WhatsApp" />
                     </a>
                 )}
             </div>
@@ -515,14 +521,14 @@ export default function AdminProjectDetails() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3 text-zinc-400">
                                 <FileSearch className="w-6 h-6" />
-                                <span className="text-sm font-black uppercase tracking-widest">The Creative Vision</span>
+                                <span className="text-sm font-black uppercase tracking-widest"><T en="The Creative Vision" bm="Visi Kreatif" /></span>
                             </div>
                             <button 
                                 onClick={handleExportReportPDF}
                                 disabled={isExporting}
                                 className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
                             >
-                                <Download className="w-3.5 h-3.5" /> {isExporting ? 'Exporting...' : 'Download Blueprint'}
+                                <Download className="w-3.5 h-3.5" /> {isExporting ? <T en="Exporting..." bm="Mengeksport..." /> : <T en="Download Blueprint" bm="Muat Turun Blueprint" />}
                             </button>
                         </div>
                         <div className="max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar">
@@ -539,15 +545,15 @@ export default function AdminProjectDetails() {
                     <div className="bg-white border-2 border-zinc-200 rounded-3xl p-8 shadow-sm space-y-6">
                         <div className="flex items-center gap-3 text-zinc-400">
                             <BadgeCheck className="w-5 h-5" />
-                            <span className="text-[11px] font-black uppercase tracking-widest">Client Identity</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest"><T en="Client Identity" bm="Identiti Klien" /></span>
                         </div>
                         
                         <div className="space-y-4">
                             <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 group flex justify-between items-center transition-colors">
                                 <div>
-                                    <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">SSM Registration</p>
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1"><T en="SSM Registration" bm="Pendaftaran SSM" /></p>
                                     <p className="text-sm font-bold text-zinc-800">
-                                        {req.payment_setup?.ssm_url ? "Document Provided" : "No Document (ToyyibPay)"}
+                                        {req.payment_setup?.ssm_url ? <T en="Document Provided" bm="Dokumen Disediakan" /> : <T en="No Document (ToyyibPay)" bm="Tiada Dokumen (ToyyibPay)" />}
                                     </p>
                                 </div>
                                 {req.payment_setup?.ssm_url && (
@@ -562,9 +568,9 @@ export default function AdminProjectDetails() {
 
                             <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex justify-between items-center group">
                                 <div>
-                                    <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Brand Assets</p>
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1"><T en="Brand Assets" bm="Aset Jenama" /></p>
                                     <p className="text-sm font-bold text-zinc-800">
-                                        {req.brand_assets?.logo_url ? "Logo Asset Linked" : "No Logo Uploaded"}
+                                        {req.brand_assets?.logo_url ? <T en="Logo Asset Linked" bm="Aset Logo Dihubungkan" /> : <T en="No Logo Uploaded" bm="Tiada Logo Dimuat Naik" />}
                                     </p>
                                 </div>
                                 {req.brand_assets?.logo_url && (
@@ -579,14 +585,14 @@ export default function AdminProjectDetails() {
 
                             {req.payment_setup?.has_toyyibpay && (
                                 <div className="p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl">
-                                    <p className="text-[10px] font-black text-indigo-400 uppercase mb-3 tracking-widest">ToyyibPay Configuration</p>
+                                    <p className="text-[10px] font-black text-indigo-400 uppercase mb-3 tracking-widest"><T en="ToyyibPay Configuration" bm="Konfigurasi ToyyibPay" /></p>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <p className="text-[8px] font-bold text-indigo-300 uppercase">Secret Key</p>
+                                            <p className="text-[8px] font-bold text-indigo-300 uppercase"><T en="Secret Key" bm="Kunci Rahsia" /></p>
                                             <p className="text-[10px] font-mono font-bold text-indigo-700 truncate">{req.payment_setup.secret_key || "NA"}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[8px] font-bold text-indigo-300 uppercase">Category</p>
+                                            <p className="text-[8px] font-bold text-indigo-300 uppercase"><T en="Category" bm="Kategori" /></p>
                                             <p className="text-[10px] font-mono font-bold text-indigo-700">{req.payment_setup.category_code || "NA"}</p>
                                         </div>
                                     </div>
@@ -599,22 +605,22 @@ export default function AdminProjectDetails() {
                     <div className="bg-white border-2 border-zinc-200 rounded-3xl p-8 shadow-sm space-y-6">
                         <div className="flex items-center gap-3 text-zinc-400">
                             <Briefcase className="w-5 h-5" />
-                            <span className="text-[11px] font-black uppercase tracking-widest">Operations</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest"><T en="Operations" bm="Operasi" /></span>
                         </div>
                         
                         <div className="space-y-4">
                             <div>
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Business Email</p>
-                                <p className="text-sm font-bold text-zinc-800 break-all">{req.business_email || "Not Defined"}</p>
+                                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1"><T en="Business Email" bm="E-mel Perniagaan" /></p>
+                                <p className="text-sm font-bold text-zinc-800 break-all">{req.business_email || <T en="Not Defined" bm="Tidak Ditakrifkan" />}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Operation Hours</p>
-                                <p className="text-sm font-bold text-zinc-800">{req.operation_hours || "Unspecified"}</p>
+                                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1"><T en="Operation Hours" bm="Waktu Operasi" /></p>
+                                <p className="text-sm font-bold text-zinc-800">{req.operation_hours || <T en="Unspecified" bm="Tidak Dinyatakan" />}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Business Address</p>
+                                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-1"><T en="Business Address" bm="Alamat Perniagaan" /></p>
                                 <p className="text-sm font-bold text-zinc-800 leading-relaxed opacity-80">
-                                    {req.business_address || "No Physical Address Provided"}
+                                    {req.business_address || <T en="No Physical Address Provided" bm="Tiada Alamat Fizikal Disediakan" />}
                                 </p>
                             </div>
                         </div>
@@ -628,14 +634,14 @@ export default function AdminProjectDetails() {
                         {req.sitemap && req.sitemap.length > 0 && (
                             <div>
                                 <div className="flex items-center gap-3 text-zinc-400 mb-8 font-black uppercase tracking-widest text-[11px]">
-                                    <Layout className="w-4 h-4" /> Architecture Hierarchy
+                                    <Layout className="w-4 h-4" /> <T en="Architecture Hierarchy" bm="Hierarki Seni Bina" />
                                 </div>
                                 <div className="space-y-3 relative pl-6 border-l-2 border-zinc-100">
                                     {req.sitemap.map((page, idx) => (
                                         <div key={idx} className="relative group p-2 rounded-lg hover:bg-zinc-50 transition-colors">
                                             <div className="absolute -left-[30px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-zinc-200 z-10" />
                                             <div className="flex flex-col">
-                                                <span className="text-[8px] font-bold text-zinc-400 uppercase">Page {idx + 1}</span>
+                                                <span className="text-[8px] font-bold text-zinc-400 uppercase"><T en="Page" bm="Halaman" /> {idx + 1}</span>
                                                 <span className="text-sm font-bold text-zinc-900 group-hover:text-indigo-600 transition-colors">{page}</span>
                                             </div>
                                         </div>
@@ -649,7 +655,7 @@ export default function AdminProjectDetails() {
                             {req.features && req.features.length > 0 && (
                                 <div>
                                     <div className="flex items-center gap-3 text-zinc-400 mb-6 font-black uppercase tracking-widest text-[11px]">
-                                        <BadgeCheck className="w-4 h-4" /> Activated Modules
+                                        <BadgeCheck className="w-4 h-4" /> <T en="Activated Modules" bm="Modul Diaktifkan" />
                                     </div>
                                     <div className="grid gap-2">
                                         {req.features.map((feat, idx) => (
@@ -684,7 +690,7 @@ export default function AdminProjectDetails() {
                     <div className="bg-zinc-900 rounded-3xl p-8 text-white space-y-6 shadow-xl">
                         <div className="flex items-center gap-3 text-zinc-400 mb-2">
                             <Rocket className="w-5 h-5 text-indigo-400" />
-                            <span className="text-xs font-black uppercase tracking-[0.2em]">Environment Management</span>
+                            <span className="text-xs font-black uppercase tracking-[0.2em]"><T en="Environment Management" bm="Pengurusan Persekitaran" /></span>
                         </div>
 
                         <div className="space-y-4">
@@ -700,11 +706,11 @@ export default function AdminProjectDetails() {
                                     />
                                     <div className="flex flex-col gap-2">
                                         <button onClick={handlePublishStaging} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20">
-                                            Deploy & Notify Client
+                                            <T en="Deploy & Notify Client" bm="Lancar & Beritahu Klien" />
                                         </button>
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleProjectUpdate({ dev_url: tempDevUrl })} className="flex-1 py-2.5 bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase">Save Only</button>
-                                            <button onClick={() => setIsEditingStaging(false)} className="px-4 py-2.5 bg-transparent border border-zinc-800 hover:bg-zinc-800 rounded-xl text-[10px] font-black uppercase">Cancel</button>
+                                            <button onClick={() => handleProjectUpdate({ dev_url: tempDevUrl })} className="flex-1 py-2.5 bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase"><T en="Save Only" bm="Simpan Sahaja" /></button>
+                                            <button onClick={() => setIsEditingStaging(false)} className="px-4 py-2.5 bg-transparent border border-zinc-800 hover:bg-zinc-800 rounded-xl text-[10px] font-black uppercase"><T en="Cancel" bm="Batal" /></button>
                                         </div>
                                     </div>
                                 </div>
@@ -714,7 +720,7 @@ export default function AdminProjectDetails() {
                                     onClick={() => setIsEditingStaging(true)}
                                     className="w-full py-4 bg-zinc-800 hover:bg-indigo-600 border border-zinc-700 rounded-2xl font-black flex items-center justify-center gap-3 transition-all active:scale-95"
                                 >
-                                    <Box className="w-5 h-5" /> {project.dev_url ? "Update Staging Link" : "Initiate Staging"}
+                                    <Box className="w-5 h-5" /> {project.dev_url ? <T en="Update Staging Link" bm="Kemas Kini Pautan Staging" /> : <T en="Initiate Staging" bm="Mulakan Staging" />}
                                 </button>
                             )}
 
@@ -730,11 +736,11 @@ export default function AdminProjectDetails() {
                                     />
                                     <div className="flex flex-col gap-2">
                                         <button onClick={handlePublishProduction} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20">
-                                            Go Live Now
+                                            <T en="Go Live Now" bm="Aktifkan Sekarang" />
                                         </button>
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleProjectUpdate({ prod_url: tempProdUrl })} className="flex-1 py-2.5 bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase">Save Only</button>
-                                            <button onClick={() => setIsEditingProd(false)} className="px-4 py-2.5 bg-transparent border border-zinc-800 hover:bg-zinc-800 rounded-xl text-[10px] font-black uppercase">Cancel</button>
+                                            <button onClick={() => handleProjectUpdate({ prod_url: tempProdUrl })} className="flex-1 py-2.5 bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase"><T en="Save Only" bm="Simpan Sahaja" /></button>
+                                            <button onClick={() => setIsEditingProd(false)} className="px-4 py-2.5 bg-transparent border border-zinc-800 hover:bg-zinc-800 rounded-xl text-[10px] font-black uppercase"><T en="Cancel" bm="Batal" /></button>
                                         </div>
                                     </div>
                                 </div>
@@ -744,7 +750,7 @@ export default function AdminProjectDetails() {
                                     onClick={() => setIsEditingProd(true)}
                                     className="w-full py-4 border-2 border-zinc-800 hover:border-emerald-500 text-zinc-400 hover:text-white rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-lg"
                                 >
-                                    <Send className="w-5 h-5" /> {project.prod_url ? "Update Live Link" : "Publish to Production"}
+                                    <Send className="w-5 h-5" /> {project.prod_url ? <T en="Update Live Link" bm="Kemas Kini Pautan Aktif" /> : <T en="Publish to Production" bm="Terbit ke Pengeluaran" />}
                                 </button>
                             )}
 
@@ -754,7 +760,7 @@ export default function AdminProjectDetails() {
                                 onClick={handleGenerateInvoice}
                                 className="w-full py-4 bg-white text-zinc-900 hover:bg-zinc-100 rounded-2xl font-black flex items-center justify-center gap-3 transition-all"
                             >
-                                <FileText className="w-5 h-5" /> {project.status === "PAYMENT_PENDING" ? "Invoice Pending Review" : "Request Payment"}
+                                <FileText className="w-5 h-5" /> {project.status === "PAYMENT_PENDING" ? <T en="Invoice Pending Review" bm="Invois Menunggu Semakan" /> : <T en="Request Payment" bm="Mohon Pembayaran" />}
                             </button>
                             </div>
 
@@ -762,7 +768,7 @@ export default function AdminProjectDetails() {
                             {agreement && (
                                 <div className="pt-6 border-t border-zinc-800 space-y-3">
                                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-violet-400">
-                                        <BadgeCheck className="w-3 h-3" /> Agreement Verified
+                                        <BadgeCheck className="w-3 h-3" /> <T en="Agreement Verified" bm="Perjanjian Disahkan" />
                                     </div>
                                     <button 
                                         onClick={() => {
@@ -771,11 +777,11 @@ export default function AdminProjectDetails() {
                                         }}
                                         className="w-full py-4 bg-violet-600/20 hover:bg-violet-600/40 border border-violet-500/30 text-violet-100 rounded-2xl font-black flex items-center justify-center gap-3 transition-all"
                                     >
-                                        <Printer className="w-5 h-5" /> Print Agreement
+                                        <Printer className="w-5 h-5" /> <T en="Print Agreement" bm="Cetak Perjanjian" />
                                     </button>
                                     <div className="px-4 py-3 bg-zinc-800/50 rounded-xl border border-zinc-700/50">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-[8px] font-bold text-zinc-500 uppercase">Signed By</span>
+                                            <span className="text-[8px] font-bold text-zinc-500 uppercase"><T en="Signed By" bm="Ditandatangani Oleh" /></span>
                                             <span className="text-[8px] font-mono text-zinc-500">{new Date(agreement.signed_at).toLocaleDateString()}</span>
                                         </div>
                                         <p className="text-xs font-bold text-zinc-200 truncate">{agreement.client_name}</p>
@@ -792,11 +798,11 @@ export default function AdminProjectDetails() {
                     {req.brand_assets?.theme_color && (
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 text-zinc-400 font-black uppercase tracking-widest text-[10px]">
-                                <Printer className="w-4 h-4" /> Brand Meta
+                                <Printer className="w-4 h-4" /> <T en="Brand Meta" bm="Meta Jenama" />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="p-4 bg-zinc-50 border border-zinc-100 rounded-2xl">
-                                    <p className="text-[8px] font-bold text-zinc-400 uppercase mb-2">Theme Hex</p>
+                                    <p className="text-[8px] font-bold text-zinc-400 uppercase mb-2"><T en="Theme Hex" bm="Kod Hex Tema" /></p>
                                     <p className="text-xs font-mono font-bold text-zinc-800">{req.brand_assets.theme_color}</p>
                                 </div>
                                 <div 
@@ -811,24 +817,24 @@ export default function AdminProjectDetails() {
                     {(req.domain_requested || req.domain_2 || req.domain_3) && (
                         <div className="space-y-4 pt-8 border-t border-zinc-100">
                              <div className="flex items-center gap-3 text-zinc-400 font-black uppercase tracking-widest text-[10px]">
-                                <Globe className="w-4 h-4" /> Target Domains
+                                <Globe className="w-4 h-4" /> <T en="Target Domains" bm="Domain Sasaran" />
                             </div>
                             <div className="space-y-2">
                                 {req.domain_requested && (
                                     <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl">
-                                        <p className="text-[7px] font-black text-indigo-300 uppercase">Primary Choice</p>
+                                        <p className="text-[7px] font-black text-indigo-300 uppercase"><T en="Primary Choice" bm="Pilihan Utama" /></p>
                                         <p className="text-xs font-bold text-indigo-700">{req.domain_requested}</p>
                                     </div>
                                 )}
                                 {req.domain_2 && (
                                     <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-xl">
-                                        <p className="text-[7px] font-black text-zinc-400 uppercase">Backup Choice 2</p>
+                                        <p className="text-[7px] font-black text-zinc-400 uppercase"><T en="Backup Choice 2" bm="Pilihan Sandaran 2" /></p>
                                         <p className="text-xs font-bold text-zinc-500">{req.domain_2}</p>
                                     </div>
                                 )}
                                 {req.domain_3 && (
                                     <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-xl">
-                                        <p className="text-[7px] font-black text-zinc-400 uppercase">Backup Choice 3</p>
+                                        <p className="text-[7px] font-black text-zinc-400 uppercase"><T en="Backup Choice 3" bm="Pilihan Sandaran 3" /></p>
                                         <p className="text-xs font-bold text-zinc-500">{req.domain_3}</p>
                                     </div>
                                 )}
@@ -840,7 +846,7 @@ export default function AdminProjectDetails() {
                     {req.competitor_ref && (
                         <div className="pt-8 border-t border-zinc-100">
                             <div className="p-5 bg-amber-50 border-2 border-amber-100 rounded-3xl">
-                                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-2">Creative Benchmark</p>
+                                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-2"><T en="Creative Benchmark" bm="Tanda Aras Kreatif" /></p>
                                 <a href={req.competitor_ref} target="_blank" className="text-xs font-bold text-amber-700 hover:text-amber-900 border-b-2 border-amber-200 truncate block">
                                     {(() => { try { return new URL(req.competitor_ref).hostname; } catch { return req.competitor_ref; } })()}
                                 </a>
@@ -853,7 +859,7 @@ export default function AdminProjectDetails() {
                 {req.social_media && (
                     <div className="bg-white border-2 border-zinc-200 rounded-3xl p-8 shadow-sm space-y-6 print:hidden">
                          <div className="flex items-center gap-3 text-zinc-400 font-black uppercase tracking-widest text-[10px]">
-                            <PlusCircle className="w-4 h-4" /> Social Strategy
+                            <PlusCircle className="w-4 h-4" /> <T en="Social Strategy" bm="Strategi Sosial" />
                         </div>
                         <div className="space-y-3">
                             {req.social_media.facebook && (
@@ -889,7 +895,7 @@ export default function AdminProjectDetails() {
                                 </div>
                             )}
                             {!req.social_media.facebook && !req.social_media.instagram && !req.social_media.tiktok && !req.social_media.linkedin && (
-                                <p className="text-[10px] font-bold text-zinc-400 italic">No social strategy defined.</p>
+                                <p className="text-[10px] font-bold text-zinc-400 italic"><T en="No social strategy defined." bm="Tiada strategi sosial ditakrifkan." /></p>
                             )}
                         </div>
                     </div>
@@ -909,7 +915,7 @@ export default function AdminProjectDetails() {
                     {notification.type === 'success' ? <BadgeCheck className="w-6 h-6" /> : <Info className="w-6 h-6" />}
                 </div>
                 <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Architecture Sync</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1"><T en="Architecture Sync" bm="Sinkronasi Seni Bina" /></div>
                     <div className="font-bold tracking-tight">{notification.message}</div>
                 </div>
             </div>
@@ -954,8 +960,8 @@ export default function AdminProjectDetails() {
                                 <FileSearch className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900">Intelligence Asset Viewer</h3>
-                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tight">Viewing Global Repository Asset (Admin View)</p>
+                                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900"><T en="Intelligence Asset Viewer" bm="Paparan Aset Perisikan" /></h3>
+                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tight"><T en="Viewing Global Repository Asset (Admin View)" bm="Memapar Aset Repositori Global (Paparan Admin)" /></p>
                             </div>
                         </div>
                         <button 
@@ -987,7 +993,7 @@ export default function AdminProjectDetails() {
 
                     {/* Footer Info */}
                     <div className="p-6 bg-zinc-900 text-center">
-                        <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em]">Corporate Strategic Asset Vault</p>
+                        <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em]"><T en="Corporate Strategic Asset Vault" bm="Gudang Aset Strategik Korporat" /></p>
                     </div>
                 </div>
             </div>
@@ -1014,18 +1020,18 @@ export default function AdminProjectDetails() {
                         <div className="flex items-center gap-2">
                             <Layout className={`w-4 h-4 transition-colors ${isMobileControlsOpen ? 'text-emerald-600' : 'text-zinc-400'}`} />
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                                {isMobileControlsOpen ? 'Close Settings' : 'Adjust Layout Options'}
+                                {isMobileControlsOpen ? <T en="Close Settings" bm="Tutup Tetapan" /> : <T en="Adjust Layout Options" bm="Laraskan Pilihan Susun Atur" />}
                             </h3>
                         </div>
                     </div>
 
                     <div className="hidden md:flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Layout className="w-4 h-4 text-emerald-600" />
-                        <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 text-center flex-1">Adjust Layout</h3>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 text-center flex-1"><T en="Adjust Layout" bm="Laraskan Susun Atur" /></h3>
                         <button 
                             onClick={resetAgreementLayout}
                             className="p-1 hover:bg-zinc-100 rounded-md transition-colors text-zinc-400 hover:text-zinc-900"
-                            title="Reset Layout"
+                            title={lang === "EN" ? "Reset Layout" : "Set Semula Susun Atur"}
                         >
                             <RotateCcw className="w-4 h-4" />
                         </button>
@@ -1035,7 +1041,7 @@ export default function AdminProjectDetails() {
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <label className="text-[10px] font-black text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                                    <MoveVertical className="w-3 h-3" /> Section Gap
+                                    <MoveVertical className="w-3 h-3" /> <T en="Section Gap" bm="Jarak Bahagian" />
                                 </label>
                                 <span className="text-[10px] font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-full">{sectionGap}</span>
                             </div>
@@ -1050,7 +1056,7 @@ export default function AdminProjectDetails() {
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <label className="text-[10px] font-black text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                                    <Type className="w-3 h-3" /> Font Size
+                                    <Type className="w-3 h-3" /> <T en="Font Size" bm="Saiz Fon" />
                                 </label>
                                 <span className="text-[10px] font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-full">{fontSize}px</span>
                             </div>
@@ -1065,7 +1071,7 @@ export default function AdminProjectDetails() {
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <label className="text-[10px] font-black text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                                    <Maximize2 className="w-3 h-3" /> Signature Gap
+                                    <Maximize2 className="w-3 h-3" /> <T en="Signature Gap" bm="Jarak Tandatangan" />
                                 </label>
                                 <span className="text-[10px] font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-full">{signatureGap}</span>
                             </div>
@@ -1079,7 +1085,7 @@ export default function AdminProjectDetails() {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
-                                    <Maximize2 className="w-3 h-3" /> Page Margins
+                                    <Maximize2 className="w-3 h-3" /> <T en="Page Margins" bm="Margin Halaman" />
                                 </label>
                                 <span className="text-[10px] font-mono text-zinc-400">{pageMargin}px</span>
                             </div>
@@ -1125,7 +1131,7 @@ export default function AdminProjectDetails() {
                                 try {
                                     // @ts-ignore
                                     if (typeof window.html2pdf !== 'function') {
-                                        showNotification("PDF components are still loading...", "error");
+                                        showNotification(lang === "EN" ? "PDF components are still loading..." : "Komponen PDF masih dimuatkan...", "error");
                                         setIsExporting(false);
                                         return;
                                     }
@@ -1140,17 +1146,17 @@ export default function AdminProjectDetails() {
                             disabled={isExporting}
                             className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50"
                         >
-                            <Download className="w-4 h-4" /> {isExporting ? 'Generating PDF...' : 'Download PDF (HQ)'}
+                            <Download className="w-4 h-4" /> {isExporting ? <T en="Generating PDF..." bm="Menjana PDF..." /> : <T en="Download PDF (HQ)" bm="Muat Turun PDF (HQ)" />}
                         </button>
 
                         <button 
                             onClick={() => window.print()}
                             className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg transition-all"
                         >
-                            <Printer className="w-4 h-4" /> Confirm & Print
+                            <Printer className="w-4 h-4" /> <T en="Confirm & Print" bm="Sahkan & Cetak" />
                         </button>
 
-                        <p className="text-[10px] text-zinc-400 font-medium italic text-center">Final output will follow these adjustments</p>
+                        <p className="text-[10px] text-zinc-400 font-medium italic text-center"><T en="Final output will follow these adjustments" bm="Hasil akhir akan mengikut pelarasan ini" /></p>
                     </div>
                 </div>
 
@@ -1160,7 +1166,7 @@ export default function AdminProjectDetails() {
                 >
                     <div className="flex items-center gap-2">
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest mr-1 md:mr-2">Exit Preview</span>
+                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest mr-1 md:mr-2"><T en="Exit Preview" bm="Keluar Pratonton" /></span>
                     </div>
                 </button>
                 
@@ -1179,7 +1185,7 @@ export default function AdminProjectDetails() {
                             balance_amount: 0,
                             provider_name: (status as any)?.service_provider_name || agreement.provider_name
                         } : {
-                            client_name: "PELANGGAN CONTOH",
+                            client_name: lang === "EN" ? "SAMPLE CLIENT" : "PELANGGAN CONTOH",
                             provider_name: (status as any)?.service_provider_name || "SaaS House Development",
                             title: project.title,
                             total_cost: currentMonthlyPrice,

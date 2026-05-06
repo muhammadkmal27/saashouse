@@ -164,7 +164,7 @@ export default function TicketsPage() {
                                         <div className="flex items-center justify-between mb-1.5">
                                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{timeAgo(ticket.created_at)}</span>
                                             <div className={`px-1.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${isBug ? 'text-orange-500 bg-orange-50' : 'text-violet-600 bg-violet-50'}`}>
-                                                {isBug ? 'Bug' : 'Idea'}
+                                                {isBug ? <T en="Bug" bm="Ralat Sistem" /> : <T en="Idea" bm="Fungsi Sistem" />}
                                             </div>
                                         </div>
                                         <h3 className="text-[12px] font-black text-slate-900 mb-0.5 leading-tight">{ticket.title}</h3>
