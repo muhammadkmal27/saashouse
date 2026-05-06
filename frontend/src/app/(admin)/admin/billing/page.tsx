@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
+
 import {
   TrendingUp, FolderKanban, Users, Zap, Download,
   AlertCircle, CheckCircle2, XCircle, Loader2, Plus, ArrowUpRight,

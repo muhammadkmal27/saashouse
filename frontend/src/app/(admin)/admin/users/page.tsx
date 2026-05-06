@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { UserPlus, Mail, ShieldCheck, Search, Trash2, Shield, MoreVertical, Eye, EyeOff } from "lucide-react";
 import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
