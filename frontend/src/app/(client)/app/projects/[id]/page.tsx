@@ -1621,7 +1621,9 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         <p className="text-xs font-bold text-zinc-600"><T en="Waiting for development to start" bm="Menunggu pembangunan dimulakan" /></p>
                                     </div>
                                 </div>
-                             {project.status === "UNDER_DEVELOPMENT" && (
+                            )}
+
+                            {project.status === "UNDER_DEVELOPMENT" && (
                                 <div className="space-y-4">
                                     <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                                         <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1"><T en="Final Payment" bm="Pembayaran Akhir" /></p>
@@ -1634,8 +1636,6 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         <T en="Pay Final & Go Live" bm="Bayar Akhir & Lancarkan" />
                                     </button>
                                 </div>
-                            )}
-
                             )}
 
                             {project.status === "LIVE" && (
