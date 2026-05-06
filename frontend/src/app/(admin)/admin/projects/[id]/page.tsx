@@ -131,6 +131,7 @@ export default function AdminProjectDetails() {
   const [sectionGap, setSectionGap] = useState(8);
   const [fontSize, setFontSize] = useState(14);
   const [signatureGap, setSignatureGap] = useState(20);
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   const [otpTemplate, setOtpTemplate] = useState<any[]>([]);
   const [saasTemplate, setSaasTemplate] = useState<any[]>([]);
   const [status, setStatus] = useState<any>(null);
@@ -996,9 +997,29 @@ export default function AdminProjectDetails() {
         {isAgreementPreviewOpen && agreement && (
             <div className="fixed inset-0 z-[150] bg-zinc-950 overflow-y-auto custom-scrollbar p-8 print:hidden animate-in fade-in duration-300">
 
-                {/* Control Panel (Moved from component to here for better print control) */}
-                <div className="fixed top-32 right-12 w-64 bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 space-y-6 z-[160] transition-all ring-1 ring-black/5">
-                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
+                {/* Control Panel (Redesigned for Mobile) */}
+                <div className={`
+                    fixed z-[160] transition-all duration-500 ease-in-out
+                    md:top-32 md:right-12 md:w-64 md:translate-y-0 md:rounded-2xl
+                    ${isMobileControlsOpen ? 'bottom-0 translate-y-0' : 'bottom-0 translate-y-[calc(100%-70px)] md:translate-y-0'}
+                    inset-x-0 md:inset-x-auto
+                    bg-white border border-zinc-200 rounded-t-[2.5rem] shadow-2xl p-6 space-y-6 ring-1 ring-black/5
+                `}>
+                    {/* Mobile Toggle / Handle */}
+                    <div 
+                        className="md:hidden flex flex-col items-center gap-2 mb-2 cursor-pointer pb-2"
+                        onClick={() => setIsMobileControlsOpen(!isMobileControlsOpen)}
+                    >
+                        <div className="w-12 h-1.5 bg-zinc-100 rounded-full" />
+                        <div className="flex items-center gap-2">
+                            <Layout className={`w-4 h-4 transition-colors ${isMobileControlsOpen ? 'text-emerald-600' : 'text-zinc-400'}`} />
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                                {isMobileControlsOpen ? 'Close Settings' : 'Adjust Layout Options'}
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Layout className="w-4 h-4 text-emerald-600" />
                         <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 text-center flex-1">Adjust Layout</h3>
                         <button 
@@ -1135,11 +1156,11 @@ export default function AdminProjectDetails() {
 
                 <button 
                     onClick={() => setIsAgreementPreviewOpen(false)}
-                    className="fixed top-8 left-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-md z-[160] transition-all group border border-white/10"
+                    className="fixed top-4 left-4 md:top-8 md:left-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-md z-[160] transition-all group border border-white/10"
                 >
                     <div className="flex items-center gap-2">
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-xs font-black uppercase tracking-widest mr-2">Exit Preview</span>
+                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest mr-1 md:mr-2">Exit Preview</span>
                     </div>
                 </button>
                 

@@ -89,24 +89,30 @@ export default function AdminTicketsPage() {
                 </div>
             </div>
 
-            {/* Tools Bar */}
-            <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/40">
-                <div className="relative flex-1">
+            {/* Tools Bar (Redesigned for Mobile) */}
+            <div className="flex flex-col gap-4 bg-white p-4 rounded-[2.5rem] md:rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/40">
+                <div className="relative w-full">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
                     <input 
                         type="text"
                         placeholder="Search tickets..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-14 pr-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold outline-none"
+                        className="w-full pl-14 pr-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
                     />
                 </div>
-                <div className="flex gap-2">
-                    {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"].map(s => (
+                
+                {/* Horizontal Scroll for Filters on Mobile */}
+                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 custom-scrollbar-hide -mx-2 px-2 md:mx-0 md:px-0">
+                    {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"].map(s => (
                         <button 
                             key={s}
                             onClick={() => setStatusFilter(s)}
-                            className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-400 border border-zinc-100'}`}
+                            className={`whitespace-nowrap px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                statusFilter === s 
+                                ? 'bg-zinc-900 text-white shadow-lg shadow-zinc-900/20' 
+                                : 'bg-white text-zinc-400 border border-zinc-100 hover:bg-zinc-50'
+                            }`}
                         >
                             {s.replace('_', ' ')}
                         </button>
@@ -114,68 +120,153 @@ export default function AdminTicketsPage() {
                 </div>
             </div>
 
-            {/* Admin Table-like List */}
-            <div className="bg-white rounded-[3rem] border border-zinc-100 shadow-2xl shadow-zinc-200/50 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-zinc-50">
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Type & Status</th>
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Title</th>
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</th>
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-50">
-                            {filteredTickets.map(ticket => (
-                                <tr key={ticket.id} className="hover:bg-zinc-50/50 transition-colors group">
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-lg ${ticket.type_ === 'BUG' ? 'bg-orange-50 text-orange-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                                                {ticket.type_ === 'BUG' ? <Bug className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
+            {/* Content Area */}
+            <div className="bg-white rounded-[2.5rem] md:rounded-[3rem] border border-zinc-100 shadow-2xl shadow-zinc-200/50 overflow-hidden">
+                <div className="min-h-[400px]">
+                    {filteredTickets.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-24 px-8 text-center gap-4">
+                            <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center">
+                                <Filter className="w-8 h-8 text-zinc-200" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-zinc-400 italic">No tickets match your intelligence query.</p>
+                                <p className="text-[10px] text-zinc-300 uppercase tracking-widest font-black mt-1">Adjust your filters or search term</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Mobile Card List (md:hidden) */}
+                            <div className="md:hidden divide-y divide-zinc-50">
+                                {filteredTickets.map(ticket => (
+                                    <div key={ticket.id} className="p-6 space-y-5">
+                                        {/* Type & Status */}
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2.5 rounded-xl ${ticket.type_ === 'BUG' ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                                                    {ticket.type_ === 'BUG' ? <Bug className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
+                                                </div>
+                                                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{ticket.type_}</span>
                                             </div>
-                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                                ticket.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600' : 
-                                                ticket.status === 'IN_PROGRESS' ? 'bg-amber-50 text-amber-600' : 
-                                                'bg-zinc-100 text-zinc-400'
+                                            <span className={`text-[9px] font-black px-3 py-1 rounded-lg border uppercase tracking-wider ${
+                                                ticket.status === 'RESOLVED' ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-500/20' : 
+                                                ticket.status === 'IN_PROGRESS' ? 'bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-500/20' : 
+                                                'bg-zinc-100 text-zinc-400 border-zinc-200'
                                             }`}>
                                                 {ticket.status}
                                             </span>
                                         </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <p className="font-black text-zinc-900 line-clamp-1">{ticket.title}</p>
-                                        {ticket.creator_email && (
-                                            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{ticket.creator_email}</p>
-                                        )}
-                                    </td>
-                                    <td className="px-8 py-6 text-sm font-medium text-zinc-400">
-                                        {new Date(ticket.created_at).toISOString().split('T')[0]}
-                                    </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <select 
-                                                onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
-                                                className="bg-zinc-50 border-none rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none"
-                                                value={ticket.status}
-                                            >
-                                                <option value="OPEN">Mark Open</option>
-                                                <option value="IN_PROGRESS">In Progress</option>
-                                                <option value="RESOLVED">Resolved</option>
-                                                <option value="CLOSED">Closed</option>
-                                            </select>
-                                            <Link 
-                                                href={`/admin/tickets/${ticket.id}`}
-                                                className="p-2 bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-900/10"
-                                            >
-                                                <ArrowRight className="w-4 h-4" />
-                                            </Link>
+
+                                        {/* Title & Creator */}
+                                        <div className="space-y-1.5">
+                                            <h3 className="font-black text-zinc-900 text-base leading-tight">{ticket.title}</h3>
+                                            {ticket.creator_email && (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+                                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">{ticket.creator_email}</p>
+                                                </div>
+                                            )}
                                         </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+
+                                        {/* Footer & Actions */}
+                                        <div className="flex flex-col gap-4 pt-2">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2 text-zinc-400">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    <span className="text-[10px] font-bold">{new Date(ticket.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                </div>
+                                                <p className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.2em]">Ticket #{ticket.id.substring(0, 8)}</p>
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-3">
+                                                <select 
+                                                    onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
+                                                    className="flex-1 bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
+                                                    value={ticket.status}
+                                                >
+                                                    <option value="OPEN">Mark Open</option>
+                                                    <option value="IN_PROGRESS">In Progress</option>
+                                                    <option value="RESOLVED">Resolved</option>
+                                                    <option value="CLOSED">Closed</option>
+                                                </select>
+                                                <Link 
+                                                    href={`/admin/tickets/${ticket.id}`}
+                                                    className="w-12 h-12 flex items-center justify-center bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-900/10 active:scale-90"
+                                                >
+                                                    <ArrowRight className="w-5 h-5" />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Table View (Hidden on Mobile) */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-zinc-50">
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Type & Status</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Title & Intelligence Source</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Date Logged</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right pr-12">System Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-50">
+                                        {filteredTickets.map(ticket => (
+                                            <tr key={ticket.id} className="hover:bg-zinc-50/50 transition-colors group">
+                                                <td className="px-8 py-7">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`p-2.5 rounded-xl ${ticket.type_ === 'BUG' ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                                                            {ticket.type_ === 'BUG' ? <Bug className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
+                                                        </div>
+                                                        <span className={`text-[10px] font-black px-3 py-1 rounded-lg border uppercase tracking-wider ${
+                                                            ticket.status === 'RESOLVED' ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-500/20' : 
+                                                            ticket.status === 'IN_PROGRESS' ? 'bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-500/20' : 
+                                                            'bg-zinc-100 text-zinc-400 border-zinc-200'
+                                                        }`}>
+                                                            {ticket.status}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-7">
+                                                    <p className="font-black text-zinc-900 text-sm line-clamp-1">{ticket.title}</p>
+                                                    {ticket.creator_email && (
+                                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight mt-1">{ticket.creator_email}</p>
+                                                    )}
+                                                </td>
+                                                <td className="px-8 py-7">
+                                                    <div className="flex items-center gap-2 text-zinc-500">
+                                                        <Clock className="w-3.5 h-3.5 text-zinc-300" />
+                                                        <span className="text-xs font-bold">{new Date(ticket.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-7 text-right pr-12">
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        <select 
+                                                            onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
+                                                            className="bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
+                                                            value={ticket.status}
+                                                        >
+                                                            <option value="OPEN">Mark Open</option>
+                                                            <option value="IN_PROGRESS">In Progress</option>
+                                                            <option value="RESOLVED">Resolved</option>
+                                                            <option value="CLOSED">Closed</option>
+                                                        </select>
+                                                        <Link 
+                                                            href={`/admin/tickets/${ticket.id}`}
+                                                            className="w-10 h-10 flex items-center justify-center bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-900/10"
+                                                        >
+                                                            <ArrowRight className="w-4 h-4" />
+                                                        </Link>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

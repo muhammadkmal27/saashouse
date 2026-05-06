@@ -71,34 +71,34 @@ export default function AgreementSettings({
   };
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-zinc-100 shadow-xl shadow-zinc-100/60 p-10 space-y-8">
-      <div className="flex items-center justify-between border-b border-zinc-50 pb-6">
-        <div>
-          <h2 className="text-lg font-black text-zinc-900 mb-1 flex items-center gap-2">
+    <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-zinc-100 shadow-xl shadow-zinc-100/60 p-5 md:p-10 space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-zinc-50 pb-8">
+        <div className="space-y-1">
+          <h2 className="text-lg font-black text-zinc-900 flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-500" />
             Agreement Templates
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-zinc-400 font-medium">
             Customize the clauses and sections for legal agreements.
           </p>
         </div>
         
-        <div className="flex bg-zinc-100 p-1 rounded-xl">
+        <div className="flex bg-zinc-100 p-1.5 rounded-2xl w-full sm:w-fit">
           <button 
             onClick={() => handleToggleMode("otp")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-              mode === "otp" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+              mode === "otp" ? "bg-white text-zinc-900 shadow-sm ring-1 ring-black/5" : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
-            <Zap className="w-3 h-3" /> OTP Mode
+            <Zap className="w-3 h-3" /> OTP
           </button>
           <button 
             onClick={() => handleToggleMode("saas")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-              mode === "saas" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+              mode === "saas" ? "bg-white text-zinc-900 shadow-sm ring-1 ring-black/5" : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
-            <Server className="w-3 h-3" /> SaaS Mode
+            <Server className="w-3 h-3" /> SaaS
           </button>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function AgreementSettings({
         <div className="lg:col-span-8 space-y-6">
           <div className="space-y-4">
             {sections.map((section, idx) => (
-              <div key={idx} className="group relative bg-zinc-50 border border-zinc-200 rounded-2xl p-6 transition-all hover:border-zinc-300">
+              <div key={idx} className="group relative bg-zinc-50 border border-zinc-200 rounded-[1.5rem] p-5 md:p-6 transition-all hover:border-zinc-300">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 block">Section {idx + 1}</span>
@@ -121,17 +121,17 @@ export default function AgreementSettings({
                     />
                   </div>
                   
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => moveSection(idx, "up")} className="p-1.5 hover:bg-zinc-200 rounded-md text-zinc-500"><ChevronUp className="w-4 h-4" /></button>
-                    <button onClick={() => moveSection(idx, "down")} className="p-1.5 hover:bg-zinc-200 rounded-md text-zinc-500"><ChevronDown className="w-4 h-4" /></button>
-                    <button onClick={() => removeSection(idx)} className="p-1.5 hover:bg-red-100 rounded-md text-red-500"><Trash2 className="w-4 h-4" /></button>
+                  <div className="flex items-center gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => moveSection(idx, "up")} className="p-2 hover:bg-zinc-200 rounded-xl text-zinc-500 transition-colors"><ChevronUp className="w-4 h-4" /></button>
+                    <button onClick={() => moveSection(idx, "down")} className="p-2 hover:bg-zinc-200 rounded-xl text-zinc-500 transition-colors"><ChevronDown className="w-4 h-4" /></button>
+                    <button onClick={() => removeSection(idx)} className="p-2 hover:bg-red-50 rounded-xl text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
 
                 <textarea 
                   value={section.content}
                   onChange={(e) => updateSection(idx, "content", e.target.value)}
-                  className="w-full h-32 bg-white border border-zinc-200 rounded-xl p-4 text-sm font-medium text-zinc-600 outline-none focus:ring-2 ring-blue-100 resize-none transition-all"
+                  className="w-full h-40 bg-white border border-zinc-200 rounded-2xl p-5 text-sm font-medium text-zinc-600 outline-none focus:ring-2 ring-blue-100 resize-none transition-all shadow-inner"
                   placeholder="Enter section content here... You can use **Markdown** for styling."
                 />
               </div>
@@ -140,53 +140,61 @@ export default function AgreementSettings({
 
           <button 
             onClick={addSection}
-            className="w-full py-4 border-2 border-dashed border-zinc-200 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 transition-all flex items-center justify-center gap-2"
+            className="w-full py-5 border-2 border-dashed border-zinc-200 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" /> Add New Section
+            <Plus className="w-4 h-4" /> Add New Clause
           </button>
         </div>
 
         {/* Sidebar Info */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
-            <h3 className="text-xs font-black uppercase tracking-widest text-blue-900 mb-4 flex items-center gap-2">
-              <Info className="w-4 h-4" /> Available Placeholders
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { key: "{{project_name}}", label: "Project Title" },
-                { key: "{{client_name}}", label: "Client Full Name" },
-                { key: "{{provider_name}}", label: "Your Company Name" },
-                { key: "{{total_cost}}", label: "Total Project Cost" },
-                { key: "{{deposit_amount}}", label: "Deposit Amount" },
-                { key: "{{monthly_price}}", label: "SaaS Monthly Fee" },
-                { key: "{{saas_setup_fee}}", label: "SaaS Setup Fee" },
-                { key: "{{balance_amount}}", label: "Final Balance Owed" },
-                { key: "{{today}}", label: "Today's Date" },
-              ].map((p) => (
-                <li key={p.key} className="flex flex-col">
-                  <code className="text-[11px] font-black text-blue-600">{p.key}</code>
-                  <span className="text-[10px] font-medium text-blue-400">{p.label}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="bg-blue-50/50 border border-blue-100 rounded-[1.5rem] p-6">
+            <details className="group open:space-y-4" open={typeof window !== 'undefined' && window.innerWidth > 768}>
+              <summary className="list-none cursor-pointer">
+                <h3 className="text-xs font-black uppercase tracking-widest text-blue-900 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Info className="w-4 h-4" /> Placeholders
+                  </div>
+                  <ChevronDown className="w-3 h-3 transition-transform group-open:rotate-180 md:hidden" />
+                </h3>
+              </summary>
+              
+              <ul className="space-y-3 pt-2 md:pt-0">
+                {[
+                  { key: "{{project_name}}", label: "Project Title" },
+                  { key: "{{client_name}}", label: "Client Full Name" },
+                  { key: "{{provider_name}}", label: "Your Company Name" },
+                  { key: "{{total_cost}}", label: "Total Project Cost" },
+                  { key: "{{deposit_amount}}", label: "Deposit Amount" },
+                  { key: "{{monthly_price}}", label: "SaaS Monthly Fee" },
+                  { key: "{{saas_setup_fee}}", label: "SaaS Setup Fee" },
+                  { key: "{{balance_amount}}", label: "Final Balance Owed" },
+                  { key: "{{today}}", label: "Today's Date" },
+                ].map((p) => (
+                  <li key={p.key} className="flex flex-col">
+                    <code className="text-[11px] font-black text-blue-600">{p.key}</code>
+                    <span className="text-[10px] font-medium text-blue-400">{p.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
           </div>
 
-          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6">
+          <div className="bg-amber-50/50 border border-amber-100 rounded-[1.5rem] p-6 hidden md:block">
             <h3 className="text-xs font-black uppercase tracking-widest text-amber-900 mb-2 flex items-center gap-2">
               <AlertCircle className="w-4 h-4" /> Pro Tip
             </h3>
             <p className="text-[11px] text-amber-700 leading-relaxed font-medium">
               You can use **Markdown** syntax for bold text, bullet points, and more. 
-              The preview on the client side will render these styles automatically.
+              The preview will render these automatically.
             </p>
           </div>
 
-          <div className="pt-4">
+          <div className="sticky bottom-4 md:relative md:bottom-0 pt-4 md:pt-0">
              <button 
                onClick={handleSave}
                disabled={saving === (mode === "otp" ? "agreement_template_otp" : "agreement_template_saas")}
-               className="w-full py-4 bg-zinc-900 hover:bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-zinc-900/10"
+               className="w-full py-5 bg-zinc-900 hover:bg-black text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-2xl shadow-zinc-900/20 active:scale-[0.98] disabled:opacity-50"
              >
                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                Save {mode.toUpperCase()} Template

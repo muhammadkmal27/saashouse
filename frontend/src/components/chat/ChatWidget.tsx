@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { MessageCircle, X, ChevronRight, User, CirclePlus } from "lucide-react";
 import { T } from "../Translate";
 import { useSocket } from "../providers/SocketProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import MiniChat from "./MiniChat";
 import MiniCreateTicket from "./MiniCreateTicket";
 
@@ -17,6 +17,8 @@ export default function ChatWidget() {
   
   const { isConnected, unreadCount, setUnreadCount, lastEvent } = useSocket();
   const router = useRouter();
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
 
   useEffect(() => {
     if (isOpen) {
@@ -130,7 +132,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-24 md:bottom-6 right-6 z-50 print:hidden">
+    <div className={`fixed ${isAdmin ? 'bottom-6' : 'bottom-24'} md:bottom-6 right-6 z-50 print:hidden`}>
       {isOpen ? (
         <div className="bg-white border border-zinc-200 rounded-2xl shadow-2xl w-[350px] h-[580px] flex flex-col overflow-hidden transition-all duration-300 transform scale-100 opacity-100 animate-in fade-in slide-in-from-bottom-5">
            <div className="bg-zinc-900 text-white p-4 flex justify-between items-center cursor-pointer shadow-sm relative z-10 flex-shrink-0">

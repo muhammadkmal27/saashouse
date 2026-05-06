@@ -144,7 +144,7 @@ export default function AdminProjects() {
       </div>
 
       {/* ─── Search + Filter ─── */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-6">
         {/* Search */}
         <div className="relative w-full lg:w-80">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -152,21 +152,21 @@ export default function AdminProjects() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by project, owner or ID..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-xl text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-emerald-400 transition-colors shadow-sm"
+            placeholder="Search projects..."
+            className="w-full pl-10 pr-4 py-3 lg:py-2.5 bg-white border border-zinc-200 rounded-xl text-sm text-zinc-700 placeholder-zinc-400 outline-none focus:border-emerald-400 transition-colors shadow-sm"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 lg:gap-6">
           {/* Subscription Filter */}
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Subscription</span>
-            <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner">
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Subscription</span>
+            <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner w-full sm:w-auto overflow-x-auto no-scrollbar">
               {(["all", "active", "inactive"] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                     filter === f
                       ? "bg-zinc-900 text-white shadow-md"
                       : "text-zinc-500 hover:text-zinc-700"
@@ -179,14 +179,14 @@ export default function AdminProjects() {
           </div>
 
           {/* Payment Filter */}
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Payment</span>
-            <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner">
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Payment</span>
+            <div className="flex items-center bg-zinc-100 rounded-full p-1 shadow-inner w-full sm:w-auto overflow-x-auto no-scrollbar">
               {(["all", "paid", "unpaid"] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setPaymentFilter(f)}
-                  className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                     paymentFilter === f
                       ? "bg-violet-600 text-white shadow-md"
                       : "text-zinc-500 hover:text-zinc-700"
@@ -200,8 +200,74 @@ export default function AdminProjects() {
         </div>
       </div>
 
-      {/* ─── Table ─── */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+      {/* ─── Mobile Card List (md:hidden) ─── */}
+      <div className="md:hidden space-y-4">
+        {filtered.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-zinc-100 text-zinc-400 text-sm italic">
+            No projects found.
+          </div>
+        ) : (
+          filtered.map(project => (
+            <div key={project.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-4 space-y-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-bold text-zinc-900 leading-tight">{project.title}</p>
+                  <p className="text-[10px] text-zinc-400 font-medium mt-0.5">#{project.id.slice(0, 8)}</p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 text-white rounded-lg text-[9px] font-black uppercase tracking-wide">
+                  <span className="w-1 h-1 rounded-full bg-white/70" />
+                  {getStatusLabel(project.status)}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 py-3 border-y border-zinc-50">
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Owner</p>
+                  <p className="font-bold text-emerald-600 text-xs truncate">{project.client_name}</p>
+                  <p className="text-[9px] text-zinc-400 truncate font-medium">{project.client_email}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Plan & Subscription</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="inline-flex px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[9px] font-black uppercase tracking-wide">
+                      {normalizePlanName(project.plan_name)}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wide border ${
+                      project.subscription_status === "active" 
+                        ? "bg-emerald-500 text-white border-emerald-600" 
+                        : "bg-zinc-100 text-zinc-400 border-zinc-200"
+                    }`}>
+                      {project.subscription_status ? project.subscription_status.replace(/_/g, " ") : "No Sub"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[9px] font-bold ${
+                  project.client_edit_allowed
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                    : "bg-zinc-100 border-zinc-200 text-zinc-500"
+                }`}>
+                  {project.client_edit_allowed
+                    ? <><Unlock className="w-3 h-3" /> Sync Active</>
+                    : <><Lock className="w-3 h-3" /> Locked</>
+                  }
+                </div>
+                <Link
+                  href={`/admin/projects/${project.id}`}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors active:scale-95"
+                >
+                  Manage Project
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* ─── Table (Hidden on Mobile) ─── */}
+      <div className="hidden md:block bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
