@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Right Column (Video & Typography Showcase) */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-center items-center p-16">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-center items-center p-16 bg-zinc-950">
         
         {/* Background Video */}
         <div className="absolute inset-0 z-0">
@@ -35,7 +35,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <source src="/background_login.mp4" type="video/mp4" />
           </video>
           {/* Violet Gradient Overlay on video */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#09090b]/80 via-transparent to-violet-900/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/90 via-zinc-950/40 to-violet-900/30"></div>
         </div>
 
         {/* Right Side Content */}
