@@ -1,0 +1,14 @@
+{
+  "name": "saas-house-load-testing",
+  "version": "1.0.0",
+  "description": "k6 load testing suite for SaaS House",
+  "scripts": {
+    "test:smoke": "docker run --rm -i grafana/k6 run - < k6-scripts/smoke.js",
+    "test:load": "docker run --rm -i grafana/k6 run - < k6-scripts/load.js",
+    "test:stress": "docker run --rm -i grafana/k6 run - < k6-scripts/stress.js",
+    "test:spike": "docker run --rm -i grafana/k6 run - < k6-scripts/spike.js"
+  },
+  "keywords": ["k6", "load-testing", "stress-testing"],
+  "author": "Abu Hanifah (Antigravity)",
+  "license": "ISC"
+}

@@ -11,6 +11,7 @@ pub mod rate_limit;
 pub mod headers;
 pub mod validation;
 pub mod realtime;
+pub mod queue;
 
 #[cfg(test)]
 mod jwt_tests;

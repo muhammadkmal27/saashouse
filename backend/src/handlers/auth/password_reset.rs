@@ -54,13 +54,14 @@ pub async fn forgot_password(
             .await
             .map_err(|e| ApiError::Internal(e.to_string()))?;
 
+        // Send Email via Redis Queue (Rule 16)
         let user_email = user.email.clone();
-        let pool_clone = pool.clone();
-        tokio::spawn(async move {
-            if let Err(e) = crate::utils::email::send_password_reset_email(&pool_clone, &user_email, &token).await {
-                eprintln!("Failed to send password reset email to {}: {}", user_email, e);
-            }
-        });
+        if let Err(e) = crate::utils::queue::push_job(
+            &state.redis, 
+            crate::utils::queue::Job::SendPasswordReset { email: user_email, token: token.clone() }
+        ).await {
+            eprintln!("⚠️ Failed to queue Password Reset email: {}", e);
+        }
     }
 
     Ok(Json(AuthResponse {

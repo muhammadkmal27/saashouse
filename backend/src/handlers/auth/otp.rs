@@ -6,10 +6,11 @@ use crate::utils::{error::ApiError, jwt::create_token};
 use validator::Validate;
 
 pub async fn verify_2fa_logic(
-    pool: PgPool,
+    state: crate::AppState,
     jar: CookieJar,
     payload: Verify2FARequest
 ) -> Result<(CookieJar, Json<AuthResponse>), ApiError> {
+    let pool = &state.pool;
     // 0. Strict Input Validation (Rule 1)
     payload.validate().map_err(ApiError::Validation)?;
 
@@ -56,9 +57,10 @@ pub async fn verify_2fa_logic(
 }
 
 pub async fn resend_otp_logic(
-    pool: PgPool,
+    state: crate::AppState,
     jar: CookieJar,
 ) -> Result<(CookieJar, Json<AuthResponse>), ApiError> {
+    let pool = &state.pool;
     let token = jar.get("auth_token").map(|c| c.value().to_string()).ok_or(ApiError::Unauthorized)?;
     let claims = crate::utils::jwt::verify_token(&token)?;
 
@@ -82,7 +84,7 @@ pub async fn resend_otp_logic(
 
     // Invalidate old OTPs
     sqlx::query!("UPDATE otps SET is_used = true WHERE user_id = $1 AND is_used = false", claims.sub)
-        .execute(&pool)
+        .execute(pool)
         .await
         .map_err(|e| ApiError::Internal(e.to_string()))?;
 
@@ -91,25 +93,27 @@ pub async fn resend_otp_logic(
         "INSERT INTO otps (user_id, code, expires_at) VALUES ($1, $2, $3)",
         claims.sub, otp_code, expires_at
     )
-    .execute(&pool)
+    .execute(pool)
     .await
     .map_err(|e| ApiError::Internal(e.to_string()))?;
 
     // Get user email
     let user: User = sqlx::query_as("SELECT * FROM users WHERE id = $1")
         .bind(&claims.sub)
-        .fetch_one(&pool)
+        .fetch_one(pool)
         .await
         .map_err(|e| ApiError::Internal(e.to_string()))?;
 
+    // Send Email via Redis Queue (Rule 16)
     let user_email = user.email.clone();
     let otp_clone = otp_code.clone();
-    let pool_clone = pool.clone();
-    tokio::spawn(async move {
-        if let Err(e) = crate::utils::email::send_otp_email(&pool_clone, &user_email, &otp_clone).await {
-            eprintln!("Failed to send OTP email: {}", e);
-        }
-    });
+    
+    if let Err(e) = crate::utils::queue::push_job(
+        &state.redis, 
+        crate::utils::queue::Job::SendOtp { email: user_email, code: otp_clone }
+    ).await {
+        eprintln!("⚠️ Failed to queue Resend OTP email: {}", e);
+    }
 
     Ok((jar, Json(AuthResponse { 
         message: "OTP resent successfully".to_owned(),

@@ -12,11 +12,14 @@ services:
     environment:
       POSTGRES_USER: saashouse
       POSTGRES_DB: saashouse
-      # POSTGRES_PASSWORD dibaca dari .env
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    # Port 5432 ditutup dari luar untuk keselamatan prod
+
 
   backend:
     image: ghcr.io/muhammadkmal27/saashouse/backend:main
@@ -29,22 +32,46 @@ services:
       - REDIS_URL=redis://redis:6379
     ports:
       - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    container_name: saas_nginx_proxy
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
 
   frontend:
     image: ghcr.io/muhammadkmal27/saashouse/frontend:main
     restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
     depends_on:
       - backend
     environment:
       BACKEND_URL: "http://backend:8080"
-    ports:
-      - "3000:3000"
+
 
   pgadmin:
     image: dpage/pgadmin4
     container_name: saas_pgadmin4
     environment:
-      # Emel dan password untuk LOGIN ke dashboard pgAdmin di production
       PGADMIN_DEFAULT_EMAIL: admin@saashouse.com
       PGADMIN_DEFAULT_PASSWORD: rootpassword
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
@@ -54,14 +81,22 @@ services:
     depends_on:
       - postgres
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
 
   redis:
     image: redis:7-alpine
     restart: always
     volumes:
       - redis_data:/data
-    # Port 6379 tidak dibuka ke luar (public) untuk keselamatan prod
-    # Hanya backend boleh akses melalui internal network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
   # [NEW] Stripe CLI Service untuk Testing Webhooks
   stripe:
     image: stripe/stripe-cli

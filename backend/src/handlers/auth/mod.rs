@@ -63,7 +63,7 @@ pub async fn login(
         .map(|s| s.split(',').next().unwrap_or(s).trim().to_string());
     let ua = headers.get("user-agent").and_then(|h| h.to_str().ok()).map(|s| s.to_string());
     
-    let result = login::login_logic(state.pool.clone(), jar, payload, ip, ua).await?;
+    let result = login::login_logic(state.clone(), jar, payload, ip, ua).await?;
     Ok(result.into_response())
 }
 
@@ -82,7 +82,7 @@ pub async fn verify_2fa(
     Json(payload): Json<Verify2FARequest>
 ) -> Result<Response, ApiError> {
     let jar = CookieJar::from_headers(&headers);
-    let result = otp::verify_2fa_logic(state.pool.clone(), jar, payload).await?;
+    let result = otp::verify_2fa_logic(state.clone(), jar, payload).await?;
     Ok(result.into_response())
 }
 
@@ -118,6 +118,6 @@ pub async fn resend_otp(
     headers: HeaderMap,
 ) -> Result<Response, ApiError> {
     let jar = CookieJar::from_headers(&headers);
-    let result = otp::resend_otp_logic(state.pool.clone(), jar).await?;
+    let result = otp::resend_otp_logic(state.clone(), jar).await?;
     Ok(result.into_response())
 }

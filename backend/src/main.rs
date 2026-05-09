@@ -54,7 +54,13 @@ async fn main() {
     };
 
     // Build our application with router
-    let app = router::create_router(state);
+    let app = router::create_router(state.clone());
+
+    // Start Redis Background Worker (Rule 16)
+    let worker_state = state.clone();
+    tokio::spawn(async move {
+        backend::utils::queue::start_worker(worker_state).await;
+    });
 
     // Run our app with hyper, listening globally on port 8080
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
