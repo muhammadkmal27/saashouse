@@ -20,11 +20,10 @@ pub async fn handle_stripe_webhook(
     headers: HeaderMap,
     body: Bytes,
 ) -> Result<impl IntoResponse, ApiError> {
-    let pool = &state.pool;
     let payload = String::from_utf8(body.to_vec())
         .map_err(|_| ApiError::BadRequest("Invalid UTF-8 payload".to_string()))?;
 
-    // 1. Verify Stripe Signature (Mandatory for security)
+    // 1. Verify Stripe Signature (Mandatory for security) - We do this FAST before queuing
     let sig_header = headers.get("stripe-signature")
         .and_then(|h| h.to_str().ok())
         .ok_or(ApiError::Unauthorized)?;
@@ -34,8 +33,33 @@ pub async fn handle_stripe_webhook(
         return Err(e);
     }
 
+    // 2. Push to Redis Queue (Rule 16)
+    if let Err(e) = crate::utils::queue::push_job(
+        &state.redis,
+        crate::utils::queue::Job::ProcessStripeWebhook { 
+            payload: payload.clone(), 
+            sig_header: sig_header.to_string() 
+        }
+    ).await {
+        eprintln!("⚠️ Failed to queue Stripe webhook: {}", e);
+        // Fallback: If redis is down, process synchronously so we don't lose money
+        process_stripe_webhook_logic(&state.pool, &payload, sig_header).await?;
+    }
+
+    Ok(axum::http::StatusCode::OK)
+}
+
+/// The actual heavy lifting logic moved here to be called by the background worker
+pub async fn process_stripe_webhook_logic(
+    pool: &sqlx::PgPool,
+    payload: &str,
+    sig_header: &str,
+) -> Result<(), ApiError> {
+    // 1. Re-verify signature (Optional but safe for worker context)
+    // verify_stripe_signature(payload, sig_header)?;
+
     // 2. Parse Event
-    let event: Value = serde_json::from_str(&payload)
+    let event: Value = serde_json::from_str(payload)
         .map_err(|_| ApiError::BadRequest("Invalid JSON".to_string()))?;
 
     let event_id = event["id"].as_str().unwrap_or("");
@@ -51,8 +75,7 @@ pub async fn handle_stripe_webhook(
     .map_err(|e| ApiError::Internal(e.to_string()))?;
 
     if already_processed.is_some() {
-        println!("INFO: Duplicate Stripe Event {} already processed. Skipping.", event_id);
-        return Ok(axum::http::StatusCode::OK);
+        return Ok(());
     }
 
     match event_type {
@@ -88,7 +111,7 @@ pub async fn handle_stripe_webhook(
                 ).execute(&mut *tx).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
                 tx.commit().await.map_err(|e| ApiError::Internal(e.to_string()))?;
-                println!("Project {} activated via checkout.session.completed for user {}", pid, uid);
+                println!("Project {} activated via worker for user {}", pid, uid);
             }
         },
         "invoice.paid" => {
@@ -124,7 +147,6 @@ pub async fn handle_stripe_webhook(
         },
         "charge.refunded" => {
             let charge = &event["data"]["object"];
-            let payment_intent = charge["payment_intent"].as_str().unwrap_or_default();
             let project_id_str = charge["metadata"]["project_id"].as_str()
                 .or_else(|| charge["payment_intent_data"]["metadata"]["project_id"].as_str())
                 .unwrap_or_default();
@@ -144,7 +166,6 @@ pub async fn handle_stripe_webhook(
                 ).execute(&mut *tx).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
                 tx.commit().await.map_err(|e| ApiError::Internal(e.to_string()))?;
-                println!("Project {} set to PAYMENT_PENDING due to manual refund on PI {}", pid, payment_intent);
             }
         },
         "customer.subscription.deleted" | "customer.subscription.updated" => {
@@ -203,10 +224,8 @@ pub async fn handle_stripe_webhook(
             ).execute(&mut *tx).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
             tx.commit().await.map_err(|e| ApiError::Internal(e.to_string()))?;
-            println!("ALERT: Invoice failed/voided for sub {}. Project status reset.", stripe_sub_id);
         },
         _ => {
-            // Log unhandled but verify it and mark as processed to be safe
             sqlx::query!(
                 "INSERT INTO processed_webhooks (event_id, event_type) VALUES ($1, $2)",
                 event_id, event_type
@@ -214,7 +233,7 @@ pub async fn handle_stripe_webhook(
         }
     }
 
-    Ok(axum::http::StatusCode::OK)
+    Ok(())
 }
 
 fn verify_stripe_signature(payload: &str, sig_header: &str) -> Result<(), ApiError> {

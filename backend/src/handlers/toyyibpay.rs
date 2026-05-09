@@ -143,7 +143,24 @@ pub async fn toyyibpay_callback(
     State(state): State<AppState>,
     Query(payload): Query<ToyyibpayCallback>,
 ) -> impl IntoResponse {
-    process_payment(&state.pool, payload).await
+    // 1. Push to Redis Queue (Rule 16)
+    if let Err(e) = crate::utils::queue::push_job(
+        &state.redis,
+        crate::utils::queue::Job::ProcessToyyibpayCallback { 
+            status_id: payload.status_id.clone(),
+            billcode: payload.billcode.clone(),
+            order_id: payload.order_id.clone(),
+            msg: payload.msg.clone(),
+            transaction_id: payload.transaction_id.clone(),
+            amount: payload.amount.clone(),
+        }
+    ).await {
+        eprintln!("⚠️ Failed to queue ToyyibPay callback: {}", e);
+        // Fallback: Process synchronously
+        return process_payment(&state.pool, payload).await;
+    }
+
+    axum::http::StatusCode::OK
 }
 
 #[derive(Debug, Deserialize)]

@@ -28,14 +28,14 @@ pub async fn verify_2fa_logic(
         "SELECT * FROM otps WHERE user_id = $1 AND code = $2 AND is_used = false AND expires_at > NOW()",
         claims.sub, code
     )
-    .fetch_optional(&pool)
+    .fetch_optional(pool)
     .await
     .map_err(|e| ApiError::Internal(e.to_string()))?
     .ok_or(ApiError::BadRequest("Invalid or expired OTP code".to_string()))?;
 
     // Mark as used
     sqlx::query!("UPDATE otps SET is_used = true WHERE id = $1", otp.id)
-        .execute(&pool)
+        .execute(pool)
         .await
         .map_err(|e| ApiError::Internal(e.to_string()))?;
 

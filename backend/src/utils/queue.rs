@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::utils::email;
+use crate::handlers::webhooks::process_stripe_webhook_logic;
+use crate::handlers::toyyibpay::{process_payment, ToyyibpayCallback};
 use redis::AsyncCommands;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -19,6 +21,25 @@ pub enum Job {
         email: String,
         subject: String,
         body: String,
+    },
+    ProcessStripeWebhook {
+        payload: String,
+        sig_header: String,
+    },
+    ProcessToyyibpayCallback {
+        status_id: String,
+        billcode: String,
+        order_id: String,
+        msg: String,
+        transaction_id: String,
+        amount: String,
+    },
+    GenerateDocument {
+        doc_type: String,
+        project_id: String,
+    },
+    SystemCleanup {
+        target: String,
     },
 }
 
@@ -101,6 +122,32 @@ async fn process_job(state: &AppState, job: Job) {
             if let Err(e) = email::send_notification_email(&state.pool, &email, &subject, &body).await {
                 eprintln!("❌ Failed to process SendNotification job: {:?}", e);
             }
+        }
+        Job::ProcessStripeWebhook { payload, sig_header } => {
+            println!("🔗 Processing Job: Stripe Webhook");
+            if let Err(e) = process_stripe_webhook_logic(&state.pool, &payload, &sig_header).await {
+                eprintln!("❌ Failed to process Stripe webhook: {:?}", e);
+            }
+        }
+        Job::ProcessToyyibpayCallback { status_id, billcode, order_id, msg, transaction_id, amount } => {
+            println!("🔗 Processing Job: Toyyibpay Callback for bill {}", billcode);
+            let callback = ToyyibpayCallback {
+                status_id,
+                billcode,
+                order_id,
+                msg,
+                transaction_id,
+                amount,
+            };
+            process_payment(&state.pool, callback).await;
+        }
+        Job::GenerateDocument { doc_type, project_id } => {
+            println!("📄 Processing Job: Generate {} for Project {}", doc_type, project_id);
+            // TODO: Implement logic (Agreement/Invoice PDF)
+        }
+        Job::SystemCleanup { target } => {
+            println!("🧹 Processing Job: Cleanup {}", target);
+            // TODO: Implement logic (Temp files/Expired OTPs)
         }
     }
 }

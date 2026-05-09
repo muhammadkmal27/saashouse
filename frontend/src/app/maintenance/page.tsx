@@ -23,7 +23,7 @@ export default function MaintenancePage() {
     const checkStatus = async () => {
       setChecking(true);
       try {
-        const res = await fetch("/api/status-proxy", { cache: "no-store" });
+        const res = await fetch("/api/status", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.maintenance_mode === false) {

@@ -73,6 +73,7 @@ function DomainChecker({ value, onChange, label, lang }: { value: string, onChan
           className={`w-full bg-white border rounded-2xl px-6 py-4 text-zinc-900 font-black focus:outline-none shadow-sm transition-all ${
             status === "available" ? "border-violet-500 ring-4 ring-violet-500/5" : 
             status === "unavailable" ? "border-red-500 ring-4 ring-red-500/5" : 
+            status === "error" ? "border-amber-500 ring-4 ring-amber-500/5" :
             "border-zinc-200 focus:border-violet-500"
           }`}
           placeholder={lang === "BM" ? "cth., namajenama.com atau namajenama.my" : "e.g., brandname.com or brandname.my"}
@@ -93,6 +94,7 @@ function DomainChecker({ value, onChange, label, lang }: { value: string, onChan
           {status === "checking" && <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />}
           {status === "available" && <span className="text-[10px] font-black uppercase tracking-widest text-violet-600 bg-violet-50 px-2 py-1 rounded-md border border-violet-100"><T en="Available" bm="Boleh Diguna" /></span>}
           {status === "unavailable" && <span className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-1 rounded-md border border-red-100"><T en="Unavailable" bm="Tidak Tersedia" /></span>}
+          {status === "error" && <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-100"><T en="Connection Error" bm="Ralat Rangkaian" /></span>}
           {status === "idle" && value.length > 3 && (
              <button 
                type="button"

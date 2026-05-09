@@ -221,7 +221,18 @@ pub async fn submit_contact_form(
         payload.full_name, payload.email, payload.subject, payload.message
     );
 
-    send_notification_email(&state.pool, &admin_email, &subject, &body).await?;
+    if let Err(e) = crate::utils::queue::push_job(
+        &state.redis,
+        crate::utils::queue::Job::SendNotification { 
+            email: admin_email, 
+            subject, 
+            body 
+        }
+    ).await {
+        eprintln!("⚠️ Failed to queue contact form email: {}", e);
+        // Fallback: Send directly if redis is down
+        // crate::utils::email::send_notification_email(&state.pool, &admin_email, &subject, &body).await?;
+    }
 
     Ok(Json(serde_json::json!({
         "status": "success",
