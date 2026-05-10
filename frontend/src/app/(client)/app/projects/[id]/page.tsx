@@ -172,8 +172,16 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
         const data = new FormData();
         data.append("file", file);
         try {
+            const csrfToken = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("csrf_token="))
+                ?.split("=")[1];
+
             const res = await fetch("/api/assets/upload", {
                 method: "POST",
+                headers: { 
+                    "X-CSRF-Token": csrfToken || ""
+                },
                 body: data,
                 credentials: "include",
             });
@@ -1244,8 +1252,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             <div className="grid grid-cols-1 gap-2">
                                 {[
                                     { label: "SSM Record", bm: "Rekod SSM", url: req.payment_setup?.ssm_url, icon: FileText },
-                                    { label: "Brand Logo", bm: "Logo Jenama", url: req.brand_assets?.logo_url, icon: Image },
-                                    { label: "Agreement", bm: "Perjanjian", url: agreement ? "signed" : null, icon: ShieldCheck }
+                                    { label: "Brand Logo", bm: "Logo Jenama", url: req.brand_assets?.logo_url, icon: Image }
                                 ].map((asset, i) => (
                                     <div key={i} className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
                                         <div className="flex items-center gap-3">
@@ -1742,25 +1749,6 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                      className="p-1 text-zinc-400 hover:text-zinc-900 disabled:opacity-30 transition-colors"
                                  >
                                      <Download className="w-3.5 h-3.5" />
-                                 </button>
-                             </div>
-                             <div className="h-[1px] w-full bg-zinc-100 my-1"></div>
-                             <div className="flex items-center justify-between group py-1.5 px-2">
-                                 <div className="flex items-center gap-3">
-                                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                     <span className="text-[13px] font-medium text-zinc-800"><T en="Service Agreement" bm="Perjanjian Perkhidmatan" /></span>
-                                 </div>
-                                 <button 
-                                     onClick={() => {
-                                         if (!agreement) {
-                                             toast.info(lang === "EN" ? "Please sign the agreement first." : "Sila tandatangan perjanjian terlebih dahulu.");
-                                         } else {
-                                             setIsAgreementPreviewOpen(true);
-                                         }
-                                     }}
-                                     className="p-1.5 hover:bg-zinc-100 rounded-lg text-zinc-400 hover:text-indigo-600 transition-colors"
-                                 >
-                                     <Printer className="w-4 h-4" />
                                  </button>
                              </div>
                         </div>

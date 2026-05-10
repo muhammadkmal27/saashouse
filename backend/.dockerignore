@@ -1,0 +1,8 @@
+target
+uploads
+assets
+backend.log
+*.txt
+.env
+.env.test
+saas.db

@@ -18,8 +18,7 @@ export default function PricingSubscription({ dynamicPrices }: PricingSubscripti
     {
       name: "Standard",
       price: dynamicPrices.Standard || "165",
-      traffic: "200 - 400+",
-      tech: ["Edge Waiting Room", "Redis Queue", "DB Indexing"],
+      traffic: "2,000 - 6,000+",
       features: [
         "Unlimited Revisions",
         "Custom Feature Development",
@@ -32,8 +31,7 @@ export default function PricingSubscription({ dynamicPrices }: PricingSubscripti
     {
       name: "Growth",
       price: dynamicPrices.Growth || "240",
-      traffic: "800 - 1,200+",
-      tech: ["Advanced Caching", "Horizontal Scaling", "Edge Waiting Room"],
+      traffic: "10,000 - 18,000+",
       features: [
         "Unlimited Revisions",
         "Custom Feature Development",
@@ -46,8 +44,7 @@ export default function PricingSubscription({ dynamicPrices }: PricingSubscripti
     {
       name: "Enterprise",
       price: dynamicPrices.Enterprise || "410",
-      traffic: "2,500 - 4,000+",
-      tech: ["PgBouncer Pool", "Vertical Scaling", "Full Redis Suite"],
+      traffic: "30,000 - 60,000+",
       features: [
         "Unlimited Revisions",
         "Custom Feature Development",
@@ -60,8 +57,7 @@ export default function PricingSubscription({ dynamicPrices }: PricingSubscripti
     {
       name: "Platinum",
       price: dynamicPrices.Platinum || "750",
-      traffic: "8,000 - 12,000+",
-      tech: ["Redis Cluster", "High Availability", "Global Distribution"],
+      traffic: "100,000 - 180,000+",
       features: [
         "Unlimited Revisions",
         "Custom Feature Development",
@@ -107,21 +103,10 @@ export default function PricingSubscription({ dynamicPrices }: PricingSubscripti
             </div>
 
             <div className="mb-10 p-6 rounded-2xl bg-zinc-900/50 border border-white/5 backdrop-blur-sm">
-                <T en="MAX REAL-TIME USERS" bm="PENGGUNA SERENTAK MAKSIMUM" />
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 text-center">
+                <T en="EST. DAILY USERS" bm="ANGGARAN PENGGUNA HARIAN" />
+              </p>
               <p className="text-2xl font-black text-cyan-400 italic tracking-tight text-center">{plan.traffic}</p>
-              
-              <div className="mt-6 pt-6 border-t border-white/5 space-y-3">
-                <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-3 text-center">
-                  <T en="POWERED BY" bm="DIKUASAI OLEH" />
-                </p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {(plan as any).tech.map((t: string, tidx: number) => (
-                    <span key={tidx} className="px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-white/5 text-[9px] font-bold text-zinc-400 whitespace-nowrap">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <ul className="space-y-4 flex-1 mb-10">

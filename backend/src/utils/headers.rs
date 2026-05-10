@@ -12,16 +12,17 @@ pub async fn security_headers_middleware(req: Request<Body>, next: Next) -> Resp
     // Rule 23: Security Headers & CSP
     headers.insert(X_CONTENT_TYPE_OPTIONS, "nosniff".parse().unwrap());
     headers.insert(STRICT_TRANSPORT_SECURITY, "max-age=31536000; includeSubDomains".parse().unwrap());
-    headers.insert(axum::http::header::X_FRAME_OPTIONS, "DENY".parse().unwrap());
+    headers.insert(axum::http::header::X_FRAME_OPTIONS, "SAMEORIGIN".parse().unwrap());
     
-    // Hardened CSP
+    // Hardened CSP - Adjusted to allow self-framing for PDFs
     let csp = "default-src 'self'; \
-               script-src 'self' https://js.stripe.com; \
+               script-src 'self' https://js.stripe.com https://cdnjs.cloudflare.com; \
                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
                font-src 'self' https://fonts.gstatic.com; \
-               img-src 'self' data:; \
+               img-src 'self' data: *; \
                connect-src 'self' https://api.stripe.com; \
-               frame-ancestors 'none'; \
+               frame-src 'self'; \
+               frame-ancestors 'self' http://localhost:3000 http://100.105.77.107:3000; \
                base-uri 'self'; \
                form-action 'self';";
     
