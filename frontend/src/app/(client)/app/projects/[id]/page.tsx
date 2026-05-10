@@ -1000,7 +1000,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-2 ${
                                 project.client_edit_allowed 
                                 ? 'bg-white text-violet-600 border-violet-100' 
-                                : 'bg-slate-50 text-slate-400 border-slate-100 opacity-80'
+                                : 'bg-white text-slate-300 border-slate-100 opacity-60'
                             }`}
                         >
                             {project.client_edit_allowed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
@@ -1335,7 +1335,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                         className={`px-6 py-2.5 rounded-xl font-bold transition-all shadow-sm flex items-center gap-2 text-sm ${
                             project.client_edit_allowed 
                             ? 'bg-violet-600 text-white hover:bg-violet-700 shadow-violet-200' 
-                            : 'bg-zinc-100 text-zinc-400 cursor-not-allowed border border-zinc-200/50'
+                            : 'bg-white text-zinc-300 cursor-not-allowed border border-zinc-100'
                         }`}
                     >
                         {project.client_edit_allowed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
