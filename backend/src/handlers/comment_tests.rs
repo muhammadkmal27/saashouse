@@ -19,6 +19,12 @@ mod tests {
             .await
             .expect("Failed to connect to test DB");
         
+        // Run migrations for test DB
+        sqlx::migrate!("./migrations")
+            .run(&pool)
+            .await
+            .expect("Failed to run migrations on test DB");
+        
         AppState {
             pool,
             redis: redis::Client::open("redis://127.0.0.1/").unwrap(),
@@ -119,5 +125,46 @@ mod tests {
         ).await;
 
         assert!(result.is_ok(), "Admin must have high-level access to all comment threads");
+    }
+
+    #[tokio::test]
+    async fn test_admin_can_post_comment_to_any_ticket() {
+        let state = setup_test_state().await;
+        let owner_id = Uuid::new_v4();
+        let admin_id = Uuid::new_v4();
+        let ticket_id = Uuid::new_v4();
+        let project_id = Uuid::new_v4();
+
+        // Setup: User, Admin, Project, Ticket
+        sqlx::query!("INSERT INTO users (id, email, password_hash) VALUES ($1, $2, 'hash')", owner_id, format!("owner_{}@test.com", owner_id)).execute(&state.pool).await.unwrap();
+        sqlx::query!("INSERT INTO users (id, email, password_hash, role) VALUES ($1, $2, 'hash', 'ADMIN')", admin_id, format!("admin_{}@test.com", admin_id)).execute(&state.pool).await.unwrap();
+        sqlx::query!("INSERT INTO projects (id, client_id, title) VALUES ($1, $2, 'Test Project')", project_id, owner_id).execute(&state.pool).await.unwrap();
+        sqlx::query!(
+            "INSERT INTO requests (id, project_id, created_by, title, description, type) VALUES ($1, $2, $3, 'Need Help', 'Fix it', 'BUG')",
+            ticket_id, project_id, owner_id
+        ).execute(&state.pool).await.unwrap();
+
+        let claims_admin = Claims {
+            sub: admin_id,
+            exp: 9999999999,
+            role: "ADMIN".to_string(),
+            is_2fa_verified: true,
+        };
+
+        // Action: Admin posts a comment
+        let result = create_comment(
+            State(state.clone()),
+            Extension(claims_admin),
+            Path(ticket_id),
+            Json(CreateCommentRequest {
+                message: "Hello from Admin".to_string(),
+                attachment_urls: None,
+            })
+        ).await;
+
+        // Verification
+        assert!(result.is_ok(), "Admin should be able to post comments on any ticket");
+        let comment = result.unwrap();
+        assert_eq!(comment.user_id, admin_id);
     }
 }
