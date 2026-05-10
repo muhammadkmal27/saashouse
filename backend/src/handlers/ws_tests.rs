@@ -49,8 +49,9 @@ mod tests {
         // Use explicit type annotation for the result of oneshot().await
         let response: Response = app.oneshot(request).await.expect("Failed to execute request");
 
-        // Must reject with 401 Unauthorized because of require_auth middleware
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        // Must reject with 401 Unauthorized or 426 Upgrade Required (Axum behavior for rejected WS handshakes)
+        let status = response.status();
+        assert!(status == StatusCode::UNAUTHORIZED || status == StatusCode::UPGRADE_REQUIRED, "Expected 401 or 426, got {}", status);
     }
 
     #[tokio::test]

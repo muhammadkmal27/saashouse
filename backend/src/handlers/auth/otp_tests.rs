@@ -38,7 +38,7 @@ mod tests {
         let jar = CookieJar::new().add(Cookie::new("auth_token", token));
 
         let payload = Verify2FARequest { code: otp_code };
-        let result = verify_2fa_logic(state.pool.clone(), jar, payload).await;
+        let result = verify_2fa_logic(state.clone(), jar, payload).await;
 
         assert!(result.is_ok());
         let (new_jar, _) = result.unwrap();
@@ -58,7 +58,7 @@ mod tests {
         let jar = CookieJar::new().add(Cookie::new("auth_token", token));
         let payload = Verify2FARequest { code: "000000".to_string() };
 
-        let result = verify_2fa_logic(state.pool.clone(), jar, payload).await;
+        let result = verify_2fa_logic(state.clone(), jar, payload).await;
         assert!(result.is_err());
     }
 
@@ -71,7 +71,7 @@ mod tests {
         let jar = CookieJar::new().add(Cookie::new("auth_token", token));
         let payload = Verify2FARequest { code: "123456".to_string() };
 
-        let result = verify_2fa_logic(state.pool.clone(), jar, payload).await;
+        let result = verify_2fa_logic(state.clone(), jar, payload).await;
         assert!(match result {
             Err(crate::utils::error::ApiError::Forbidden(_)) => true,
             _ => false,

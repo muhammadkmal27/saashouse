@@ -14,7 +14,7 @@ use crate::utils::realtime::RealtimeHub;
 #[tokio::test]
 async fn test_csrf_protection_fails_without_header() {
     // Setup a mock state (doesn't need real DB for this middleware test)
-    let pool = sqlx::PgPool::connect("postgres://root:rootpassword@localhost:5432/saashouse").await.unwrap();
+    let pool = sqlx::PgPool::connect("postgres://saashouse:rootpassword@localhost:5432/saashouse").await.unwrap();
     let redis = redis::Client::open("redis://127.0.0.1/").unwrap();
     let hub = Arc::new(RealtimeHub::new());
     let state = AppState { pool, redis, hub };
@@ -41,7 +41,7 @@ async fn test_csrf_protection_fails_without_header() {
 
 #[tokio::test]
 async fn test_csrf_protection_succeeds_with_matching_tokens() {
-    let pool = sqlx::PgPool::connect("postgres://root:rootpassword@localhost:5432/saashouse").await.unwrap();
+    let pool = sqlx::PgPool::connect("postgres://saashouse:rootpassword@localhost:5432/saashouse").await.unwrap();
     let redis = redis::Client::open("redis://127.0.0.1/").unwrap();
     let hub = Arc::new(RealtimeHub::new());
     let state = AppState { pool, redis, hub };
@@ -72,7 +72,7 @@ async fn test_csrf_protection_succeeds_with_matching_tokens() {
 
 #[tokio::test]
 async fn test_toyyibpay_process_payment_deposit() {
-    let pool = sqlx::PgPool::connect("postgres://root:rootpassword@localhost:5432/saashouse").await.unwrap();
+    let pool = sqlx::PgPool::connect("postgres://saashouse:rootpassword@localhost:5432/saashouse").await.unwrap();
     
     // 1. Create a dummy project and billing
     let user_id = uuid::Uuid::new_v4();
@@ -107,7 +107,7 @@ async fn test_toyyibpay_process_payment_deposit() {
 
 #[tokio::test]
 async fn test_toyyibpay_process_payment_final() {
-    let pool = sqlx::PgPool::connect("postgres://root:rootpassword@localhost:5432/saashouse").await.unwrap();
+    let pool = sqlx::PgPool::connect("postgres://saashouse:rootpassword@localhost:5432/saashouse").await.unwrap();
     
     // 1. Create a dummy project and billing (Status starts at PAID after deposit)
     let user_id = uuid::Uuid::new_v4();
