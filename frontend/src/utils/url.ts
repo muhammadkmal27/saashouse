@@ -8,13 +8,14 @@ export const getAssetUrl = (path: string | undefined): string => {
     
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const isDev = process.env.NODE_ENV === "development";
     
-    // If we have a baseUrl (like http://localhost:8080), use it directly
-    if (baseUrl) {
+    // In development, use absolute URL if pointing to localhost
+    if (isDev && baseUrl && (baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1"))) {
         return `${baseUrl}/${cleanPath.startsWith("uploads/") ? cleanPath : `uploads/${cleanPath}`}`;
     }
 
-    // Fallback to relative path for production/nginx
+    // In production or when using proxy, always use relative path starting with /uploads
     if (cleanPath.startsWith("uploads/")) {
         return `/${cleanPath}`;
     }
