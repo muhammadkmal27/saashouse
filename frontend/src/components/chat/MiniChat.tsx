@@ -163,6 +163,18 @@ export default function MiniChat({
     }
   }, [lastEvent, ticketId]);
 
+  const getAttachmentUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    
+    // In dev, point directly to backend for assets to avoid rewrite lag
+    const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isDev) {
+      return `http://${window.location.hostname}:8080${url}`;
+    }
+    return url;
+  };
+
   if (loading) {
     return <div className="flex px-4 py-10 justify-center items-center flex-1 h-full"><Loader2 className="animate-spin text-zinc-400" /></div>;
   }
@@ -204,7 +216,7 @@ export default function MiniChat({
                      onClick={() => setPreviewImage(url)} 
                      className="block mt-3 rounded-lg overflow-hidden border border-black/10 opacity-90 hover:opacity-100 transition-opacity w-full cursor-zoom-in"
                    >
-                     <img src={url} className="w-full h-auto max-h-32 object-cover" />
+                     <img src={getAttachmentUrl(url)} className="w-full h-auto max-h-32 object-cover" />
                    </button>
                 ))}
                 <div className="flex items-center justify-end space-x-2 mt-1">
@@ -229,7 +241,7 @@ export default function MiniChat({
                 {attachments.map((url, idx) => (
                    <div key={idx} className="relative group w-20 h-20">
                         <div className="w-full h-full bg-zinc-100 rounded-xl overflow-hidden border border-zinc-200 shadow-sm">
-                            <img src={url} className="w-full h-full object-cover" alt="preview" />
+                             <img src={getAttachmentUrl(url)} className="w-full h-full object-cover" alt="preview" />
                         </div>
                         <button 
                             type="button"
@@ -282,8 +294,8 @@ export default function MiniChat({
             <X size={20} />
           </button>
           <div className="relative max-w-full max-h-full">
-             <img 
-               src={previewImage} 
+              <img 
+               src={getAttachmentUrl(previewImage)} 
                className="max-w-full max-h-full object-contain rounded border border-white/10 shadow-2xl" 
                onClick={(e) => e.stopPropagation()}
                alt="Enlarged Preview"

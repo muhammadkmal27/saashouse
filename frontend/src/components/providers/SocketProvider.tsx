@@ -92,7 +92,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         const { ticket } = await ticketRes.json();
 
         // 3. Connect with ticket directly to 8080 in dev
-        const host = window.location.hostname === "localhost" ? "localhost:8080" : window.location.host;
+        const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        const host = isLocal ? `${window.location.hostname}:8080` : window.location.host;
         const wsUrl = `${protocol}//${host}/api/ws?ticket=${ticket}`;
         
         const ws = new WebSocket(wsUrl);
