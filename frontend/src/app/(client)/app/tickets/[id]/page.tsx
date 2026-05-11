@@ -429,6 +429,7 @@ export default function TicketDetailPage() {
                                 </div>
                             </form>
                         </div>
+                    </div>
                     ) : (
                         <div className="mt-8 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-200 text-center shadow-lg shadow-slate-200/20">
                             <p className="text-[10px] uppercase tracking-widest font-black text-slate-500 mb-1"><T en="Notice" bm="Notis" /></p>
