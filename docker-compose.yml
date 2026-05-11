@@ -54,6 +54,18 @@ services:
     volumes:
       - ./backend/uploads:/app/uploads
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: saas_house_frontend
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: "http://backend:8080"
+    env_file: .env
+
   stripe:
     image: stripe/stripe-cli
     container_name: saas_house_stripe
