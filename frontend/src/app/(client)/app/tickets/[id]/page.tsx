@@ -245,7 +245,7 @@ export default function TicketDetailPage() {
     if (!ticket) return <div className="p-12 text-center text-slate-400 font-medium italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-60 md:pb-20 relative">
+        <div className="max-w-6xl mx-auto space-y-8 pb-60 md:pb-12 relative">
             {/* Main Background Purple Bloom */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-400/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
             <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-violet-300/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
@@ -366,14 +366,14 @@ export default function TicketDetailPage() {
                                 </div>
                             </div>
                         ))}
-                        <div ref={chatEndRef} className="h-48 lg:h-0" />
+                        <div ref={chatEndRef} className="h-48 md:h-0" />
                     </div>
 
                     {/* Reply Box Conditional */}
                     {ticket.status !== 'CLOSED' ? (
-                        <div className="mt-10 lg:static fixed bottom-[76px] left-0 right-0 p-4 lg:p-0 bg-white/80 backdrop-blur-xl lg:bg-transparent z-40 border-t lg:border-none border-slate-100 lg:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                        <div className="mt-10 md:static fixed bottom-[76px] left-0 right-0 p-4 md:p-0 bg-white/80 backdrop-blur-xl md:bg-transparent z-40 border-t md:border-none border-slate-100 md:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                             <div className="max-w-6xl mx-auto">
-                                <div className="bg-white/95 lg:bg-white/95 backdrop-blur-xl rounded-[2rem] lg:rounded-[2.5rem] p-4 lg:p-5 border border-slate-100 shadow-xl shadow-slate-200/30">
+                                <div className="bg-white/95 md:bg-white/95 backdrop-blur-xl rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-5 border border-slate-100 shadow-xl shadow-slate-200/30">
                             <form onSubmit={handleSendComment} className="flex flex-col gap-3">
                                 <textarea 
                                     value={commentData.message}
