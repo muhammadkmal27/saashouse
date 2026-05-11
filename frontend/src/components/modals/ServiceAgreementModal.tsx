@@ -267,7 +267,7 @@ export default function ServiceAgreementModal({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
                     
-                    {/* The Full Document */}
+                    {/* The Full Document */                    {/* The Full Document */}
                     <div style={{ 
                         backgroundColor: '#f9f9fb', 
                         borderRadius: '1.5rem', 
@@ -281,25 +281,26 @@ export default function ServiceAgreementModal({
                     }}>
                         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                             <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '0.8rem' : '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#18181b', margin: '0 0 8px 0', textDecoration: 'underline', textDecorationColor: 'rgba(139, 92, 246, 0.3)', textUnderlineOffset: '8px', lineHeight: 1.4 }}>
-                                <T en="WEB DEVELOPMENT SERVICE AGREEMENT" bm="PERJANJIAN PERKHIDMATAN PEMBANGUNAN WEB" />
+                                PERJANJIAN PERKHIDMATAN PEMBANGUNAN LAMAN WEB
                             </h3>
-                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}><T en="DATE" bm="TARIKH" />: {today}</p>
+                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}>TARIKH: {today}</p>
                         </div>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', lineHeight: 1.6 }}>
+ 
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', lineHeight: 1.5 }}>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="BETWEEN" bm="ANTARA" />:</span> {providerName || "SaaS House Development"}, <T en="hereinafter referred to as the 'Service Provider'." bm="selepas ini disebut sebagai 'Penyedia Perkhidmatan'." />
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>ANTARA:</span> {providerName || "Penyedia Perkhidmatan"}, selepas ini dirujuk sebagai 'Penyedia Perkhidmatan'.
                             </p>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="AND" bm="DAN" />:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, <T en="hereinafter referred to as the 'Client'." bm="selepas ini disebut sebagai 'Pelanggan'." />
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}>DAN:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, selepas ini dirujuk sebagai 'Pelanggan'.
                             </p>
                         </div>
-
+ 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                             {template.length > 0 ? (
                                 template.map((section, idx) => (
                                     <section key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                         <h4 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+>
                                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#8b5cf6' }}></div>
                                             {idx + 1}. {section.title}
                                         </h4>
@@ -324,26 +325,26 @@ export default function ServiceAgreementModal({
                             gap: '1rem' 
                         }}>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.25rem', overflow: 'hidden' }}>
-                                <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
-                                    {providerSignature ? (
-                                        <img src={providerSignature} alt="Provider Signature" style={{ maxHeight: '100%' }} />
+                                <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}                                     {providerSignature ? (
+                                        <img src={providerSignature} alt="Tandatangan Penyedia" style={{ maxHeight: '100%' }} />
                                     ) : (
-                                        <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}><T en="No signature" bm="Tiada tandatangan" /></div>
+                                        <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}>Tiada tandatangan</div>
                                     )}
                                 </div>
-                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}><T en="Provider" bm="Penyedia" /></p>
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>PENYEDIA</p>
                                 <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{providerName || "SaaS House"}</p>
                             </div>
                             
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.25rem', overflow: 'hidden' }}>
                                 <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
                                     {liveSignature && (
-                                        <img src={liveSignature} alt="Client Signature Preview" style={{ maxHeight: '100%' }} />
+                                        <img src={liveSignature} alt="Pratonton Tandatangan Pelanggan" style={{ maxHeight: '100%' }} />
                                     )}
                                 </div>
-                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}><T en="Client" bm="Pelanggan" /></p>
+                                <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>PELANGGAN</p>
                                 <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{clientName || ".........."}</p>
                             </div>
+>
                         </div>
                     </div>
 
