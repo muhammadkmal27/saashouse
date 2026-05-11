@@ -417,7 +417,7 @@ export default function TicketDetailPage() {
 
                 {/* Sidebar Info */}
                 <div className="space-y-6 relative z-10 w-full lg:max-w-sm lg:ml-auto">
-                    <div className="bg-[#18181A] rounded-[2rem] p-8 lg:p-10 text-white relative overflow-hidden group shadow-2xl shadow-violet-900/10">
+                    <div className="hidden lg:block bg-[#18181A] rounded-[2rem] p-8 lg:p-10 text-white relative overflow-hidden group shadow-2xl shadow-violet-900/10">
                         <div className="absolute -right-20 -top-20 w-64 h-64 bg-violet-600/30 rounded-full blur-[60px] pointer-events-none group-hover:bg-violet-600/40 transition-colors"></div>
                         <div className="relative z-10">
                             <h3 className="text-[1.3rem] font-black mb-8 flex items-center gap-3 tracking-tight">
@@ -439,7 +439,7 @@ export default function TicketDetailPage() {
                         </div>
                     </div>
 
-                    <div className="bg-white/90 bg-gradient-to-br from-white to-violet-50/50 backdrop-blur-xl rounded-[2rem] p-8 lg:p-10 border border-violet-100/50 shadow-xl shadow-violet-100/40 relative overflow-hidden">
+                    <div className="hidden lg:block bg-white/90 bg-gradient-to-br from-white to-violet-50/50 backdrop-blur-xl rounded-[2rem] p-8 lg:p-10 border border-violet-100/50 shadow-xl shadow-violet-100/40 relative overflow-hidden">
                         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-violet-400/10 rounded-full blur-[40px] pointer-events-none"></div>
                         <h3 className="text-[1.3rem] font-black text-slate-900 mb-8 flex items-center gap-3 tracking-tight relative z-10">
                             <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shadow-inner shadow-white">
