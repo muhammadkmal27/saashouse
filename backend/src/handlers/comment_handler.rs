@@ -195,8 +195,11 @@ pub async fn ws_handler(
     Query(query): Query<WsQuery>,
     claims_opt: Option<Extension<Claims>>,
 ) -> Response {
+    println!(">>> WS_HANDLER: Received connection attempt. Ticket: {:?}, Auth: {}", query.ticket, claims_opt.is_some());
+    
     // 1. Try to get claims from Extension (if auth middleware succeeded)
     if let Some(Extension(claims)) = claims_opt {
+        println!(">>> WS_HANDLER: Authenticated via Extension for user: {}", claims.sub);
         return ws.on_upgrade(move |socket| handle_socket(socket, state, claims));
     }
 
@@ -208,17 +211,21 @@ pub async fn ws_handler(
             let claims_json_res: redis::RedisResult<Option<String>> = con.get(&key).await;
             
             if let Ok(Some(json)) = claims_json_res {
+                println!(">>> WS_HANDLER: Authenticated via Ticket: {}", ticket_id);
                 // Delete ticket after use (single use)
                 let _: () = con.del(&key).await.unwrap_or(());
 
                 if let Ok(claims) = serde_json::from_str::<Claims>(&json) {
                     return ws.on_upgrade(move |socket| handle_socket(socket, state, claims));
                 }
+            } else {
+                println!(">>> WS_HANDLER: Ticket INVALID or EXPIRED: {}", ticket_id);
             }
         }
     }
 
     // 3. Fallback: Unauthorized
+    println!(">>> WS_HANDLER: CONNECTION REJECTED (Unauthorized)");
     axum::response::IntoResponse::into_response(ApiError::Unauthorized)
 }
 
