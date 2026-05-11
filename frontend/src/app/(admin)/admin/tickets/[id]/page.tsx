@@ -526,16 +526,16 @@ export default function AdminTicketDetailPage() {
                     className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 animate-in fade-in duration-200"
                     onClick={() => setPreviewImage(null)}
                 >
-                    <button 
-                        className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full backdrop-blur-md transition-colors shadow-2xl"
-                        onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
-                    >
-                        <X size={24} />
-                    </button>
-                    <div className="relative max-w-full max-h-full flex items-center justify-center">
+                    <div className="relative max-w-full max-h-full flex items-center justify-center group">
+                        <button 
+                            className="absolute -top-4 -right-4 z-50 p-2 bg-zinc-900 text-white rounded-full shadow-2xl hover:scale-110 transition-transform border-2 border-white"
+                            onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
+                        >
+                            <X size={20} />
+                        </button>
                         <img 
                             src={previewImage} 
-                            className="max-w-[95vw] max-h-[90vh] object-contain rounded-xl border border-white/10 shadow-2xl" 
+                            className="max-w-[95vw] max-h-[90vh] object-contain rounded-2xl border border-white/20 shadow-2xl" 
                             onClick={(e) => e.stopPropagation()}
                             alt="Enlarged Preview"
                         />
