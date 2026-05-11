@@ -300,7 +300,6 @@ export default function ServiceAgreementModal({
                                 template.map((section, idx) => (
                                     <section key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                         <h4 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
->
                                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#8b5cf6' }}></div>
                                             {idx + 1}. {section.title}
                                         </h4>
@@ -325,7 +324,7 @@ export default function ServiceAgreementModal({
                             gap: '1rem' 
                         }}>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.25rem', overflow: 'hidden' }}>
-                                <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}                                     {providerSignature ? (
+                                <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
                                         <img src={providerSignature} alt="Tandatangan Penyedia" style={{ maxHeight: '100%' }} />
                                     ) : (
                                         <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}>Tiada tandatangan</div>
@@ -344,7 +343,6 @@ export default function ServiceAgreementModal({
                                 <p style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#18181b', margin: 0 }}>PELANGGAN</p>
                                 <p style={{ fontSize: '9px', fontWeight: 'bold', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{clientName || ".........."}</p>
                             </div>
->
                         </div>
                     </div>
 
