@@ -267,7 +267,7 @@ export default function ServiceAgreementModal({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
                     
-                    {/* The Full Document */                    {/* The Full Document */}
+                    {/* The Full Document */}
                     <div style={{ 
                         backgroundColor: '#f9f9fb', 
                         borderRadius: '1.5rem', 
