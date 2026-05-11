@@ -1698,7 +1698,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                         <p className="text-xs font-bold text-zinc-600"><T en="Waiting for development to start" bm="Menunggu pembangunan dimulakan" /></p>
                                     </div>
                                 </div>
-                            )}
+                            ) : null}
 
                             {(project.status === "UNDER_DEVELOPMENT" || project.status === "LIVE") && (
                                 <div className="space-y-4">
