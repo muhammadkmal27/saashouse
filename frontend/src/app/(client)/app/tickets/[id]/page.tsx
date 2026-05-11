@@ -245,7 +245,7 @@ export default function TicketDetailPage() {
     if (!ticket) return <div className="p-12 text-center text-slate-400 font-medium italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-32 md:pb-20 relative">
+        <div className="max-w-6xl mx-auto space-y-8 pb-60 md:pb-20 relative">
             {/* Main Background Purple Bloom */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-400/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
             <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-violet-300/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
@@ -366,7 +366,7 @@ export default function TicketDetailPage() {
                                 </div>
                             </div>
                         ))}
-                        <div ref={chatEndRef} />
+                        <div ref={chatEndRef} className="h-48 lg:h-0" />
                     </div>
 
                     {/* Reply Box Conditional */}
