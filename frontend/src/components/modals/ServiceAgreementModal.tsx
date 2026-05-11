@@ -281,17 +281,17 @@ export default function ServiceAgreementModal({
                     }}>
                         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                             <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '0.8rem' : '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#18181b', margin: '0 0 8px 0', textDecoration: 'underline', textDecorationColor: 'rgba(139, 92, 246, 0.3)', textUnderlineOffset: '8px', lineHeight: 1.4 }}>
-                                <T en="WEB DEVELOPMENT SERVICE AGREEMENT" bm="PERJANJIAN PERKHIDMATAN PEMBANGUNAN LAMAN WEB" />
+                                <T en="WEB DEVELOPMENT SERVICE AGREEMENT" bm="PERJANJIAN PERKHIDMATAN PEMBANGUNAN WEB" />
                             </h3>
-                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}><T en="Date" bm="Tarikh" />: {today}</p>
+                            <p style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', margin: 0 }}><T en="DATE" bm="TARIKH" />: {today}</p>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', lineHeight: 1.5 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '10px' : '13px', lineHeight: 1.6 }}>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="BETWEEN" bm="ANTARA" />:</span> {providerName || (lang === 'EN' ? "Service Provider" : "Penyedia Perkhidmatan")}, <T en="hereinafter referred to as the 'Service Provider'." bm="selepas ini dirujuk sebagai 'Penyedia Perkhidmatan'." />
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="BETWEEN" bm="ANTARA" />:</span> {providerName || "SaaS House Development"}, <T en="hereinafter referred to as the 'Service Provider'." bm="selepas ini disebut sebagai 'Penyedia Perkhidmatan'." />
                             </p>
                             <p style={{ margin: 0 }}>
-                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="AND" bm="DAN" />:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, <T en="hereinafter referred to as the 'Client'." bm="selepas ini dirujuk sebagai 'Pelanggan'." />
+                                <span style={{ fontWeight: 'bold', textTransform: 'uppercase', color: '#18181b' }}><T en="AND" bm="DAN" />:</span> <span style={{ borderBottom: '1px solid #d4d4d8', padding: '0 4px', fontWeight: 600, color: '#7c3aed' }}>{clientName || "...................................................."}</span>, <T en="hereinafter referred to as the 'Client'." bm="selepas ini disebut sebagai 'Pelanggan'." />
                             </p>
                         </div>
 
