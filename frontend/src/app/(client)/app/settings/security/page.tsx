@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lock, ShieldCheck, Loader2 } from "lucide-react";
+import { Lock, ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
 import { getCookie } from "@/utils/cookies";
 import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -18,6 +18,10 @@ export default function SecuritySettingsPage() {
         new_password: "",
         confirm_password: "",
     });
+
+    const [showCurrent, setShowCurrent] = useState(false);
+    const [showNew, setShowNew] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
         fetch("/api/me", { credentials: "include" })
@@ -104,13 +108,20 @@ export default function SecuritySettingsPage() {
                         <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input 
-                                type="password" 
+                                type={showCurrent ? "text" : "password"} 
                                 required
                                 value={passwords.current_password}
                                 onChange={(e) => setPasswords({...passwords, current_password: e.target.value})}
-                                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                className="w-full pl-10 pr-12 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
                                 placeholder="••••••••"
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowCurrent(!showCurrent)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-violet-500 transition-colors"
+                            >
+                                {showCurrent ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
                         </div>
                     </div>
                 )}
@@ -129,26 +140,44 @@ export default function SecuritySettingsPage() {
                 <div className="pt-2 space-y-4">
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 ml-1"><T en="New Password" bm="Kata Laluan Baru" /></label>
-                        <input 
-                            type="password" 
-                            required
-                            value={passwords.new_password}
-                            onChange={(e) => setPasswords({...passwords, new_password: e.target.value})}
-                            className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
-                            placeholder={lang === "EN" ? "Enter new password" : "Masukkan kata laluan baru"}
-                        />
+                        <div className="relative">
+                            <input 
+                                type={showNew ? "text" : "password"} 
+                                required
+                                value={passwords.new_password}
+                                onChange={(e) => setPasswords({...passwords, new_password: e.target.value})}
+                                className="w-full pl-5 pr-12 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                placeholder={lang === "EN" ? "Enter new password" : "Masukkan kata laluan baru"}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowNew(!showNew)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-violet-500 transition-colors"
+                            >
+                                {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
                     </div>
                     
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 ml-1"><T en="Confirm New Password" bm="Sahkan Kata Laluan Baru" /></label>
-                        <input 
-                            type="password" 
-                            required
-                            value={passwords.confirm_password}
-                            onChange={(e) => setPasswords({...passwords, confirm_password: e.target.value})}
-                            className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
-                            placeholder={lang === "EN" ? "Type new password again" : "Taip semula kata laluan baru"}
-                        />
+                        <div className="relative">
+                            <input 
+                                type={showConfirm ? "text" : "password"} 
+                                required
+                                value={passwords.confirm_password}
+                                onChange={(e) => setPasswords({...passwords, confirm_password: e.target.value})}
+                                className="w-full pl-5 pr-12 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 ring-violet-500/10 focus:border-violet-300 outline-none transition-all placeholder:text-slate-300 font-medium"
+                                placeholder={lang === "EN" ? "Type new password again" : "Taip semula kata laluan baru"}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirm(!showConfirm)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-violet-500 transition-colors"
+                            >
+                                {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
