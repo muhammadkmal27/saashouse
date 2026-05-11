@@ -291,7 +291,7 @@ export default function AdminTicketDetailPage() {
     if (!ticket) return <div className="p-12 text-center text-zinc-400 italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-48 md:pb-20">
+        <div className="max-w-6xl mx-auto space-y-8 pb-40 md:pb-20">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-zinc-100 pb-8">
                 <div className="space-y-4">
@@ -426,7 +426,7 @@ export default function AdminTicketDetailPage() {
 
                     {/* Admin Reply Box */}
                     {ticket.status !== 'CLOSED' ? (
-                        <div className="mt-8 lg:static fixed bottom-[76px] left-0 right-0 p-4 lg:p-0 bg-white/80 backdrop-blur-xl lg:bg-transparent z-40 border-t lg:border-none border-zinc-100 lg:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                        <div className="mt-8 lg:static fixed bottom-4 left-0 right-0 p-4 lg:p-0 bg-white/80 backdrop-blur-xl lg:bg-transparent z-40 border-t lg:border-none border-zinc-100 lg:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                             <div className="max-w-6xl mx-auto">
                                 <div className="bg-zinc-900 lg:bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] p-4 lg:p-5 shadow-xl shadow-zinc-900/40">
                             <form onSubmit={handleSendComment} className="flex flex-col gap-3">
