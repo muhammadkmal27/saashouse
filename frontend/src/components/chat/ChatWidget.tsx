@@ -19,6 +19,9 @@ export default function ChatWidget() {
   const router = useRouter();
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isTicketDetailPage = pathname?.match(/\/(app|admin)\/tickets\/[0-9a-fA-F-]+$/);
+
+  if (isTicketDetailPage) return null;
 
   useEffect(() => {
     if (isOpen) {
