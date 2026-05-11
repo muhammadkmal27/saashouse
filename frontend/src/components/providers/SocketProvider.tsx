@@ -185,7 +185,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         wsRef.current.close();
       }
     };
-  }, []);
+  }, [isProtectedRoute]);
 
 
 
