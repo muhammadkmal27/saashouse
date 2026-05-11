@@ -291,7 +291,7 @@ export default function AdminTicketDetailPage() {
     if (!ticket) return <div className="p-12 text-center text-zinc-400 italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-32 md:pb-20">
+        <div className="max-w-6xl mx-auto space-y-8 pb-80 md:pb-20">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-zinc-100 pb-8">
                 <div className="space-y-4">
@@ -421,8 +421,7 @@ export default function AdminTicketDetailPage() {
                                 </div>
                             );
                         })}
-                        <div className="h-40 lg:hidden pointer-events-none" />
-                        <div ref={chatEndRef} />
+                        <div ref={chatEndRef} className="h-4" />
                     </div>
 
                     {/* Admin Reply Box */}
