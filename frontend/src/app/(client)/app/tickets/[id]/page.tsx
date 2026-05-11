@@ -82,17 +82,8 @@ export default function TicketDetailPage() {
         }
     }, [id]);
 
-    const scrollToBottom = (instant = false) => {
-        if (chatEndRef.current) {
-            chatEndRef.current.scrollIntoView({ 
-                behavior: instant ? "auto" : "smooth",
-                block: "end"
-            });
-        }
-    };
-
     useEffect(() => {
-        scrollToBottom();
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [comments]);
 
     // Omega-Sync: Master Real-time Signal Listener
@@ -208,11 +199,33 @@ export default function TicketDetailPage() {
         }
     };
 
-    const handleSendComment = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        if (!commentData.message.trim() || submitting) return;
+    const handleSendComment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const message = commentData.message.trim();
+        if (!message && commentData.attachment_urls.length === 0) return;
 
         setSubmitting(true);
+        
+        // Optimistic UI: Add local message immediately to prevent jumping feel
+        const tempId = `temp-${Date.now()}`;
+        const optimisticComment: Comment = {
+            id: tempId,
+            request_id: id as string,
+            user_id: "ME_OPTIMISTIC", // Special tag for local echo
+            message: message,
+            attachment_urls: commentData.attachment_urls,
+            is_read: false,
+            created_at: new Date().toISOString()
+        };
+
+        // Add to local state immediately
+        setComments(prev => [...prev, optimisticComment]);
+
+        // Pre-scroll for immediate feedback
+        setTimeout(() => {
+            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 50);
+
         try {
             const csrfToken = getCookie("csrf_token") || "";
             const res = await fetch(`/api/requests/${id}/comments`, {
@@ -227,14 +240,15 @@ export default function TicketDetailPage() {
 
             if (res.ok) {
                 setCommentData({ message: "", attachment_urls: [] });
-                // Force instant scroll for better UX
-                setTimeout(() => scrollToBottom(true), 50);
                 toast.success(lang === "EN" ? "Reply sent." : "Balasan dihantar.");
             } else {
+                // Remove optimistic comment if failed
+                setComments(prev => prev.filter(c => c.id !== tempId));
                 const data = await res.json();
                 toast.error(translateError(data.error || "Failed to send reply.", lang));
             }
         } catch (err) {
+            setComments(prev => prev.filter(c => c.id !== tempId));
             toast.error(translateError("Network error.", lang));
         } finally {
             setSubmitting(false);
@@ -245,7 +259,7 @@ export default function TicketDetailPage() {
     if (!ticket) return <div className="p-12 text-center text-slate-400 font-medium italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-20 relative">
+        <div className="max-w-6xl mx-auto space-y-8 pb-32 md:pb-20 relative">
             {/* Main Background Purple Bloom */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-400/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
             <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-violet-300/15 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
@@ -322,67 +336,65 @@ export default function TicketDetailPage() {
                     <div className="space-y-6 relative mt-10">
                         <div className="absolute left-[3.25rem] top-0 bottom-0 w-[2px] bg-gradient-to-b from-violet-200/80 via-violet-100/40 to-transparent -z-10" />
                         
-                        {comments.map((comment) => (
-                            <div key={comment.id} className="flex gap-5 group">
-                                <div className={`w-[4.5rem] h-[4.5rem] sm:w-[4.5rem] sm:h-[4.5rem] w-14 h-14 rounded-full flex shrink-0 items-center justify-center border-4 border-white shadow-md z-10 transition-transform group-hover:scale-105 duration-300 ${comment.user_id === ticket.created_by ? 'bg-slate-50 text-slate-400' : 'bg-gradient-to-br from-violet-600 to-violet-700 text-white shadow-violet-600/30'}`}>
-                                    {comment.user_id === ticket.created_by ? <UserCircle2 className="w-8 h-8" /> : <ShieldCheck className="w-8 h-8" />}
-                                </div>
-                                
-                                <div className={`flex-1 rounded-[2.5rem] p-6 lg:p-8 border shadow-xl overflow-hidden transition-all duration-300 ${comment.user_id === ticket.created_by ? 'bg-white border-slate-100 shadow-slate-200/30' : 'bg-gradient-to-br from-white to-violet-50/60 border-violet-100/50 shadow-violet-100/40 relative'}`}>
-                                    {comment.user_id !== ticket.created_by && <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-violet-400/10 rounded-full blur-[30px] pointer-events-none"></div>}
-                                    <div className="flex items-center justify-between mb-5 relative z-10">
-                                        <p className={`font-extrabold text-[10px] uppercase tracking-widest ${comment.user_id === ticket.created_by ? 'text-slate-400' : 'text-violet-600'}`}>
-                                            {comment.user_id === ticket.created_by ? <T en="You" bm="Anda" /> : <T en="Admin Response" bm="Maklum Balas Admin" />}
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                                {new Date(comment.created_at).toLocaleTimeString().replace(/(.*)\D\d+/, '$1')}
-                                            </p>
-                                            {comment.user_id === ticket.created_by && comment.is_read && (
-                                              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-2 bg-emerald-50 px-2.5 py-1 rounded-full"><T en="Read" bm="Dibaca" /></span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="prose prose-slate text-sm text-slate-600 font-medium leading-relaxed max-w-none">
-                                        <ReactMarkdown>
-                                            {comment.message}
-                                        </ReactMarkdown>
+                        {comments.map((comment) => {
+                            const isMine = comment.user_id === ticket.created_by || comment.user_id === "ME_OPTIMISTIC";
+                            return (
+                                <div key={comment.id} className="flex gap-5 group">
+                                    <div className={`w-[4.5rem] h-[4.5rem] sm:w-[4.5rem] sm:h-[4.5rem] w-14 h-14 rounded-full flex shrink-0 items-center justify-center border-4 border-white shadow-md z-10 transition-transform group-hover:scale-105 duration-300 ${isMine ? 'bg-slate-50 text-slate-400' : 'bg-gradient-to-br from-violet-600 to-violet-700 text-white shadow-violet-600/30'}`}>
+                                        {isMine ? <UserCircle2 className="w-8 h-8" /> : <ShieldCheck className="w-8 h-8" />}
                                     </div>
                                     
-                                    {comment.attachment_urls && comment.attachment_urls.length > 0 && (
-                                        <div className="flex flex-wrap gap-3 mt-5 pt-5 border-t border-slate-50">
-                                            {comment.attachment_urls.map((url, i) => (
-                                                <button 
-                                                    type="button" 
-                                                    key={i} 
-                                                    onClick={() => setPreviewImage(url)} 
-                                                    className="w-16 h-16 rounded-[1rem] overflow-hidden border border-slate-100 cursor-zoom-in hover:ring-2 ring-violet-500/20 transition-all shadow-sm group"
-                                                >
-                                                    <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                                                </button>
-                                            ))}
+                                    <div className={`flex-1 rounded-[2.5rem] p-6 lg:p-8 border shadow-xl overflow-hidden transition-all duration-300 ${isMine ? 'bg-white border-slate-100 shadow-slate-200/30' : 'bg-gradient-to-br from-white to-violet-50/60 border-violet-100/50 shadow-violet-100/40 relative'}`}>
+                                        {!isMine && <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-violet-400/10 rounded-full blur-[30px] pointer-events-none"></div>}
+                                        <div className="flex items-center justify-between mb-5 relative z-10">
+                                            <p className={`font-extrabold text-[10px] uppercase tracking-widest ${isMine ? 'text-slate-400' : 'text-violet-600'}`}>
+                                                {isMine ? <T en="You" bm="Anda" /> : <T en="Admin Response" bm="Maklum Balas Admin" />}
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                                    {new Date(comment.created_at).toLocaleTimeString().replace(/(.*)\D\d+/, '$1')}
+                                                </p>
+                                                {isMine && comment.is_read && (
+                                                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-2 bg-emerald-50 px-2.5 py-1 rounded-full"><T en="Read" bm="Dibaca" /></span>
+                                                )}
+                                            </div>
                                         </div>
-                                    )}
+                                        <div className="prose prose-slate text-sm text-slate-600 font-medium leading-relaxed max-w-none">
+                                            <ReactMarkdown>
+                                                {comment.message}
+                                            </ReactMarkdown>
+                                        </div>
+                                        
+                                        {comment.attachment_urls && comment.attachment_urls.length > 0 && (
+                                            <div className="flex flex-wrap gap-3 mt-5 pt-5 border-t border-slate-50">
+                                                {comment.attachment_urls.map((url, i) => (
+                                                    <button 
+                                                        type="button" 
+                                                        key={i} 
+                                                        onClick={() => setPreviewImage(url)} 
+                                                        className="w-16 h-16 rounded-[1rem] overflow-hidden border border-slate-100 cursor-zoom-in hover:ring-2 ring-violet-500/20 transition-all shadow-sm group"
+                                                    >
+                                                        <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                        <div ref={chatEndRef} className="md:hidden h-48" />
+                            );
+                        })}
+                        <div ref={chatEndRef} />
                     </div>
 
                     {/* Reply Box Conditional */}
                     {ticket.status !== 'CLOSED' ? (
-                        <div className="mt-10 md:mt-8 md:static fixed bottom-[76px] left-0 right-0 p-4 md:p-0 bg-white/80 backdrop-blur-xl md:bg-transparent z-40 border-t md:border-none border-slate-100 md:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                            <div className="bg-white/95 md:bg-white/95 backdrop-blur-xl rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-5 border border-slate-100 shadow-xl shadow-slate-200/30">
+                        <div className="mt-10 lg:static fixed bottom-[76px] left-0 right-0 p-4 lg:p-0 bg-white/80 backdrop-blur-xl lg:bg-transparent z-40 border-t lg:border-none border-slate-100 lg:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            <div className="max-w-6xl mx-auto">
+                                <div className="bg-white/95 lg:bg-white/95 backdrop-blur-xl rounded-[2rem] lg:rounded-[2.5rem] p-4 lg:p-5 border border-slate-100 shadow-xl shadow-slate-200/30">
                             <form onSubmit={handleSendComment} className="flex flex-col gap-3">
                                 <textarea 
                                     value={commentData.message}
                                     onChange={(e) => setCommentData(prev => ({ ...prev, message: e.target.value }))}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleSendComment();
-                                        }
-                                    }}
                                     placeholder={lang === "EN" ? "Write your reply here... (Markdown supported)" : "Tulis balasan anda di sini... (Markah disokong)"}
                                     className="w-full px-6 pt-5 pb-8 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 outline-none focus:ring-4 ring-violet-500/10 focus:border-violet-200 font-medium text-sm text-slate-800 resize-none transition-all placeholder:text-slate-400"
                                     rows={2}
@@ -417,11 +429,6 @@ export default function TicketDetailPage() {
                                     <button 
                                         type="submit"
                                         disabled={submitting || !commentData.message.trim()}
-                                        onPointerDown={(e) => {
-                                            if (!submitting && commentData.message.trim()) {
-                                                handleSendComment();
-                                            }
-                                        }}
                                         className="px-8 py-3.5 bg-violet-600 text-white rounded-full font-extrabold uppercase tracking-widest text-[11px] flex items-center gap-2 hover:bg-violet-700 transition-all disabled:opacity-50 outline-none focus:ring-4 ring-violet-500/20 shadow-[0_8px_30px_rgba(124,58,237,0.35)]"
                                     >
                                         {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> <T en="Reply" bm="Balas" /></>}
@@ -429,6 +436,7 @@ export default function TicketDetailPage() {
                                 </div>
                             </form>
                         </div>
+                      </div>
                     </div>
                     ) : (
                         <div className="mt-8 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-200 text-center shadow-lg shadow-slate-200/20">
