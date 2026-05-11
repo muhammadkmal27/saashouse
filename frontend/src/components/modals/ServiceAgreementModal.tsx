@@ -325,6 +325,7 @@ export default function ServiceAgreementModal({
                         }}>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.25rem', overflow: 'hidden' }}>
                                 <div style={{ height: typeof window !== 'undefined' && window.innerWidth < 768 ? '40px' : '60px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f1f4' }}>
+                                    {providerSignature ? (
                                         <img src={providerSignature} alt="Tandatangan Penyedia" style={{ maxHeight: '100%' }} />
                                     ) : (
                                         <div style={{ fontSize: '8px', fontStyle: 'italic', color: '#d4d4d8' }}>Tiada tandatangan</div>
