@@ -371,9 +371,8 @@ export default function TicketDetailPage() {
 
                     {/* Reply Box Conditional */}
                     {ticket.status !== 'CLOSED' ? (
-                        <div className="mt-10 md:static fixed bottom-[76px] left-0 right-0 p-4 md:p-0 bg-white/80 backdrop-blur-xl md:bg-transparent z-40 border-t md:border-none border-slate-100 md:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                            <div className="max-w-6xl mx-auto md:p-0">
-                                <div className="bg-white/95 md:bg-white/95 backdrop-blur-xl rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-5 border border-slate-100 shadow-xl shadow-slate-200/30">
+                        <div className="mt-10 md:mt-8 md:static fixed bottom-[76px] left-0 right-0 p-4 md:p-0 bg-white/80 backdrop-blur-xl md:bg-transparent z-40 border-t md:border-none border-slate-100 md:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            <div className="bg-white/95 md:bg-white/95 backdrop-blur-xl rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-5 border border-slate-100 shadow-xl shadow-slate-200/30">
                             <form onSubmit={handleSendComment} className="flex flex-col gap-3">
                                 <textarea 
                                     value={commentData.message}
@@ -430,8 +429,6 @@ export default function TicketDetailPage() {
                                 </div>
                             </form>
                         </div>
-                      </div>
-                    </div>
                     ) : (
                         <div className="mt-8 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-200 text-center shadow-lg shadow-slate-200/20">
                             <p className="text-[10px] uppercase tracking-widest font-black text-slate-500 mb-1"><T en="Notice" bm="Notis" /></p>
