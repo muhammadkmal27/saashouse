@@ -114,7 +114,9 @@ export default function TicketDetailPage() {
             console.log("Omega-Sync: Received NewComment signal", lastEvent);
             setComments(prev => {
                 if (prev.some(c => c.id === lastEvent.comment.id)) return prev;
-                return [...prev, lastEvent.comment];
+                // De-duplicate: Remove optimistic echo if the real message has arrived
+                const filtered = prev.filter(c => !(c.user_id === "ME_OPTIMISTIC" && c.message === lastEvent.comment.message));
+                return [...filtered, lastEvent.comment];
             });
 
             if (lastEvent.comment.message.includes("CLOSED") || lastEvent.comment.message.includes("[SYSTEM]")) {
