@@ -385,6 +385,7 @@ export default function TicketDetailPage() {
                                 </div>
                             );
                         })}
+                        <div className="h-40 lg:hidden pointer-events-none" />
                         <div ref={chatEndRef} />
                     </div>
 
