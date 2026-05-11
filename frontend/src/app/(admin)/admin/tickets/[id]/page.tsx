@@ -134,7 +134,9 @@ export default function AdminTicketDetailPage() {
         if (lastEvent?.type === 'NewComment' && lastEvent.request_id === id) {
             setComments(prev => {
                 if (prev.some(c => c.id === lastEvent.comment.id)) return prev;
-                return [...prev, lastEvent.comment];
+                // De-duplicate: Remove optimistic echo if the real message has arrived
+                const filtered = prev.filter(c => !(c.user_id === "ME_OPTIMISTIC" && c.message === lastEvent.comment.message));
+                return [...filtered, lastEvent.comment];
             });
 
             // Omega-Sync: Auto-mark as read if we are on the page
@@ -234,8 +236,30 @@ export default function AdminTicketDetailPage() {
 
     const handleSendComment = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!commentData.message.trim() && commentData.attachment_urls.length === 0) return;
+        const message = commentData.message.trim();
+        if (!message && commentData.attachment_urls.length === 0) return;
+
         setSubmitting(true);
+        
+        // Optimistic UI: Add local message immediately
+        const tempId = `temp-${Date.now()}`;
+        const optimisticComment: Comment = {
+            id: tempId,
+            request_id: id as string,
+            user_id: "ME_OPTIMISTIC",
+            message: message,
+            attachment_urls: commentData.attachment_urls,
+            is_read: false,
+            created_at: new Date().toISOString()
+        };
+
+        setComments(prev => [...prev, optimisticComment]);
+
+        // Pre-scroll for immediate feedback
+        setTimeout(() => {
+            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 50);
+
         const csrfToken = getCookie("csrf_token") || "";
         try {
             const res = await fetch(`/api/requests/${id}/comments`, {
@@ -249,13 +273,14 @@ export default function AdminTicketDetailPage() {
             });
             if (res.ok) {
                 setCommentData({ message: "", attachment_urls: [] });
-                // We rely on WebSocket for real-time addition
                 toast.success(lang === 'EN' ? "Message sent." : "Pesanan dihantar.");
             } else {
+                setComments(prev => prev.filter(c => c.id !== tempId));
                 const data = await res.json().catch(() => ({}));
                 toast.error(translateError(data.error || "Send failed.", lang));
             }
         } catch(_) {
+            setComments(prev => prev.filter(c => c.id !== tempId));
             toast.error(translateError("Send failed.", lang));
         } finally {
             setSubmitting(false);
@@ -266,7 +291,7 @@ export default function AdminTicketDetailPage() {
     if (!ticket) return <div className="p-12 text-center text-zinc-400 italic"><T en="Ticket not found." bm="Tiket tidak ditemui." /></div>;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-20">
+        <div className="max-w-6xl mx-auto space-y-8 pb-32 md:pb-20">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-zinc-100 pb-8">
                 <div className="space-y-4">
@@ -348,55 +373,62 @@ export default function AdminTicketDetailPage() {
                     <div className="space-y-6 relative">
                         <div className="absolute left-10 top-0 bottom-0 w-px bg-zinc-100 -z-10" />
                         
-                        {comments.map((comment) => (
-                            <div key={comment.id} className="flex gap-4">
-                                <div className={`w-20 h-20 rounded-full flex items-center justify-center border-4 border-white shadow-sm z-10 ${comment.user_id === ticket.created_by ? 'bg-zinc-100 text-zinc-400' : 'bg-zinc-900 text-white'}`}>
-                                    {comment.user_id === ticket.created_by ? <UserCircle2 className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
-                                </div>
-                                
-                                <div className="flex-1 bg-white rounded-[2rem] p-6 border border-zinc-100 shadow-lg shadow-zinc-200/30">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <p className="font-black text-[10px] uppercase tracking-widest text-zinc-400">
-                                            {comment.user_id === ticket.created_by ? <T en="Client" bm="Pelanggan" /> : <T en="You (Admin)" bm="Anda (Admin)" />}
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-[10px] font-medium text-zinc-300">
-                                                {new Date(comment.created_at).toLocaleTimeString()}
-                                            </p>
-                                            {comment.user_id !== ticket.created_by && comment.is_read && (
-                                                <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter"><T en="Read" bm="Dibaca" /></span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="prose prose-sm prose-zinc text-zinc-600 font-medium leading-relaxed">
-                                        <ReactMarkdown>
-                                            {comment.message}
-                                        </ReactMarkdown>
+                        {comments.map((comment) => {
+                            const isClient = comment.user_id === ticket.created_by;
+                            const isMeAdmin = !isClient || comment.user_id === "ME_OPTIMISTIC";
+                            
+                            return (
+                                <div key={comment.id} className="flex gap-4">
+                                    <div className={`w-20 h-20 rounded-full flex items-center justify-center border-4 border-white shadow-sm z-10 ${!isMeAdmin ? 'bg-zinc-100 text-zinc-400' : 'bg-zinc-900 text-white'}`}>
+                                        {!isMeAdmin ? <UserCircle2 className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
                                     </div>
                                     
-                                    {comment.attachment_urls && comment.attachment_urls.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-zinc-50">
-                                            {comment.attachment_urls.map((url, i) => (
-                                                <button 
-                                                    type="button"
-                                                    key={i} 
-                                                    onClick={() => setPreviewImage(url)} 
-                                                    className="w-12 h-12 rounded-lg overflow-hidden border border-zinc-50 bg-zinc-50 cursor-zoom-in"
-                                                >
-                                                    <img src={url} className="w-full h-full object-cover" />
-                                                </button>
-                                            ))}
+                                    <div className={`flex-1 bg-white rounded-[2rem] p-6 border border-zinc-100 shadow-lg shadow-zinc-200/30 ${isMeAdmin ? 'bg-gradient-to-br from-white to-zinc-50' : ''}`}>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <p className="font-black text-[10px] uppercase tracking-widest text-zinc-400">
+                                                {!isMeAdmin ? <T en="Client" bm="Pelanggan" /> : <T en="You (Admin)" bm="Anda (Admin)" />}
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-[10px] font-medium text-zinc-300">
+                                                    {new Date(comment.created_at).toLocaleTimeString()}
+                                                </p>
+                                                {isMeAdmin && comment.is_read && (
+                                                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter"><T en="Read" bm="Dibaca" /></span>
+                                                )}
+                                            </div>
                                         </div>
-                                    )}
+                                        <div className="prose prose-sm prose-zinc text-zinc-600 font-medium leading-relaxed">
+                                            <ReactMarkdown>
+                                                {comment.message}
+                                            </ReactMarkdown>
+                                        </div>
+                                        
+                                        {comment.attachment_urls && comment.attachment_urls.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-zinc-50">
+                                                {comment.attachment_urls.map((url, i) => (
+                                                    <button 
+                                                        type="button"
+                                                        key={i} 
+                                                        onClick={() => setPreviewImage(url)} 
+                                                        className="w-12 h-12 rounded-lg overflow-hidden border border-zinc-50 bg-zinc-50 cursor-zoom-in"
+                                                    >
+                                                        <img src={url} className="w-full h-full object-cover" />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         <div ref={chatEndRef} />
                     </div>
 
                     {/* Admin Reply Box */}
                     {ticket.status !== 'CLOSED' ? (
-                        <div className="mt-8 bg-zinc-900 rounded-[2.5rem] p-4 shadow-xl shadow-zinc-900/40">
+                        <div className="mt-8 lg:static fixed bottom-[76px] left-0 right-0 p-4 lg:p-0 bg-white/80 backdrop-blur-xl lg:bg-transparent z-40 border-t lg:border-none border-zinc-100 lg:shadow-none shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            <div className="max-w-6xl mx-auto">
+                                <div className="bg-zinc-900 lg:bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] p-4 lg:p-5 shadow-xl shadow-zinc-900/40">
                             <form onSubmit={handleSendComment} className="flex flex-col gap-3">
                                 <textarea 
                                     value={commentData.message}
@@ -441,6 +473,8 @@ export default function AdminTicketDetailPage() {
                                 </div>
                             </form>
                         </div>
+                      </div>
+                    </div>
                     ) : (
                         <div className="mt-8 bg-zinc-50 border border-zinc-200 rounded-[2.5rem] p-8 text-center">
                              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-4" />
@@ -451,8 +485,8 @@ export default function AdminTicketDetailPage() {
                 </div>
 
                 {/* Sidebar Context */}
-                <div className="space-y-6">
-                    <div className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-200/40">
+                <div className="space-y-6 lg:block">
+                    <div className="hidden lg:block bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-200/40">
                         <h3 className="text-xl font-black text-zinc-900 mb-6 flex items-center gap-2">
                             <Mail className="w-5 h-5 text-indigo-500" /> <T en="Client Info" bm="Maklumat Pelanggan" />
                         </h3>
@@ -468,7 +502,7 @@ export default function AdminTicketDetailPage() {
                         </div>
                     </div>
 
-                    <div className="bg-zinc-50 rounded-[2.5rem] p-8 border border-zinc-200/50">
+                    <div className="hidden lg:block bg-zinc-50 rounded-[2.5rem] p-8 border border-zinc-200/50">
                         <h3 className="text-xl font-black text-zinc-900 mb-6 flex items-center gap-2">
                             <Clock className="w-5 h-5 text-zinc-400" /> <T en="Timeline" bm="Garis Masa" />
                         </h3>
