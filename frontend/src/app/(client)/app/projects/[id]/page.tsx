@@ -1682,7 +1682,15 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                             )}
 
-                            {project.status === "PAID" && (
+                            {(project.subscription_status === 'active' || (planName === "One-Time Purchase" && project.status === "LIVE")) ? (
+                                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest"><T en="Service Active" bm="Servis Aktif" /></p>
+                                        <p className="text-xs font-bold text-zinc-600"><T en="Environment is ready and managed" bm="Persekitaran telah sedia dan terurus" /></p>
+                                    </div>
+                                </div>
+                            ) : project.status === "PAID" ? (
                                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-3">
                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                     <div>

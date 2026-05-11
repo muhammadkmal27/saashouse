@@ -327,7 +327,11 @@ export default function BillingPage() {
 
                     {/* Action Button Section */}
                     <div className="space-y-3">
-                        {selectedProject?.status === "PAID" ? (
+                        {(data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')) ? (
+                            <div className="w-full py-5 bg-emerald-50 text-emerald-600 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 border border-emerald-100">
+                                <CheckCircle2 className="w-5 h-5" /> <T en="Plan Active" bm="Pakej Aktif" />
+                            </div>
+                        ) : selectedProject?.status === "PAID" ? (
                             <div className="w-full py-5 bg-indigo-50 text-indigo-600 rounded-2xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center gap-3 border border-indigo-100 flex-col">
                                 <div className="flex items-center gap-2">
                                     <Clock className="w-4 h-4 animate-pulse" />
@@ -336,10 +340,6 @@ export default function BillingPage() {
                                 <p className="text-[8px] opacity-70 normal-case px-6 text-center">
                                     <T en="Admin is currently initializing your development environment." bm="Admin sedang menyediakan persekitaran pembangunan anda." />
                                 </p>
-                            </div>
-                        ) : (data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')) ? (
-                            <div className="w-full py-5 bg-emerald-50 text-emerald-600 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 border border-emerald-100">
-                                <CheckCircle2 className="w-5 h-5" /> <T en="Plan Active" bm="Pakej Aktif" />
                             </div>
                         ) : (
                             <button 
@@ -563,7 +563,11 @@ export default function BillingPage() {
                                 </div>
                             </div>
     
-                            {selectedProject?.status === "PAID" ? (
+                            {(data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')) ? (
+                                <div className="px-10 py-5 bg-emerald-50 text-emerald-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 border border-emerald-100">
+                                    <CheckCircle2 className="w-5 h-5" /> <T en={selectedProject?.status === 'LIVE' ? 'Fully Paid' : 'Plan Active'} bm={selectedProject?.status === 'LIVE' ? 'Selesai Dibayar' : 'Pakej Aktif'} />
+                                </div>
+                            ) : selectedProject?.status === "PAID" ? (
                                 <div className="px-10 py-5 bg-indigo-50 text-indigo-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex flex-col items-center gap-1 border border-indigo-100">
                                     <div className="flex items-center gap-3">
                                         <Clock className="w-5 h-5 animate-pulse" />
@@ -572,10 +576,6 @@ export default function BillingPage() {
                                     <p className="text-[10px] opacity-60 normal-case font-medium">
                                         <T en="Infrastructure will be ready for activation once status moves to Under Development." bm="Infrastruktur akan sedia untuk diaktifkan selepas status bertukar kepada 'Under Development'." />
                                     </p>
-                                </div>
-                            ) : (data?.sub?.status?.toLowerCase() === 'active' || (isOTP && selectedProject?.status === 'LIVE')) ? (
-                                <div className="px-10 py-5 bg-emerald-50 text-emerald-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 border border-emerald-100">
-                                    <CheckCircle2 className="w-5 h-5" /> <T en={selectedProject?.status === 'LIVE' ? 'Fully Paid' : 'Plan Active'} bm={selectedProject?.status === 'LIVE' ? 'Selesai Dibayar' : 'Pakej Aktif'} />
                                 </div>
                             ) : (
                                 <button 
