@@ -82,8 +82,17 @@ export default function TicketDetailPage() {
         }
     }, [id]);
 
+    const scrollToBottom = (instant = false) => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ 
+                behavior: instant ? "auto" : "smooth",
+                block: "end"
+            });
+        }
+    };
+
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        scrollToBottom();
     }, [comments]);
 
     // Omega-Sync: Master Real-time Signal Listener
@@ -199,9 +208,9 @@ export default function TicketDetailPage() {
         }
     };
 
-    const handleSendComment = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!commentData.message.trim()) return;
+    const handleSendComment = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!commentData.message.trim() || submitting) return;
 
         setSubmitting(true);
         try {
@@ -218,7 +227,8 @@ export default function TicketDetailPage() {
 
             if (res.ok) {
                 setCommentData({ message: "", attachment_urls: [] });
-                // Rely on WebSocket for real-time addition
+                // Force instant scroll for better UX
+                setTimeout(() => scrollToBottom(true), 50);
                 toast.success(lang === "EN" ? "Reply sent." : "Balasan dihantar.");
             } else {
                 const data = await res.json();
@@ -368,6 +378,12 @@ export default function TicketDetailPage() {
                                 <textarea 
                                     value={commentData.message}
                                     onChange={(e) => setCommentData(prev => ({ ...prev, message: e.target.value }))}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSendComment();
+                                        }
+                                    }}
                                     placeholder={lang === "EN" ? "Write your reply here... (Markdown supported)" : "Tulis balasan anda di sini... (Markah disokong)"}
                                     className="w-full px-6 pt-5 pb-8 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 outline-none focus:ring-4 ring-violet-500/10 focus:border-violet-200 font-medium text-sm text-slate-800 resize-none transition-all placeholder:text-slate-400"
                                     rows={2}
@@ -402,6 +418,11 @@ export default function TicketDetailPage() {
                                     <button 
                                         type="submit"
                                         disabled={submitting || !commentData.message.trim()}
+                                        onPointerDown={(e) => {
+                                            if (!submitting && commentData.message.trim()) {
+                                                handleSendComment();
+                                            }
+                                        }}
                                         className="px-8 py-3.5 bg-violet-600 text-white rounded-full font-extrabold uppercase tracking-widest text-[11px] flex items-center gap-2 hover:bg-violet-700 transition-all disabled:opacity-50 outline-none focus:ring-4 ring-violet-500/20 shadow-[0_8px_30px_rgba(124,58,237,0.35)]"
                                     >
                                         {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> <T en="Reply" bm="Balas" /></>}
