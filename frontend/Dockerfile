@@ -15,6 +15,11 @@ COPY . .
 # Build the application
 # We set NEXT_TELEMETRY_DISABLED to 1 to skip telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
+
+# Receive Turnstile key from GitHub Actions
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
 RUN npm run build
 
 # Stage 2: Serve the application
