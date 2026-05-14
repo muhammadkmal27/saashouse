@@ -128,11 +128,11 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-center py-2">
+                <div className="flex justify-center py-2" style={{ transform: 'scale(0.82)', transformOrigin: 'center' }}>
                   <Turnstile 
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} 
                     onSuccess={setTurnstileToken} 
-                    options={{ theme: "dark", size: "compact" }}
+                    options={{ theme: "dark", size: "normal" }}
                   />
                 </div>
 
@@ -385,11 +385,11 @@ export default function ContactPage() {
                       </p>
                     )}
 
-                    <div className="flex justify-center pt-2">
+                    <div className="flex justify-center pt-2" style={{ transform: 'scale(0.82)', transformOrigin: 'center' }}>
                       <Turnstile 
                         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} 
                         onSuccess={setTurnstileToken} 
-                        options={{ theme: "dark", size: "compact" }}
+                        options={{ theme: "dark", size: "normal" }}
                       />
                     </div>
 
