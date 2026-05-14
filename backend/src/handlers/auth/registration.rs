@@ -20,6 +20,9 @@ pub async fn register_logic<R: RegistrationRepo>(
     // 0. Strict Input Validation (Rule 1)
     payload.validate().map_err(ApiError::Validation)?;
 
+    // 0.1 Turnstile Verification
+    crate::handlers::auth::verify_turnstile(&payload.turnstile_token).await?;
+
     // 1. Check if email exists
     let email_exists = repo.check_email_exists(&payload.email).await?;
     if email_exists {

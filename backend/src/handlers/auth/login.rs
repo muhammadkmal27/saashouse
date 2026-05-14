@@ -17,6 +17,9 @@ pub async fn login_logic(
     // 0. Strict Input Validation (Rule 1)
     payload.validate().map_err(ApiError::Validation)?;
 
+    // 0.1 Turnstile Verification
+    crate::handlers::auth::verify_turnstile(&payload.turnstile_token).await?;
+
     let user_opt: Option<User> = sqlx::query_as("SELECT * FROM users WHERE email = $1")
         .bind(&payload.email)
         .fetch_optional(pool)

@@ -121,3 +121,42 @@ pub async fn resend_otp(
     let result = otp::resend_otp_logic(state.clone(), jar).await?;
     Ok(result.into_response())
 }
+
+#[derive(serde::Deserialize)]
+struct TurnstileResponse {
+    success: bool,
+}
+
+pub async fn verify_turnstile(token: &str) -> Result<(), ApiError> {
+    let secret = std::env::var("TURNSTILE_SECRET_KEY")
+        .unwrap_or_else(|_| "1x0000000000000000000000000000000AA".to_string());
+    
+    // In local dev without internet, or testing mode with the dummy secret, 
+    // it will pass. The official dummy secret is 1x0000...
+    let client = reqwest::Client::new();
+    let res = client.post("https://challenges.cloudflare.com/turnstile/v0/siteverify")
+        .form(&[
+            ("secret", secret.as_str()),
+            ("response", token),
+        ])
+        .send()
+        .await
+        .map_err(|e| {
+            println!("⚠️ Turnstile API Error: {}", e);
+            ApiError::Internal("Gagal menghubungi pelayan keselamatan Cloudflare.".to_string())
+        })?;
+
+    if res.status().is_success() {
+        let ts_resp: TurnstileResponse = res.json().await.map_err(|_| {
+            ApiError::Internal("Ralat menghurai jawapan Cloudflare.".to_string())
+        })?;
+
+        if ts_resp.success {
+            Ok(())
+        } else {
+            Err(ApiError::BadRequest("Pengesahan Anti-Bot gagal. Sila cuba lagi.".to_string()))
+        }
+    } else {
+        Err(ApiError::BadRequest("Pengesahan Anti-Bot tidak sah.".to_string()))
+    }
+}

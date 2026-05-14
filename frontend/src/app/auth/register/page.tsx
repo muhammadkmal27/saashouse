@@ -6,6 +6,7 @@ import { T } from "@/components/Translate";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translateError } from "@/utils/error-translator";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function RegisterPage() {
   const { lang } = useLanguage();
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +29,7 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ full_name: fullName, email, password }),
+        body: JSON.stringify({ full_name: fullName, email, password, turnstile_token: turnstileToken }),
       });
 
       if (!res.ok) {
@@ -121,10 +123,20 @@ export default function RegisterPage() {
             </button>
           </div>
         </div>
+
+        <div className="flex justify-center my-4">
+          <Turnstile
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+            onSuccess={(token) => setTurnstileToken(token)}
+            options={{
+              theme: 'light',
+            }}
+          />
+        </div>
         
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !turnstileToken}
           className="mt-6 inline-flex items-center justify-center rounded-full text-sm font-black uppercase tracking-widest bg-gradient-to-r from-violet-500 to-cyan-400 text-white hover:opacity-90 h-14 w-full transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(139,92,246,0.3)] group"
           suppressHydrationWarning
         >

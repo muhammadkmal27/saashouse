@@ -16,6 +16,9 @@ pub struct RegisterRequest {
     #[schema(example = "John Doe")]
     #[validate(length(min = 3, message = "Nama penuh terlalu pendek"))]
     pub full_name: String,
+
+    #[schema(example = "0.xxxxxx")]
+    pub turnstile_token: String,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
@@ -27,6 +30,9 @@ pub struct LoginRequest {
     #[schema(example = "secure_password_123")]
     #[validate(length(min = 1, message = "Sila masukkan kata laluan"))]
     pub password: String,
+
+    #[schema(example = "0.xxxxxx")]
+    pub turnstile_token: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
