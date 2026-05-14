@@ -132,7 +132,7 @@ export default function ContactPage() {
                   <Turnstile 
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} 
                     onSuccess={setTurnstileToken} 
-                    options={{ theme: "dark" }}
+                    options={{ theme: "dark", size: "compact" }}
                   />
                 </div>
 
@@ -389,7 +389,7 @@ export default function ContactPage() {
                       <Turnstile 
                         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} 
                         onSuccess={setTurnstileToken} 
-                        options={{ theme: "dark" }}
+                        options={{ theme: "dark", size: "compact" }}
                       />
                     </div>
 

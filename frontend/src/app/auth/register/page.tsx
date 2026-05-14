@@ -124,12 +124,13 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className="flex justify-center my-4">
+        <div className="flex justify-center my-2">
           <Turnstile
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
             onSuccess={(token) => setTurnstileToken(token)}
             options={{
               theme: 'light',
+              size: 'compact',
             }}
           />
         </div>
