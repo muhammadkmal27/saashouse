@@ -5,6 +5,7 @@ import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { MessageSquare, Phone, Mail, MapPin, Send, Clock, Zap, Shield, Users, ArrowRight, CheckCircle2, Globe, Headphones, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { Turnstile } from "@marsidev/react-turnstile";
 // import { API_BASE_URL } from "@/utils/api"; // Removed to fix build error
 
 export default function ContactPage() {
@@ -17,6 +18,7 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +29,7 @@ export default function ContactPage() {
       const res = await fetch(`/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, turnstile_token: turnstileToken })
       });
 
       if (!res.ok) {
@@ -126,7 +128,15 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <button disabled={status === 'loading'} type="submit" className="w-full py-5 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-violet-600/20">
+                <div className="flex justify-center py-2">
+                  <Turnstile 
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} 
+                    onSuccess={setTurnstileToken} 
+                    options={{ theme: "dark" }}
+                  />
+                </div>
+
+                <button disabled={status === 'loading' || !turnstileToken} type="submit" className="w-full py-5 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-violet-600/20">
                   {status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><T en="Submit Message" bm="Hantar Mesej" /> <ArrowRight className="w-4 h-4" /></>}
                 </button>
               </form>
@@ -375,8 +385,16 @@ export default function ContactPage() {
                       </p>
                     )}
 
+                    <div className="flex justify-center pt-2">
+                      <Turnstile 
+                        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} 
+                        onSuccess={setTurnstileToken} 
+                        options={{ theme: "dark" }}
+                      />
+                    </div>
+
                     <button 
-                      disabled={status === 'loading'}
+                      disabled={status === 'loading' || !turnstileToken}
                       type="submit"
                       className="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 disabled:opacity-50 text-white font-extrabold text-lg shadow-xl shadow-purple-500/20 transition-all flex items-center justify-center gap-3 group"
                     >

@@ -35,6 +35,7 @@ pub struct ContactRequest {
     pub email: String,
     pub subject: String,
     pub message: String,
+    pub turnstile_token: String,
 }
 
 #[utoipa::path(
@@ -210,9 +211,12 @@ pub async fn submit_contact_form(
 ) -> Result<Json<serde_json::Value>, ApiError> {
     println!("DEBUG: Received contact form submission from: {}", payload.email);
     // Validate
-    if payload.full_name.is_empty() || payload.email.is_empty() || payload.message.is_empty() {
-        return Err(ApiError::BadRequest("Please fill in all required fields".to_string()));
+    if payload.full_name.is_empty() || payload.email.is_empty() || payload.message.is_empty() || payload.turnstile_token.is_empty() {
+        return Err(ApiError::BadRequest("Please fill in all required fields including captcha".to_string()));
     }
+
+    // Verify Turnstile Token (Anti-Bot)
+    crate::handlers::auth::verify_turnstile(&payload.turnstile_token).await?;
 
     let admin_email = env::var("ADMIN_NOTIFICATION_EMAIL").unwrap_or_else(|_| "admin@saashouse.com".to_string());
     let subject = format!("New Inquiry: {}", payload.subject);
