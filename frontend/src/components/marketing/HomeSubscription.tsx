@@ -24,7 +24,7 @@ export default function HomeSubscription() {
             <span className="w-px h-3.5 bg-zinc-700/60 shrink-0" />
             <span className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors min-w-0">
               <span className="truncate sm:not-truncate">
-                <T en="Build your dream website with RM550 deposit" bm="Bina Website Impian Anda dengan Deposit RM550" />
+                <T en="One Flat Price for All Website Types" bm="Satu Harga Tetap Untuk Semua Jenis Website" />
               </span>
               <span className="inline-block transition-transform group-hover:translate-x-1 shrink-0">→</span>
             </span>
