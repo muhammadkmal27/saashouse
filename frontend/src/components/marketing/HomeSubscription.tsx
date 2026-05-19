@@ -33,7 +33,7 @@ export default function HomeSubscription() {
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[1.1] text-white">
             <T 
               en={<>Build your dream website<br/>for only <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM550</span></>} 
-              bm={<>Bina Website<br className="sm:hidden" /> impian anda<br/><span className="whitespace-nowrap">serendah <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM550</span></span></>} 
+              bm={<>Bina Website<br className="sm:hidden" /> impian anda<br/><span className="whitespace-nowrap">hanya <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM550</span></span></>} 
             />
           </h1>
           
