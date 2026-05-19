@@ -15,7 +15,7 @@ export default function HomeSubscription() {
 
         <div className="max-w-4xl mx-auto space-y-10">
           <Link 
-            href="/features" 
+            href="/pricing" 
             className="group inline-flex items-center gap-3 text-xs md:text-sm text-zinc-300 hover:text-white transition-all duration-300"
           >
             <span className="font-extrabold text-zinc-100">
@@ -23,7 +23,7 @@ export default function HomeSubscription() {
             </span>
             <span className="w-px h-4 bg-zinc-700/60" />
             <span className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
-              <T en="Vibe Coding Framework for developer teams" bm="Framework Vibe Coding untuk tim developer" />
+              <T en="Build your dream website with RM550 deposit" bm="Bina Website Impian Anda dengan Deposit RM550" />
               <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
             </span>
           </Link>
