@@ -16,7 +16,7 @@ export default function HomeSubscription() {
         <div className="max-w-4xl mx-auto space-y-10">
           <Link 
             href="/pricing" 
-            className="group inline-flex items-center gap-2 md:gap-3 text-[11px] sm:text-xs md:text-sm text-zinc-300 hover:text-white transition-all duration-300 px-3 py-1.5 rounded-full bg-zinc-900/30 border border-zinc-800/60 max-w-full"
+            className="group inline-flex items-center gap-2 md:gap-3 text-[11px] sm:text-xs md:text-sm text-zinc-300 hover:text-white transition-all duration-300 max-w-full"
           >
             <span className="font-extrabold text-zinc-100 shrink-0 whitespace-nowrap">
               <T en="What's new" bm="Yang baru" />
