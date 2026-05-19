@@ -16,15 +16,17 @@ export default function HomeSubscription() {
         <div className="max-w-4xl mx-auto space-y-10">
           <Link 
             href="/pricing" 
-            className="group inline-flex items-center gap-3 text-xs md:text-sm text-zinc-300 hover:text-white transition-all duration-300"
+            className="group inline-flex items-center gap-2 md:gap-3 text-[11px] sm:text-xs md:text-sm text-zinc-300 hover:text-white transition-all duration-300 px-3 py-1.5 rounded-full bg-zinc-900/30 border border-zinc-800/60 max-w-full"
           >
-            <span className="font-extrabold text-zinc-100">
+            <span className="font-extrabold text-zinc-100 shrink-0 whitespace-nowrap">
               <T en="What's new" bm="Yang baru" />
             </span>
-            <span className="w-px h-4 bg-zinc-700/60" />
-            <span className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
-              <T en="Build your dream website with RM550 deposit" bm="Bina Website Impian Anda dengan Deposit RM550" />
-              <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+            <span className="w-px h-3.5 bg-zinc-700/60 shrink-0" />
+            <span className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors min-w-0">
+              <span className="truncate sm:not-truncate">
+                <T en="Build your dream website with RM550 deposit" bm="Bina Website Impian Anda dengan Deposit RM550" />
+              </span>
+              <span className="inline-block transition-transform group-hover:translate-x-1 shrink-0">→</span>
             </span>
           </Link>
           
