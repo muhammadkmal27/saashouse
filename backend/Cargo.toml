@@ -28,7 +28,7 @@ hex = "0.4.3"
 time = { version = "0.3.47", features = ["macros", "formatting"] }
 rand = "0.10.0"
 base64 = "0.22"
-lettre = { version = "0.11.21", features = ["builder", "hostname", "pool", "smtp-transport", "tokio1-rustls", "tokio1-rustls-tls"], default-features = false }
+lettre = { version = "0.11.22", features = ["builder", "hostname", "pool", "smtp-transport", "tokio1-rustls", "tokio1-rustls-tls"], default-features = false }
 async-trait = "0.1.89"
 validator = { version = "0.20.0", features = ["derive"] }
 tower_governor = { version = "0.8.0", features = ["axum"] }
