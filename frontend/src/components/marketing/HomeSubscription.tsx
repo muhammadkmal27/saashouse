@@ -30,7 +30,7 @@ export default function HomeSubscription() {
             </span>
           </Link>
           
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[1.1] text-white">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-[1.1] text-white">
             <T 
               en={<>Build your dream website<br/>for only <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM550</span></>} 
               bm={<>Bina Website impian anda<br/>serendah <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM550</span></>} 
