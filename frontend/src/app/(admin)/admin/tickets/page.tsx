@@ -12,13 +12,15 @@ import {
     Loader2,
     ArrowRight,
     Filter,
-    ClipboardList
+    ClipboardList,
+    Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translateError } from "@/utils/error-translator";
 import { toast } from "sonner";
+import { getCookie } from "@/utils/cookies";
 
 type Ticket = {
     id: string;
@@ -39,6 +41,69 @@ export default function AdminTicketsPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("ALL");
+    const [deleteTarget, setDeleteTarget] = useState<Ticket | null>(null);
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpSending, setOtpSending] = useState(false);
+    const [otpCode, setOtpCode] = useState("");
+    const [deleting, setDeleting] = useState(false);
+
+    const handleRequestOtp = async () => {
+        if (!deleteTarget) return;
+        setOtpSending(true);
+        try {
+            const csrfToken = getCookie("csrf_token") || "";
+            const res = await fetch(`/api/admin/requests/${deleteTarget.id}/delete/request-otp`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
+                credentials: "include"
+            });
+            if (res.ok) {
+                setOtpSent(true);
+                toast.success(lang === "EN" ? "OTP code sent to email" : "Kod OTP dihantar ke e-mel");
+            } else {
+                const err = await res.json();
+                toast.error(err.error || (lang === "EN" ? "Failed to send OTP" : "Gagal menghantar OTP"));
+            }
+        } catch (e) {
+            toast.error(lang === "EN" ? "Connection error" : "Ralat sambungan");
+        } finally {
+            setOtpSending(false);
+        }
+    };
+
+    const handleDeleteTicket = async () => {
+        if (!deleteTarget || !otpCode) return;
+        setDeleting(true);
+        try {
+            const csrfToken = getCookie("csrf_token") || "";
+            const res = await fetch(`/api/admin/requests/${deleteTarget.id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
+                credentials: "include",
+                body: JSON.stringify({ code: otpCode })
+            });
+            if (res.ok) {
+                toast.success(lang === "EN" ? "Ticket deleted successfully" : "Tiket berjaya dipadamkan");
+                setTickets(prev => prev.filter(t => t.id !== deleteTarget.id));
+                setDeleteTarget(null);
+                setOtpSent(false);
+                setOtpCode("");
+            } else {
+                const err = await res.json();
+                toast.error(err.error || (lang === "EN" ? "Failed to delete ticket" : "Gagal memadam tiket"));
+            }
+        } catch (e) {
+            toast.error(lang === "EN" ? "Connection error" : "Ralat sambungan");
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     useEffect(() => {
         fetchTickets();
@@ -199,6 +264,12 @@ export default function AdminTicketsPage() {
                                             </div>
                                             
                                             <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => setDeleteTarget(ticket)}
+                                                    className="w-12 h-12 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl transition-all active:scale-90"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
                                                 <select 
                                                     onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
                                                     className="flex-1 bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all"
@@ -230,6 +301,7 @@ export default function AdminTicketsPage() {
                                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Title & Intelligence Source" bm="Tajuk & Sumber Maklumat" /></th>
                                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400"><T en="Date Logged" bm="Tarikh Log" /></th>
                                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right pr-12"><T en="System Actions" bm="Tindakan Sistem" /></th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right pr-12"><T en="Delete" bm="Padam" /></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-50">
@@ -281,6 +353,14 @@ export default function AdminTicketsPage() {
                                                         </Link>
                                                     </div>
                                                 </td>
+                                                <td className="px-8 py-7 text-right pr-12">
+                                                    <button
+                                                        onClick={() => setDeleteTarget(ticket)}
+                                                        className="w-10 h-10 inline-flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl transition-all active:scale-90"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -288,8 +368,90 @@ export default function AdminTicketsPage() {
                             </div>
                         </>
                     )}
+            {/* ─── Delete Confirmation Modal ─── */}
+            {deleteTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="relative w-full max-w-md bg-white border border-zinc-100 rounded-2xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200">
+                        {/* Header */}
+                        <div className="space-y-2 text-center md:text-left">
+                            <h3 className="text-lg font-bold text-zinc-950">
+                                <T en="Confirm Ticket Deletion" bm="Sahkan Pemadaman Tiket" />
+                            </h3>
+                            <p className="text-xs text-zinc-500 leading-relaxed font-medium">
+                                <T
+                                    en={<>Are you sure you want to delete <span className="font-bold text-red-600">{deleteTarget.title}</span>? This will permanently delete the ticket and all associated comments. This action cannot be undone.</>}
+                                    bm={<>Adakah anda pasti mahu memadam <span className="font-bold text-red-600">{deleteTarget.title}</span>? Ini akan memadamkan tiket secara kekal berserta semua komen berkaitan. Tindakan ini tidak boleh diundurkan.</>}
+                                />
+                            </p>
+                        </div>
+
+                        {/* OTP Section */}
+                        <div className="space-y-4 pt-2 border-t border-zinc-100">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <span className="text-xs font-bold text-zinc-700">
+                                    <T en="Identity Verification" bm="Pengesahan Identiti" />
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={handleRequestOtp}
+                                    disabled={otpSending}
+                                    className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+                                >
+                                    {otpSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                                    {otpSent ? (
+                                        <T en="Resend OTP" bm="Hantar Semula OTP" />
+                                    ) : (
+                                        <T en="Send OTP Code" bm="Hantar Kod OTP" />
+                                    )}
+                                </button>
+                            </div>
+
+                            {otpSent && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">
+                                        <T en="Enter 6-Digit OTP" bm="Masukkan OTP 6-Digit" />
+                                    </label>
+                                    <input
+                                        type="text"
+                                        maxLength={6}
+                                        value={otpCode}
+                                        onChange={e => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                                        placeholder="123456"
+                                        className="w-full text-center tracking-[0.5em] font-mono text-lg font-bold py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:border-red-400 outline-none transition-colors"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-zinc-100">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setDeleteTarget(null);
+                                    setOtpSent(false);
+                                    setOtpCode("");
+                                }}
+                                disabled={deleting}
+                                className="w-full sm:w-auto px-5 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 rounded-xl text-xs font-bold transition-all active:scale-95 text-center"
+                            >
+                                <T en="Cancel" bm="Batal" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDeleteTicket}
+                                disabled={deleting || !otpCode || otpCode.length !== 6}
+                                className="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-red-200"
+                            >
+                                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                                <T en="Delete Permanently" bm="Padam Selamanya" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
+    </div>
+</div>
     );
 }

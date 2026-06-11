@@ -1,4 +1,4 @@
-use axum::{middleware, routing::{get, post, patch}, Router, extract::DefaultBodyLimit};
+use axum::{middleware, routing::{get, post, patch, delete}, Router, extract::DefaultBodyLimit};
 use axum::http::{Method, header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE}};
 use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
@@ -56,6 +56,8 @@ use crate::utils::auth_middleware::require_auth;
             LoginRequest, RegisterRequest, AuthResponse, Verify2FARequest, User, UserRole,
             Project, ProjectStatus, CreateProjectRequest,
             Subscription, AutoRenewRequest, AdminStats, AdminUpdateProjectRequest, ClientLedgerRow, UpdatePermissionRequest,
+            crate::handlers::admin::DeleteProjectRequest,
+            crate::handlers::request_handler::DeleteTicketRequest,
             Request, RequestType, RequestStatus, CreateRequest, RequestComment, CreateCommentRequest, TicketUpdateStatusRequest,
             ServiceAgreement, SignAgreementRequest
         )
@@ -111,13 +113,16 @@ pub fn create_router(state: AppState) -> Router {
     let admin_routes = Router::new()
         .route("/stats", get(admin::get_admin_stats))
         .route("/projects", get(admin::list_all_projects))
-        .route("/projects/:id", get(admin::get_admin_project).patch(admin::update_project_admin))
+        .route("/projects/:id", get(admin::get_admin_project).patch(admin::update_project_admin).delete(admin::delete_project))
+        .route("/projects/:id/delete/request-otp", post(admin::request_delete_project_otp))
         .route("/projects/:id/permission", patch(admin::update_project_permission))
         .route("/projects/:id/invoice", post(admin::generate_project_invoice))
         .route("/users", post(admin::create_admin_user))
         .route("/clients", get(admin::list_all_clients))
         .route("/subscription/:id/cancel", post(admin::admin_cancel_subscription))
         .route("/requests/:id/status", patch(request_handler::update_request_status))
+        .route("/requests/:id", delete(request_handler::delete_ticket))
+        .route("/requests/:id/delete/request-otp", post(request_handler::request_delete_ticket_otp))
         .route("/settings", get(settings::get_all_settings))
         .route("/settings/:key", patch(settings::update_setting))
         .layer(middleware::from_fn(crate::utils::admin_middleware::require_admin))

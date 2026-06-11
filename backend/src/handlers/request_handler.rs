@@ -7,6 +7,7 @@ use sqlx::{PgPool, Postgres, Transaction};
 use crate::AppState;
 use crate::models::{requests::{Request, RequestType, RequestStatus, CreateRequest, UpdateStatusRequest}, user::UserRole};
 use crate::utils::{error::ApiError, jwt::Claims};
+use validator::Validate;
 
 #[utoipa::path(
     post,
@@ -213,3 +214,157 @@ pub async fn update_request_status(
 }
 use serde_json::Value;
 use uuid::Uuid;
+
+#[derive(serde::Deserialize, Validate, utoipa::ToSchema)]
+pub struct DeleteTicketRequest {
+    #[validate(length(equal = 6))]
+    pub code: String,
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/admin/requests/{id}/delete/request-otp",
+    responses(
+        (status = 200, description = "OTP sent to email successfully")
+    ),
+    security(("cookieAuth" = []))
+)]
+pub async fn request_delete_ticket_otp(
+    State(state): State<AppState>,
+    Extension(claims): Extension<Claims>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let pool = &state.pool;
+
+    // Check if ticket exists
+    let ticket_exists = sqlx::query!(
+        "SELECT id FROM requests WHERE id = $1",
+        id
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    if ticket_exists.is_none() {
+        return Err(ApiError::NotFound("Ticket not found".to_string()));
+    }
+
+    // Get admin details
+    let user = sqlx::query!(
+        "SELECT email FROM users WHERE id = $1 AND role = 'ADMIN'",
+        claims.sub
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| ApiError::Internal(e.to_string()))?
+    .ok_or(ApiError::Forbidden("Unauthorized: Only admins can request deletion OTP".to_string()))?;
+
+    // Generate new OTP
+    let otp_code: String = {
+        use rand::RngExt;
+        let mut rng = rand::rng();
+        (0..6).map(|_| rng.random_range(0..10).to_string()).collect::<String>()
+    };
+    let expires_at = chrono::Utc::now() + chrono::Duration::try_minutes(5).unwrap();
+
+    // Invalidate old OTPs for this admin
+    sqlx::query!("UPDATE otps SET is_used = true WHERE user_id = $1 AND is_used = false", claims.sub)
+        .execute(pool)
+        .await
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    // Insert new OTP
+    sqlx::query!(
+        "INSERT INTO otps (user_id, code, expires_at) VALUES ($1, $2, $3)",
+        claims.sub, otp_code, expires_at
+    )
+    .execute(pool)
+    .await
+    .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    // Send Email via Redis Queue
+    let user_email = user.email.clone();
+    let otp_clone = otp_code.clone();
+    
+    let subject = "Ticket Deletion Confirmation - OTP Required".to_string();
+    let body = format!(
+        "SaaS House Security\n\nYour OTP confirmation code to delete ticket is: {}\n\nThis code will expire in 5 minutes. If you did not request this, please secure your account.",
+        otp_clone
+    );
+
+    if let Err(e) = crate::utils::queue::push_job(
+        &state.redis, 
+        crate::utils::queue::Job::SendNotification { email: user_email, subject, body }
+    ).await {
+        eprintln!("⚠️ Failed to queue Ticket Deletion OTP email: {}", e);
+    }
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": "Ticket deletion OTP has been queued for sending."
+    })))
+}
+
+#[utoipa::path(
+    delete,
+    path = "/api/admin/requests/{id}",
+    request_body = DeleteTicketRequest,
+    responses(
+        (status = 200, description = "Ticket deleted successfully")
+    ),
+    security(("cookieAuth" = []))
+)]
+pub async fn delete_ticket(
+    State(state): State<AppState>,
+    Extension(claims): Extension<Claims>,
+    Path(id): Path<Uuid>,
+    Json(payload): Json<DeleteTicketRequest>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let pool = &state.pool;
+
+    // Strict Input Validation (Rule 1)
+    payload.validate().map_err(ApiError::Validation)?;
+
+    // Verify OTP
+    let code = payload.code.clone();
+    let otp = sqlx::query!(
+        "SELECT * FROM otps WHERE user_id = $1 AND code = $2 AND is_used = false AND expires_at > NOW()",
+        claims.sub, code
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| ApiError::Internal(e.to_string()))?
+    .ok_or(ApiError::BadRequest("Invalid or expired OTP code".to_string()))?;
+
+    // Mark OTP as used
+    sqlx::query!("UPDATE otps SET is_used = true WHERE id = $1", otp.id)
+        .execute(pool)
+        .await
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    // Atomic Transaction to delete related records (Rule 9, 14)
+    let mut tx = pool.begin().await.map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    // Delete request comments
+    sqlx::query!("DELETE FROM request_comments WHERE request_id = $1", id)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    // Delete request itself
+    let res = sqlx::query!("DELETE FROM requests WHERE id = $1", id)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    if res.rows_affected() == 0 {
+        return Err(ApiError::NotFound("Ticket not found".to_string()));
+    }
+
+    tx.commit().await.map_err(|e| ApiError::Internal(e.to_string()))?;
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": "Ticket deleted successfully"
+    })))
+}

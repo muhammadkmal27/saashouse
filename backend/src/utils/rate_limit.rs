@@ -55,10 +55,12 @@ pub async fn rate_limit_middleware(
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
     let window_start = now - window_secs;
 
+    let unique_member = format!("{}-{}", now, uuid::Uuid::new_v4());
+
     let result: Result<(i64, i64, i64, i64), _> = redis::pipe()
         .atomic()
         .zrembyscore(&key, 0, window_start)
-        .zadd(&key, now, now)
+        .zadd(&key, unique_member, now)
         .zcard(&key)
         .expire(&key, window_secs as i64)
         .query_async(&mut conn)

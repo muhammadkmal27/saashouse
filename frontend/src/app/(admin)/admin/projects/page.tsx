@@ -2,11 +2,12 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useSocket } from "@/components/providers/SocketProvider";
-import { Search, Eye, Lock, Unlock } from "lucide-react";
+import { Search, Eye, Lock, Unlock, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { T } from "@/components/Translate";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { getCookie } from "@/utils/cookies";
 
 interface Project {
   id: string;
@@ -58,6 +59,69 @@ export default function AdminProjects() {
   const [search, setSearch]     = useState("");
   const [filter, setFilter]               = useState<"all" | "active" | "inactive">("all");
   const [paymentFilter, setPaymentFilter] = useState<"all" | "paid" | "unpaid">("all");
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const handleRequestOtp = async () => {
+    if (!deleteTarget) return;
+    setOtpSending(true);
+    try {
+      const csrfToken = getCookie("csrf_token") || "";
+      const res = await fetch(`/api/admin/projects/${deleteTarget.id}/delete/request-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
+        },
+        credentials: "include"
+      });
+      if (res.ok) {
+        setOtpSent(true);
+        toast.success(lang === "EN" ? "OTP code sent to email" : "Kod OTP dihantar ke e-mel");
+      } else {
+        const err = await res.json();
+        toast.error(err.error || (lang === "EN" ? "Failed to send OTP" : "Gagal menghantar OTP"));
+      }
+    } catch (e) {
+      toast.error(lang === "EN" ? "Connection error" : "Ralat sambungan");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!deleteTarget || !otpCode) return;
+    setDeleting(true);
+    try {
+      const csrfToken = getCookie("csrf_token") || "";
+      const res = await fetch(`/api/admin/projects/${deleteTarget.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
+        },
+        credentials: "include",
+        body: JSON.stringify({ code: otpCode })
+      });
+      if (res.ok) {
+        toast.success(lang === "EN" ? "Project deleted successfully" : "Projek berjaya dipadamkan");
+        setProjects(prev => prev.filter(p => p.id !== deleteTarget.id));
+        setDeleteTarget(null);
+        setOtpSent(false);
+        setOtpCode("");
+      } else {
+        const err = await res.json();
+        toast.error(err.error || (lang === "EN" ? "Failed to delete project" : "Gagal memadam projek"));
+      }
+    } catch (e) {
+      toast.error(lang === "EN" ? "Connection error" : "Ralat sambungan");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     fetch("/api/admin/projects", { credentials: "include" })
@@ -257,12 +321,20 @@ export default function AdminProjects() {
                     : <><Lock className="w-3 h-3" /> <T en="Locked" bm="Dikunci" /></>
                   }
                 </div>
-                <Link
-                  href={`/admin/projects/${project.id}`}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors active:scale-95"
-                >
-                  Manage Project
-                </Link>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setDeleteTarget(project)}
+                    className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors active:scale-95 border border-red-200"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <Link
+                    href={`/admin/projects/${project.id}`}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors active:scale-95"
+                  >
+                    Manage Project
+                  </Link>
+                </div>
               </div>
             </div>
           ))
@@ -282,7 +354,8 @@ export default function AdminProjects() {
                   { en: "Sync Mode", bm: "Mod Sinkronasi" },
                   { en: "Subscription", bm: "Langganan" },
                   { en: "Status", bm: "Status" },
-                  { en: "Actions", bm: "Tindakan" }
+                  { en: "Actions", bm: "Tindakan" },
+                  { en: "Delete", bm: "Padam" }
                 ].map(h => (
                   <th key={h.en} className="text-left py-3.5 px-5 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                     <T en={h.en} bm={h.bm} />
@@ -293,7 +366,7 @@ export default function AdminProjects() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-16 text-zinc-400 text-sm italic">
+                  <td colSpan={8} className="text-center py-16 text-zinc-400 text-sm italic">
                     <T en="No projects found." bm="Tiada projek ditemui." />
                   </td>
                 </tr>
@@ -363,6 +436,16 @@ export default function AdminProjects() {
                     </Link>
                   </td>
 
+                  {/* Delete */}
+                  <td className="py-4 px-5">
+                    <button
+                      onClick={() => setDeleteTarget(project)}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 transition-colors active:scale-95"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> <T en="Delete" bm="Padam" />
+                    </button>
+                  </td>
+
                 </tr>
               ))}
             </tbody>
@@ -377,6 +460,88 @@ export default function AdminProjects() {
           />
         </div>
       </div>
+      {/* ─── Delete Confirmation Modal ─── */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-white border border-zinc-100 rounded-2xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="space-y-2 text-center md:text-left">
+              <h3 className="text-lg font-bold text-zinc-950">
+                <T en="Confirm Project Deletion" bm="Sahkan Pemadaman Projek" />
+              </h3>
+              <p className="text-xs text-zinc-500 leading-relaxed font-medium">
+                <T
+                  en={<>Are you sure you want to delete <span className="font-bold text-red-600">{deleteTarget.title}</span>? This will permanently delete the project and all related subscriptions and invoices. This action cannot be undone.</>}
+                  bm={<>Adakah anda pasti mahu memadam <span className="font-bold text-red-600">{deleteTarget.title}</span>? Ini akan memadamkan projek secara kekal berserta semua langganan dan invois yang berkaitan. Tindakan ini tidak boleh diundurkan.</>}
+                />
+              </p>
+            </div>
+
+            {/* OTP Section */}
+            <div className="space-y-4 pt-2 border-t border-zinc-100">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span className="text-xs font-bold text-zinc-700">
+                  <T en="Identity Verification" bm="Pengesahan Identiti" />
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRequestOtp}
+                  disabled={otpSending}
+                  className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+                >
+                  {otpSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  {otpSent ? (
+                    <T en="Resend OTP" bm="Hantar Semula OTP" />
+                  ) : (
+                    <T en="Send OTP Code" bm="Hantar Kod OTP" />
+                  )}
+                </button>
+              </div>
+
+              {otpSent && (
+                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">
+                    <T en="Enter 6-Digit OTP" bm="Masukkan OTP 6-Digit" />
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={e => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder="123456"
+                    className="w-full text-center tracking-[0.5em] font-mono text-lg font-bold py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:border-red-400 outline-none transition-colors"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-zinc-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setOtpSent(false);
+                  setOtpCode("");
+                }}
+                disabled={deleting}
+                className="w-full sm:w-auto px-5 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 rounded-xl text-xs font-bold transition-all active:scale-95 text-center"
+              >
+                <T en="Cancel" bm="Batal" />
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProject}
+                disabled={deleting || !otpCode || otpCode.length !== 6}
+                className="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-red-200"
+              >
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                <T en="Delete Permanently" bm="Padam Selamanya" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

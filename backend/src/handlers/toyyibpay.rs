@@ -116,7 +116,7 @@ pub async fn create_toyyibpay_bill(
         ("billPaymentChannel", "0"),
     ];
 
-    let res = client.post("https://dev.toyyibpay.com/index.php/api/createBill") // Use production URL for prod
+    let res = client.post("https://toyyibpay.com/index.php/api/createBill") // Use production URL for prod
         .form(&params)
         .send().await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
@@ -134,7 +134,7 @@ pub async fn create_toyyibpay_bill(
     )
     .execute(pool).await.map_err(|e| ApiError::Internal(e.to_string()))?;
 
-    let checkout_url = format!("https://dev.toyyibpay.com/{}", bill_code);
+    let checkout_url = format!("https://toyyibpay.com/{}", bill_code);
 
     Ok(Json(ToyyibpayCheckoutResponse { checkout_url }))
 }
@@ -179,7 +179,7 @@ pub async fn verify_payment(
 
     // 1. Verify with ToyyibPay API
     let client = reqwest::Client::new();
-    let res = client.post("https://dev.toyyibpay.com/index.php/api/getBillTransactions")
+    let res = client.post("https://toyyibpay.com/index.php/api/getBillTransactions")
         .form(&[
             ("userSecretKey", secret_key.as_str()),
             ("billCode", payload.billcode.as_str()),

@@ -18,10 +18,21 @@ export default function HomeOTP({ totalPrice }: HomeOTPProps) {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-bold uppercase tracking-widest cursor-default">
-             <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse"></div>
-             <T en="Premium Engineering" bm="Kejuruteraan Premium" />
-          </div>
+          <Link 
+            href="/pricing" 
+            className="group inline-flex items-center gap-2 md:gap-3 text-[11px] sm:text-xs md:text-sm text-zinc-300 hover:text-white transition-all duration-300 max-w-full"
+          >
+            <span className="font-extrabold text-zinc-100 shrink-0 whitespace-nowrap">
+              <T en="What's new" bm="Yang baru" />
+            </span>
+            <span className="w-px h-3.5 bg-zinc-700/60 shrink-0" />
+            <span className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors min-w-0">
+              <span className="truncate sm:not-truncate">
+                <T en="Flexible One-Time Packages for Every Business" bm="Pakej Pembelian Sekali yang Fleksibel untuk Setiap Perniagaan" />
+              </span>
+              <span className="inline-block transition-transform group-hover:translate-x-1 shrink-0">→</span>
+            </span>
+          </Link>
           
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[1.1] text-white">
             <T en={<>Build a website<br/>for as low as <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM{totalPrice}</span></>} bm={<>Bina laman web<br/>serendah <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text">RM{totalPrice}</span></>} />

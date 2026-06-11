@@ -11,3 +11,4 @@ brain/
 .gemini/
 *.log
 stripe.exe
+raw_safeguard_output.json
