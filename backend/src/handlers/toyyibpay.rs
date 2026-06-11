@@ -103,7 +103,7 @@ pub async fn create_toyyibpay_bill(
         ("categoryCode", category_code.as_str()),
         ("billName", "SaaS House Project Payment"),
         ("billDescription", description.as_str()),
-        ("billPriceSetting", "0"),
+        ("billPriceSetting", "1"),
         ("billPayorInfo", "1"),
         ("billAmount", amount_str.as_str()),
         ("billReturnUrl", return_url.as_str()),
