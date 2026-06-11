@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET status = $1::project_status, updated_at = NOW() WHERE id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "project_status",
+            "kind": {
+              "Enum": [
+                "DRAFT",
+                "ONBOARDING",
+                "PAYMENT_PENDING",
+                "PAID",
+                "UNDER_DEVELOPMENT",
+                "REVIEW",
+                "LIVE"
+              ]
+            }
+          }
+        },
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "60d641a399229c5d1f4f359d50bb296416dc9d732336d38a12cae563e3a8b208"
+}

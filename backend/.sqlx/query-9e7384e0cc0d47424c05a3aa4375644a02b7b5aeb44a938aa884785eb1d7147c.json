@@ -1,0 +1,60 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO request_comments (request_id, user_id, message, is_read)\n        VALUES ($1, $2, $3, FALSE)\n        RETURNING \n            id as \"id!\", \n            request_id as \"request_id!\", \n            user_id as \"user_id!\", \n            message as \"message!\", \n            attachment_urls, \n            is_read as \"is_read!\", \n            created_at as \"created_at!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "request_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "message!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "attachment_urls",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_read!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "9e7384e0cc0d47424c05a3aa4375644a02b7b5aeb44a938aa884785eb1d7147c"
+}

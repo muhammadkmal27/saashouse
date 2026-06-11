@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE subscriptions SET status = 'inactive' WHERE stripe_sub_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "260859a9192251d85bfdb78b3c7d637fcc29405d9eeb30581f2591b3a6144820"
+}

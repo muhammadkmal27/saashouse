@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO user_preferences (user_id) VALUES ($1) RETURNING user_id, project_updates, billing_alerts, security_alerts, updated_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "project_updates",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "billing_alerts",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "security_alerts",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "953b78ebe42b667db245af3822b07c528bed7376ef85196b6268d2b2fce52dae"
+}

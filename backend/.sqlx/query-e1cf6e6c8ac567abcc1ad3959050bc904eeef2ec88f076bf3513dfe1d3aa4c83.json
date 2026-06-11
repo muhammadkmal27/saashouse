@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO subscriptions (client_id, plan_name, status) VALUES ($1, 'PLATINUM', 'active')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e1cf6e6c8ac567abcc1ad3959050bc904eeef2ec88f076bf3513dfe1d3aa4c83"
+}

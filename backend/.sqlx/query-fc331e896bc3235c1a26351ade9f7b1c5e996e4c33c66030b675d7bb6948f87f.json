@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO projects (id, client_id, title, status) VALUES ($1, $2, 'Private Project', 'DRAFT')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fc331e896bc3235c1a26351ade9f7b1c5e996e4c33c66030b675d7bb6948f87f"
+}

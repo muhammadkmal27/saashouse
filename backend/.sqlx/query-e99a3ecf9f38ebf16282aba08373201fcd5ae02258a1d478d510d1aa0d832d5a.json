@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO projects (id, client_id, title, status, requirements) VALUES ($1, $2, 'Dynamic Project', 'REVIEW', $3)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e99a3ecf9f38ebf16282aba08373201fcd5ae02258a1d478d510d1aa0d832d5a"
+}

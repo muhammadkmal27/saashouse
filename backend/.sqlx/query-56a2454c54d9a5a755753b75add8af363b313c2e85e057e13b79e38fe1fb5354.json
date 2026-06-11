@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO projects (id, client_id, title, status, requirements) VALUES ($1, $2, 'Premium App', 'REVIEW', $3)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "56a2454c54d9a5a755753b75add8af363b313c2e85e057e13b79e38fe1fb5354"
+}

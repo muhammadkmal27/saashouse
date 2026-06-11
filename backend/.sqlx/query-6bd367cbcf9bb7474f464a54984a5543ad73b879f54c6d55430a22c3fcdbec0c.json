@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET status = 'PAYMENT_PENDING' WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6bd367cbcf9bb7474f464a54984a5543ad73b879f54c6d55430a22c3fcdbec0c"
+}

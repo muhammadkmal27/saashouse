@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO billings (project_id, amount, status, description, due_date) \n         VALUES ($1, $2, 'PENDING', $3, NOW() + INTERVAL '7 days')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Numeric",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0c16e4b09455e79b709ee4c4654cb90408a7b43593234116c514ffb7395daab3"
+}

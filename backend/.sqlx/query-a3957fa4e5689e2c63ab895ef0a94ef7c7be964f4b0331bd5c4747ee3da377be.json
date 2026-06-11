@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO requests (id, project_id, created_by, title, description, type) VALUES ($1, $2, $3, 'Owner Secret', 'Dont see this', 'BUG')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a3957fa4e5689e2c63ab895ef0a94ef7c7be964f4b0331bd5c4747ee3da377be"
+}
