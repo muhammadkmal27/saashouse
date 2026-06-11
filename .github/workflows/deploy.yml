@@ -61,3 +61,46 @@ jobs:
           labels: ${{ steps.meta-frontend.outputs.labels }}
           build-args: |
             NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Deployment Directory Structure
+        run: |
+          mkdir -p deploy/nginx
+          cp docker-compose.prod.yml deploy/docker-compose.yml
+          cp nginx/default.conf deploy/nginx/default.conf
+
+      - name: Copy Files to Production Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          source: "deploy/"
+          target: "~/saashouse"
+          strip_components: 1
+
+      - name: Deploy and Clean Up Old Images
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            cd ~/saashouse
+            # Pull new images from GHCR
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose pull
+            # Start containers with new images
+            docker compose up -d
+            # Clean up old unused images and caches to free space
+            docker image prune -af
+            docker builder prune -af --filter "until=24h"
+
