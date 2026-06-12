@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Hubungi Kami',
-  description: 'Hubungi pasukan jurutera Imat.my untuk bantuan teknikal dan pertanyaan jualan dalam masa 2 jam.',
+  description: 'Hubungi pakar pembangunan laman web Imat.my untuk berbincang tentang projek perniagaan atau aplikasi web anda dalam masa 2 jam.',
 }
 
 export default function ContactLayout({

@@ -7,25 +7,25 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://imat.my"),
   title: {
-    default: "Sistem Pengurusan Tiket - Imat.my",
+    default: "Pembangunan Laman Web & Sistem Profesional - Imat.my",
     template: "%s | Imat.my",
   },
-  description: "Platform SaaS pengurusan tiket yang moden, pantas, dan efisien untuk pasukan tangkas di Malaysia.",
-  keywords: ["imat", "sistem tiket", "saas", "malaysia", "pengurusan projek", "customer support"],
+  description: "SaaS House oleh Imat.my menawarkan perkhidmatan pembangunan laman web premium, aplikasi web moden, dan sistem berprestasi tinggi untuk perniagaan anda.",
+  keywords: ["imat", "software house", "bina website", "pembangunan web", "saas", "malaysia", "web developer"],
   authors: [{ name: "Imat.my Team" }],
   creator: "Imat.my",
   openGraph: {
     type: "website",
     locale: "ms_MY",
     url: "https://imat.my",
-    title: "Sistem Pengurusan Tiket - Imat.my",
-    description: "Platform SaaS pengurusan tiket yang moden, pantas, dan efisien.",
+    title: "Pembangunan Laman Web & Sistem Profesional - Imat.my",
+    description: "Perkhidmatan pembangunan laman web premium dan sistem berprestasi tinggi.",
     siteName: "Imat.my",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sistem Pengurusan Tiket - Imat.my",
-    description: "Platform SaaS pengurusan tiket yang moden, pantas, dan efisien.",
+    title: "Pembangunan Laman Web & Sistem Profesional - Imat.my",
+    description: "Perkhidmatan pembangunan laman web premium dan sistem berprestasi tinggi.",
   },
 };
 
