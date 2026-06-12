@@ -17,9 +17,10 @@ const projects: Project[] = [
     link: "https://chaoshou.online/",
   },
   {
-    title: "Fintech Core Dashboard",
+    title: "VOCABULARY",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
     gridClass: "md:col-span-1 md:row-span-1",
+    link: "https://bijakenglish.imat.my/",
   },
   {
     title: "Stellar Real Estate",
