@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT u.email FROM users u LEFT JOIN user_profiles p ON u.id = p.user_id WHERE u.role = 'CLIENT' AND p.user_id IS NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d58f315d3fb67f8f7eacf6a83e4bb36bcda3746cf1b620f81a0cccd755126a1c"
+}

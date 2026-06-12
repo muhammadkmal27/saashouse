@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE subscriptions SET plan_name = 'Standard' WHERE plan_name ILIKE '%Professional%' OR plan_name ILIKE '%Monthly Pro%'",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "73879b07ab46d97d8f72c72ae9181fe7725f733b72f36ce9414a55189cada38a"
+}

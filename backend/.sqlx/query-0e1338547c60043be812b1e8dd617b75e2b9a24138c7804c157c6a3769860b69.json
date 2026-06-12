@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT 1 as \"exists!\" FROM pg_enum WHERE enumtypid = 'project_status'::regtype AND enumlabel = 'UNDER_DEVELOPMENT'",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "0e1338547c60043be812b1e8dd617b75e2b9a24138c7804c157c6a3769860b69"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE projects\n        SET requirements = requirements - 'selected_plan'\n        WHERE requirements ? 'selected_plan'\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "8d59309b0fe1ca223a90ee7954ef9b683b6cabdebeabecc0c0e231c7c5af876b"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM request_comments",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "aaf71ea895dd6af402afcc6c8c2893959a3ee27f214bbc65153b3a9bb13782ec"
+}

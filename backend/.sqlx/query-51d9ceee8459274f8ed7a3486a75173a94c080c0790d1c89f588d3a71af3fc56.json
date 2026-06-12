@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE projects SET selected_plan = 'Standard' WHERE selected_plan IS NULL OR selected_plan = ''",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "51d9ceee8459274f8ed7a3486a75173a94c080c0790d1c89f588d3a71af3fc56"
+}
