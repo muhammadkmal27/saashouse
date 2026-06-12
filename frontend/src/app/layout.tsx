@@ -5,8 +5,28 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SaaS House | Modern Solutions",
-  description: "High-performance SaaS platform for agile teams.",
+  metadataBase: new URL("https://imat.my"),
+  title: {
+    default: "Sistem Pengurusan Tiket - Imat.my",
+    template: "%s | Imat.my",
+  },
+  description: "Platform SaaS pengurusan tiket yang moden, pantas, dan efisien untuk pasukan tangkas di Malaysia.",
+  keywords: ["imat", "sistem tiket", "saas", "malaysia", "pengurusan projek", "customer support"],
+  authors: [{ name: "Imat.my Team" }],
+  creator: "Imat.my",
+  openGraph: {
+    type: "website",
+    locale: "ms_MY",
+    url: "https://imat.my",
+    title: "Sistem Pengurusan Tiket - Imat.my",
+    description: "Platform SaaS pengurusan tiket yang moden, pantas, dan efisien.",
+    siteName: "Imat.my",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sistem Pengurusan Tiket - Imat.my",
+    description: "Platform SaaS pengurusan tiket yang moden, pantas, dan efisien.",
+  },
 };
 
 import { Toaster } from "sonner";
