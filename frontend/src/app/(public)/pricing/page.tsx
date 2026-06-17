@@ -50,7 +50,7 @@ export default function PricingPage() {
 
   const faqs = otpMode ? [
     {
-      question: <T en="How does the RM700 One-Time Purchase work?" bm="Bagaimanakah Pembelian Penuh RM700 berfungsi?" />,
+      question: <T en={`How does the RM${totalPrice} One-Time Purchase work?`} bm={`Bagaimanakah Pembelian Penuh RM${totalPrice} berfungsi?`} />,
       answer: <T en={`It's a two-stage payment model. You pay RM${otpDeposit} as a deposit to start the development. The remaining RM${otpFinal} is only paid once the project is completed and you're ready to go live.`} bm={`Ia adalah model bayaran dua peringkat. Anda bayar RM${otpDeposit} sebagai deposit. Baki RM${otpFinal} hanya dibayar setelah projek siap.`} />
     },
     {
