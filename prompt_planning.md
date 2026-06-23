@@ -158,9 +158,9 @@ graph TD
 
 ---
 
-## 7. Protokol Keselamatan (32 Global Rules)
+## 7. Protokol Keselamatan (33 Global Rules)
 
-Projek ini mematuhi kesemua 32 Peraturan Keselamatan Global (`RULE[user_global]`). Ringkasan pelaksanaan utama:
+Projek ini mematuhi kesemua 33 Peraturan Keselamatan Global (`RULE[user_global]`). Ringkasan pelaksanaan utama:
 
 - [x] **Input Validation**: Server-side validation pada semua endpoint Axum.
 - [x] **Sanitization**: HTML escaping untuk semua data rendered di UI.
@@ -178,6 +178,7 @@ Projek ini mematuhi kesemua 32 Peraturan Keselamatan Global (`RULE[user_global]`
 - [x] **Audit Logging**: Log keselamatan ke `security_logs` table.
 - [x] **Admin 2FA**: OTP wajib untuk akses admin portal.
 - [x] **Webhook Signature**: Pengesahan tandatangan Stripe webhook.
+- [x] **Payment Gateway Min Amount**: Semakan RM0 (Defense in Depth) pada handler ToyyibPay.
 
 ---
 

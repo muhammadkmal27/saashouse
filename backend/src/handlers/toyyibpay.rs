@@ -67,6 +67,11 @@ pub async fn create_toyyibpay_bill(
             .unwrap_or(500.0)
     };
 
+    // Rule 33: Payment Gateway Minimum Amount Enforcement (Defense in Depth)
+    if amount <= 0.0 {
+        return Err(ApiError::BadRequest("Amount must be greater than RM0. Invalid price detected.".into()));
+    }
+
     // 2. Create Billing entry in DB
     let billing_id = Uuid::new_v4();
     let description = format!("{} payment for project: {}", payload.payment_type.to_uppercase(), project.title);
