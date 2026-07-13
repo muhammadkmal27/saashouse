@@ -230,7 +230,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
         const currentProducts = editData.requirements?.products || [];
         const nextProducts = [...currentProducts];
         const currentUrls = nextProducts[idx].image_urls || [];
-        const nextUrls = currentUrls.filter((_, i) => i !== imgIdx);
+        const nextUrls = currentUrls.filter((_: string, i: number) => i !== imgIdx);
         const nextMainUrl = nextUrls[0] || "";
         nextProducts[idx] = { 
             ...nextProducts[idx], 
