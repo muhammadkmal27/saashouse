@@ -109,6 +109,7 @@ mod tests {
                 business_address: None,
                 operation_hours: None,
                 project_vision: None,
+                products: None,
             })
         ).await;
 

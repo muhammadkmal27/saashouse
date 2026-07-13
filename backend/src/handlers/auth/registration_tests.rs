@@ -37,6 +37,7 @@ mod tests {
             email: email.clone(),
             password: "SecurePassword123!".to_string(),
             full_name: "Test User".to_string(),
+            turnstile_token: "test".to_string(),
         };
 
         use crate::handlers::auth::registration_repo::SqlxRegistrationRepo;
@@ -74,6 +75,7 @@ mod tests {
             email: email.clone(),
             password: "ComplexPass!123".to_string(),
             full_name: "Duplicate Tester".to_string(),
+            turnstile_token: "test".to_string(),
         };
 
         use crate::handlers::auth::registration_repo::SqlxRegistrationRepo;
@@ -98,6 +100,7 @@ mod tests {
             email: email.clone(),
             password: "".to_string(),
             full_name: "No Pass".to_string(),
+            turnstile_token: "test".to_string(),
         };
 
         use crate::handlers::auth::registration_repo::SqlxRegistrationRepo;

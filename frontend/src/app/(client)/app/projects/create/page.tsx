@@ -13,6 +13,14 @@ import { useEffect } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 // Form State Types
+interface ProductItem {
+  name: string;
+  price: string;
+  description: string;
+  image_url: string;
+  image_urls?: string[];
+}
+
 interface OnboardingData {
   selected_plan: string;
   payment_setup: {
@@ -42,6 +50,7 @@ interface OnboardingData {
   business_address: string;
   operation_hours: string;
   project_vision: string;
+  products: ProductItem[];
 }
 
 function DomainChecker({ value, onChange, label, lang }: { value: string, onChange: (val: string) => void, label: string, lang: string }) {
@@ -156,9 +165,10 @@ function CreateProjectForm({ lang }: { lang: string }) {
     business_address: "",
     operation_hours: "",
     project_vision: "",
+    products: [],
   });
 
-  const nextStep = () => setStep((p) => Math.min(p + 1, 6)); // Increased to 6 steps (Total 7)
+  const nextStep = () => setStep((p) => Math.min(p + 1, 7)); // Increased to 7 steps (Total 8)
   const prevStep = () => setStep((p) => Math.max(p - 1, 0));
 
   const toggleFeature = (feature: string) => {
@@ -181,6 +191,64 @@ function CreateProjectForm({ lang }: { lang: string }) {
     newFeatures[index] = value;
     setFormData({ ...formData, custom_features: newFeatures });
   };
+
+  const addProduct = () => {
+    setFormData(p => ({
+      ...p,
+      products: [...p.products, { name: "", price: "", description: "", image_url: "", image_urls: [] }]
+    }));
+  };
+
+  const removeProduct = (idx: number) => {
+    setFormData(p => ({
+      ...p,
+      products: p.products.filter((_, i) => i !== idx)
+    }));
+  };
+
+  const updateProduct = (idx: number, field: keyof ProductItem, value: any) => {
+    setFormData(p => {
+      const nextProducts = [...p.products];
+      nextProducts[idx] = { ...nextProducts[idx], [field]: value };
+      return { ...p, products: nextProducts };
+    });
+  };
+
+  const handleProductImageUpload = async (idx: number, file: File) => {
+    try {
+      const url = await handleFileUpload(file);
+      setFormData(p => {
+        const nextProducts = [...p.products];
+        const currentUrls = nextProducts[idx].image_urls || [];
+        const nextUrls = [...currentUrls, url];
+        nextProducts[idx] = { 
+          ...nextProducts[idx], 
+          image_url: nextProducts[idx].image_url || url,
+          image_urls: nextUrls 
+        };
+        return { ...p, products: nextProducts };
+      });
+      toast.success(lang === "BM" ? "Gambar berjaya dimuat naik!" : "Image uploaded successfully!");
+    } catch (e: any) {
+      console.error(e);
+    }
+  };
+
+  const removeProductImage = (idx: number, imgIdx: number) => {
+    setFormData(p => {
+      const nextProducts = [...p.products];
+      const currentUrls = nextProducts[idx].image_urls || [];
+      const nextUrls = currentUrls.filter((_, i) => i !== imgIdx);
+      const nextMainUrl = nextUrls[0] || "";
+      nextProducts[idx] = { 
+        ...nextProducts[idx], 
+        image_url: nextMainUrl,
+        image_urls: nextUrls 
+      };
+      return { ...p, products: nextProducts };
+    });
+  };
+
 
   const handleFileUpload = async (file: File) => {
     // Client-side validation for better UX
@@ -401,7 +469,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         </p>
                     </div>
                     <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 text-white font-black text-lg">
-                        {step + 1}<span className="text-[10px] opacity-50 ml-0.5">/7</span>
+                        {step + 1}<span className="text-[10px] opacity-50 ml-0.5">/8</span>
                     </div>
                 </div>
             </div>
@@ -410,7 +478,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
         {/* Progress Bar Container */}
         <div className="px-5 -mt-4 relative z-30">
             <div className="bg-white/80 backdrop-blur-md p-1.5 rounded-full border border-white shadow-lg flex gap-1">
-                {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
                     <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${step >= i ? 'bg-violet-600' : 'bg-slate-100'}`} />
                 ))}
             </div>
@@ -425,10 +493,11 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         {step === 0 && <T en="Select Your Plan" bm="Pilih Pakej" />}
                         {step === 1 && <T en="Payment Setup" bm="Sistem Bayaran" />}
                         {step === 2 && <T en="Feature Options" bm="Pilihan Fungsi" />}
-                        {step === 3 && <T en="Brand & Visuals" bm="Jenama & Visual" />}
-                        {step === 4 && <T en="Identity" bm="Identiti" />}
-                        {step === 5 && <T en="Domain Request" bm="Pilihan Domain" />}
-                        {step === 6 && <T en="Final Vision" bm="Visi Akhir" />}
+                        {step === 3 && <T en="Product Catalog" bm="Senarai Produk" />}
+                        {step === 4 && <T en="Brand & Visuals" bm="Jenama & Visual" />}
+                        {step === 5 && <T en="Identity" bm="Identiti" />}
+                        {step === 6 && <T en="Domain Request" bm="Pilihan Domain" />}
+                        {step === 7 && <T en="Final Vision" bm="Visi Akhir" />}
                     </h2>
                 </div>
 
@@ -536,26 +605,51 @@ function CreateProjectForm({ lang }: { lang: string }) {
 
                     {step === 2 && (
                         <div className="space-y-6">
-                            <div className="grid grid-cols-1 gap-3">
+                            <div className="space-y-6">
                                 {[
-                                    { label: <T en="Shop & Checkout" bm="Kedai & Bayaran" />, key: "Shopping Cart & Checkout" },
-                                    { label: <T en="FPX & Card Pay" bm="Bayar FPX & Kad" />, key: "Payment Gateway Sync" },
-                                    { label: <T en="Booking System" bm="Sistem Tempahan" />, key: "Appointment Scheduler" },
-                                    { label: <T en="Staff Directory" bm="Senarai Staf" />, key: "Staff Directory" },
-                                    { label: <T en="Photo Gallery" bm="Galeri Gambar" />, key: "Interactive Gallery" },
-                                    { label: <T en="Testimonials" bm="Testimoni" />, key: "Customer Testimonials" },
-                                    { label: <T en="Live Chat Support" bm="Sembang Langsung" />, key: "Floating Chat Support" },
-                                    { label: <T en="Contact Forms" bm="Borang Hubungi" />, key: "Lead Generation Forms" }
-                                ].map((item) => (
-                                    <label key={item.key} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${formData.features.includes(item.key) ? 'border-violet-500 bg-violet-50 shadow-sm' : 'border-slate-50 bg-slate-50/50'}`}>
-                                        <span className={`text-[10px] font-black uppercase tracking-widest ${formData.features.includes(item.key) ? 'text-violet-600' : 'text-slate-500'}`}>{item.label}</span>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={formData.features.includes(item.key)}
-                                            onChange={() => toggleFeature(item.key)}
-                                            className="w-5 h-5 rounded border-slate-200 text-violet-600 focus:ring-violet-500/10"
-                                        />
-                                    </label>
+                                    { title: "Landing Page", items: [
+                                        { label: <T en="1 Page" bm="1 Halaman" />, key: "landing_1_page" },
+                                        { label: <T en="WhatsApp Link" bm="Link Whatsapp" />, key: "landing_whatsapp" }
+                                    ] },
+                                    { title: "Blog/News", items: [
+                                        { label: <T en="Article Sharing" bm="Perkongsian Artikel" />, key: "blog_articles" },
+                                        { label: <T en="Easy Content Management" bm="Pengurusan Kandungan Mudah" />, key: "blog_cms" }
+                                    ] },
+                                    { title: "Ecommerce", items: [
+                                        { label: <T en="5 Pages" bm="5 Halaman" />, key: "ecommerce_5_pages" },
+                                        { label: <T en="WhatsApp Link" bm="Link Whatsapp" />, key: "ecommerce_whatsapp" },
+                                        { label: <T en="Sales System" bm="Sistem Jualan" />, key: "ecommerce_sales" },
+                                        { label: <T en="Payment Gateway" bm="Payment Gateway" />, key: "ecommerce_gateway" }
+                                    ] },
+                                    { title: "Corporate", items: [
+                                        { label: <T en="10 Pages" bm="10 Halaman" />, key: "corporate_10_pages" },
+                                        { label: <T en="WhatsApp Link" bm="Link Whatsapp" />, key: "corporate_whatsapp" },
+                                        { label: <T en="Sales System" bm="Sistem Jualan" />, key: "corporate_sales" },
+                                        { label: <T en="Payment Gateway" bm="Payment Gateway" />, key: "corporate_gateway" },
+                                        { label: <T en="Professional Branding" bm="Penjenamaan Profesional" />, key: "corporate_branding" }
+                                    ] }
+                                ].map((cat, catIdx) => (
+                                    <div key={catIdx} className="space-y-3">
+                                        <h3 className="font-black italic uppercase tracking-widest text-[10px] text-violet-600 ml-1 mt-4">
+                                            {cat.title === "Landing Page" ? <T en="Landing Page" bm="Landing Page" /> : 
+                                             cat.title === "Blog/News" ? <T en="Blog/News" bm="Blog/News" /> : 
+                                             cat.title === "Ecommerce" ? <T en="Ecommerce" bm="Ecommerce" /> : 
+                                             cat.title === "Corporate" ? <T en="Corporate" bm="Corporate" /> : cat.title}
+                                        </h3>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            {cat.items.map((item) => (
+                                                <label key={item.key} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${formData.features.includes(item.key) ? 'border-violet-500 bg-violet-50 shadow-sm' : 'border-slate-50 bg-slate-50/50'}`}>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${formData.features.includes(item.key) ? 'text-violet-600' : 'text-slate-500'} mr-4`}>{item.label}</span>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={formData.features.includes(item.key)}
+                                                        onChange={() => toggleFeature(item.key)}
+                                                        className="w-5 h-5 shrink-0 rounded border-slate-200 text-violet-600 focus:ring-violet-500/10"
+                                                    />
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
 
@@ -606,6 +700,123 @@ function CreateProjectForm({ lang }: { lang: string }) {
                     )}
 
                     {step === 3 && (
+                        <div className="space-y-6">
+                            <div className="space-y-4">
+                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                                    <T en="Add details about your products (names, prices, descriptions, and pictures) to display on your website."
+                                       bm="Masukkan maklumat produk anda (nama, harga, deskripsi, dan gambar) untuk dipaparkan di laman web anda." />
+                                </p>
+                                
+                                <div className="space-y-4">
+                                    {formData.products.map((product, idx) => (
+                                        <div key={idx} className="p-5 border border-slate-100 bg-slate-50/50 rounded-2xl space-y-4 relative animate-in slide-in-from-bottom-2 duration-200">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => removeProduct(idx)}
+                                                className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                            
+                                            <h4 className="text-xs font-black uppercase tracking-widest text-violet-600">
+                                                <T en={`Product #${idx + 1}`} bm={`Produk #${idx + 1}`} />
+                                            </h4>
+                                            
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                                        <T en="Product Name" bm="Nama Produk" />
+                                                    </label>
+                                                    <input 
+                                                        type="text"
+                                                        className="w-full h-11 px-3 bg-white border border-slate-150 rounded-xl text-xs font-bold text-slate-900 outline-none"
+                                                        value={product.name}
+                                                        onChange={(e) => updateProduct(idx, "name", e.target.value)}
+                                                        placeholder={lang === "BM" ? "cth. Baju Kurung Moden" : "e.g. Modern Dress"}
+                                                    />
+                                                </div>
+                                                
+                                                <div>
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                                        <T en="Price (RM)" bm="Harga (RM)" />
+                                                    </label>
+                                                    <input 
+                                                        type="text"
+                                                        className="w-full h-11 px-3 bg-white border border-slate-150 rounded-xl text-xs font-bold text-slate-900 outline-none"
+                                                        value={product.price}
+                                                        onChange={(e) => updateProduct(idx, "price", e.target.value)}
+                                                        placeholder="e.g. 150"
+                                                    />
+                                                </div>
+                                                
+                                                <div>
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                                        <T en="Description" bm="Deskripsi" />
+                                                    </label>
+                                                    <textarea 
+                                                        className="w-full p-3 bg-white border border-slate-150 rounded-xl text-xs font-bold text-slate-900 outline-none"
+                                                        rows={2}
+                                                        value={product.description}
+                                                        onChange={(e) => updateProduct(idx, "description", e.target.value)}
+                                                        placeholder={lang === "BM" ? "Terangkan sebarang butiran tentang produk..." : "Describe the details of your product..."}
+                                                    />
+                                                </div>
+                                                
+                                                <div>
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                                                        <T en="Product Images" bm="Gambar Produk" />
+                                                    </label>
+                                                    <div className="grid grid-cols-3 gap-2 bg-white p-3 rounded-xl border border-slate-150 shadow-sm">
+                                                        {(product.image_urls || []).map((url, imgIdx) => (
+                                                            <div key={imgIdx} className="relative aspect-square bg-slate-50 border border-slate-100 rounded-lg overflow-hidden group">
+                                                                <img src={url} className="w-full h-full object-cover" />
+                                                                <button 
+                                                                    type="button"
+                                                                    onClick={() => removeProductImage(idx, imgIdx)}
+                                                                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow"
+                                                                >
+                                                                    ✕
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                        
+                                                        <label className="aspect-square bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all">
+                                                            <UploadCloud className="w-4 h-4 text-slate-400" />
+                                                            <span className="text-[7px] font-black uppercase tracking-wider text-slate-400 mt-1"><T en="UPLOAD" bm="MUAT NAIK" /></span>
+                                                            <input 
+                                                                type="file" 
+                                                                className="hidden" 
+                                                                accept="image/*"
+                                                                multiple
+                                                                onChange={async (e) => {
+                                                                    const files = e.target.files;
+                                                                    if (files) {
+                                                                        for (let i = 0; i < files.length; i++) {
+                                                                            await handleProductImageUpload(idx, files[i]);
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    
+                                    <button 
+                                        type="button"
+                                        onClick={addProduct}
+                                        className="w-full h-12 border-2 border-dashed border-slate-200 hover:border-violet-300 rounded-2xl text-violet-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-violet-50 transition-all"
+                                    >
+                                        <span className="text-lg">+</span> <T en="Add Product" bm="Tambah Produk" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 4 && (
                         <div className="space-y-6">
                             <div className="space-y-4">
                                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="Proposed Sitemap" bm="Peta Laman Cadangan" /></h3>
@@ -668,7 +879,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         </div>
                     )}
 
-                    {step === 4 && (
+                    {step === 5 && (
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="WhatsApp Number" bm="Nombor WhatsApp" /></label>
@@ -750,7 +961,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         </div>
                     )}
 
-                    {step === 5 && (
+                    {step === 6 && (
                         <div className="space-y-6">
                             <DomainChecker 
                                 label={lang === "EN" ? "Primary Choice (.com / .my)" : "Pilihan Utama (.com / .my)"}
@@ -773,7 +984,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                         </div>
                     )}
 
-                    {step === 6 && (
+                    {step === 7 && (
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><T en="Project Title" bm="Nama Projek" /></label>
@@ -809,9 +1020,9 @@ function CreateProjectForm({ lang }: { lang: string }) {
                             </button>
                         )}
                         <button 
-                            onClick={step === 6 ? submitForm : nextStep} 
+                            onClick={step === 7 ? submitForm : nextStep} 
                             disabled={isSubmitting}
-                            className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 ${step === 6 ? 'bg-emerald-500 text-white shadow-emerald-100 border border-emerald-400' : 'bg-violet-600 text-white shadow-violet-200 border border-violet-500'}`}
+                            className={`flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 ${step === 7 ? 'bg-emerald-500 text-white shadow-emerald-100 border border-emerald-400' : 'bg-violet-600 text-white shadow-violet-200 border border-violet-500'}`}
                         >
                             {isSubmitting ? (
                                 <div className="flex items-center gap-2">
@@ -820,7 +1031,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
                                 </div>
                             ) : (
                                 <>
-                                    {step === 6 ? <><CheckCircle2 className="w-5 h-5" /> <T en="Finalize Build" bm="Hantar Projek" /></> : <><T en="Next Step" bm="Seterusnya" /> <ArrowRight className="w-5 h-5" /></>}
+                                    {step === 7 ? <><CheckCircle2 className="w-5 h-5" /> <T en="Finalize Build" bm="Hantar Projek" /></> : <><T en="Next Step" bm="Seterusnya" /> <ArrowRight className="w-5 h-5" /></>}
                                 </>
                             )}
                         </button>
@@ -838,9 +1049,9 @@ function CreateProjectForm({ lang }: { lang: string }) {
             : <p className="text-zinc-500 font-medium"><T en="Share your vision and we'll build it." bm="Berikan visi anda dan kami akan membinanya." /></p>
         }
         
-        {/* Progress Bar (0-6) */}
+        {/* Progress Bar (0-7) */}
         <div className="flex gap-2 mt-8 mb-12">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div key={i} className={`h-2 flex-1 rounded-full ${step >= i ? 'bg-violet-500' : 'bg-zinc-200'}`} />
           ))}
         </div>
@@ -979,51 +1190,48 @@ function CreateProjectForm({ lang }: { lang: string }) {
             <p className="text-zinc-600 font-medium"><T en="Choose the functions you want to activate. All these systems can be used immediately according to your project needs." bm="Pilih fungsi yang ingin anda aktifkan. Semua sistem ini boleh digunakan terus mengikut keperluan projek anda." /></p>
             
             <div className="grid md:grid-cols-2 gap-6">
-               {[
-                 { title: "Commercial", items: ["Shopping Cart & Checkout", "Payment Gateway Sync", "Promo Code System", "Order Notifications"] },
-                 { title: "Service & Bookings", items: ["Appointment Scheduler", "Service Catalog", "Location Mapping", "Staff Directory"] },
-                 { title: "Brand Identity", items: ["Interactive Gallery", "Customer Testimonials", "Company Timeline", "Partner Showcase"] },
-                 { title: "User Engagement", items: ["Blog / News Engine", "FAQ Hub", "Floating Chat Support", "Lead Generation Forms"] }
-               ].map((cat, idx) => (
-                 <div key={idx} className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all">
-                    <h3 className="font-black italic uppercase tracking-widest text-xs text-violet-600 mb-6">
-                      {cat.title === "Commercial" ? <T en="Commercial" bm="Komersial" /> : 
-                       cat.title === "Service & Bookings" ? <T en="Service & Bookings" bm="Perkhidmatan & Tempahan" /> : 
-                       cat.title === "Brand Identity" ? <T en="Brand Identity" bm="Identiti Jenama" /> : 
-                       cat.title === "User Engagement" ? <T en="User Engagement" bm="Penglibatan Pengguna" /> : cat.title}
-                    </h3>
-                    <div className="space-y-4">
-                      {cat.items.map(item => (
-                        <label key={item} className="flex items-center gap-4 cursor-pointer group">
-                          <input 
-                            type="checkbox" 
-                            checked={formData.features.includes(item)}
-                            onChange={() => toggleFeature(item)}
-                            className="w-5 h-5 rounded border-zinc-300 text-violet-500 focus:ring-violet-500/20 bg-white"
-                          />
-                          <span className="text-sm font-bold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">
-                            {item === "Shopping Cart & Checkout" ? <T en="Shopping Cart & Checkout" bm="Sistem Kedai Online" /> :
-                             item === "Payment Gateway Sync" ? <T en="Payment Gateway Sync" bm="Pembayaran Online (FPX/Kad)" /> :
-                             item === "Promo Code System" ? <T en="Promo Code System" bm="Sistem Kod Diskaun" /> :
-                             item === "Order Notifications" ? <T en="Order Notifications" bm="Notifikasi Pesanan" /> :
-                             item === "Appointment Scheduler" ? <T en="Appointment Scheduler" bm="Sistem Temujanji" /> :
-                             item === "Service Catalog" ? <T en="Service Catalog" bm="Senarai Perkhidmatan" /> :
-                             item === "Location Mapping" ? <T en="Location Mapping" bm="Lokasi Kedai (Google Maps)" /> :
-                             item === "Staff Directory" ? <T en="Staff Directory" bm="Senarai Kakitangan" /> :
-                             item === "Interactive Gallery" ? <T en="Interactive Gallery" bm="Galeri Gambar" /> :
-                             item === "Customer Testimonials" ? <T en="Customer Testimonials" bm="Testimoni Pelanggan" /> :
-                             item === "Company Timeline" ? <T en="Company Timeline" bm="Sejarah Syarikat" /> :
-                             item === "Partner Showcase" ? <T en="Partner Showcase" bm="Senarai Rakan Kongsi" /> :
-                             item === "Blog / News Engine" ? <T en="Blog / News Engine" bm="Sistem Blog / Berita" /> :
-                             item === "FAQ Hub" ? <T en="FAQ Hub" bm="Soalan Lazim (FAQ)" /> :
-                             item === "Floating Chat Support" ? <T en="Floating Chat Support" bm="Sembang Langsung (Live Chat)" /> :
-                             item === "Lead Generation Forms" ? <T en="Lead Generation Forms" bm="Borang Hubungi / Lead" /> : item}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                 </div>
-               ))}
+                {[
+                  { title: "Landing Page", items: ["landing_1_page", "landing_whatsapp"] },
+                  { title: "Blog/News", items: ["blog_articles", "blog_cms"] },
+                  { title: "Ecommerce", items: ["ecommerce_5_pages", "ecommerce_whatsapp", "ecommerce_sales", "ecommerce_gateway"] },
+                  { title: "Corporate", items: ["corporate_10_pages", "corporate_whatsapp", "corporate_sales", "corporate_gateway", "corporate_branding"] }
+                ].map((cat, idx) => (
+                  <div key={idx} className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all">
+                     <h3 className="font-black italic uppercase tracking-widest text-xs text-violet-600 mb-6">
+                       {cat.title === "Landing Page" ? <T en="Landing Page" bm="Landing Page" /> : 
+                        cat.title === "Blog/News" ? <T en="Blog/News" bm="Blog/News" /> : 
+                        cat.title === "Ecommerce" ? <T en="Ecommerce" bm="Ecommerce" /> : 
+                        cat.title === "Corporate" ? <T en="Corporate" bm="Corporate" /> : cat.title}
+                     </h3>
+                     <div className="space-y-4">
+                       {cat.items.map(item => (
+                         <label key={item} className="flex items-center gap-4 cursor-pointer group">
+                           <input 
+                             type="checkbox" 
+                             checked={formData.features.includes(item)}
+                             onChange={() => toggleFeature(item)}
+                             className="w-5 h-5 shrink-0 rounded border-zinc-300 text-violet-500 focus:ring-violet-500/20 bg-white"
+                           />
+                           <span className="text-sm font-bold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase tracking-tight">
+                             {item === "landing_1_page" ? <T en="1 Page" bm="1 Halaman" /> :
+                              item === "landing_whatsapp" ? <T en="WhatsApp Link" bm="Link Whatsapp" /> :
+                              item === "blog_articles" ? <T en="Article Sharing" bm="Perkongsian Artikel" /> :
+                              item === "blog_cms" ? <T en="Easy Content Management" bm="Pengurusan Kandungan Mudah" /> :
+                              item === "ecommerce_5_pages" ? <T en="5 Pages" bm="5 Halaman" /> :
+                              item === "ecommerce_whatsapp" ? <T en="WhatsApp Link" bm="Link Whatsapp" /> :
+                              item === "ecommerce_sales" ? <T en="Sales System" bm="Sistem Jualan" /> :
+                              item === "ecommerce_gateway" ? <T en="Payment Gateway" bm="Payment Gateway" /> :
+                              item === "corporate_10_pages" ? <T en="10 Pages" bm="10 Halaman" /> :
+                              item === "corporate_whatsapp" ? <T en="WhatsApp Link" bm="Link Whatsapp" /> :
+                              item === "corporate_sales" ? <T en="Sales System" bm="Sistem Jualan" /> :
+                              item === "corporate_gateway" ? <T en="Payment Gateway" bm="Payment Gateway" /> :
+                              item === "corporate_branding" ? <T en="Professional Branding" bm="Penjenamaan Profesional" /> : item}
+                           </span>
+                         </label>
+                       ))}
+                     </div>
+                  </div>
+                ))}
             </div>
 
             <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm">
@@ -1066,8 +1274,117 @@ function CreateProjectForm({ lang }: { lang: string }) {
         )}
 
         {step === 3 && (
+          <div className="space-y-8 animate-fade-in">
+            <h2 className="text-2xl font-bold text-zinc-900">4. <T en="Product Catalog / Store Details" bm="Senarai Produk / Butiran Kedai" /></h2>
+            <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide details about your products (names, prices, descriptions, and pictures) to display on your website." bm="Masukkan maklumat produk anda (nama, harga, deskripsi, dan gambar) untuk dipaparkan di laman web anda." /></p>
+            
+            <div className="space-y-6">
+              {formData.products.map((product, idx) => (
+                <div key={idx} className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-3xl shadow-sm space-y-6 relative animate-in slide-in-from-bottom-3 duration-250">
+                  <button 
+                    type="button" 
+                    onClick={() => removeProduct(idx)}
+                    className="absolute top-6 right-6 text-zinc-400 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                  
+                  <h3 className="text-xs font-black italic uppercase tracking-widest text-violet-600 font-mono">
+                    <T en={`Product #${idx + 1}`} bm={`Produk #${idx + 1}`} />
+                  </h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Product Name" bm="Nama Produk" /></label>
+                        <input 
+                          type="text"
+                          className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                          value={product.name}
+                          onChange={(e) => updateProduct(idx, "name", e.target.value)}
+                          placeholder={lang === "BM" ? "cth. Baju Kurung Moden" : "e.g. Modern Dress"}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Price (RM)" bm="Harga (RM)" /></label>
+                        <input 
+                          type="text"
+                          className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                          value={product.price}
+                          onChange={(e) => updateProduct(idx, "price", e.target.value)}
+                          placeholder="e.g. 150"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Description" bm="Deskripsi" /></label>
+                        <textarea 
+                          className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all min-h-[90px] shadow-sm"
+                          rows={3}
+                          value={product.description}
+                          onChange={(e) => updateProduct(idx, "description", e.target.value)}
+                          placeholder={lang === "BM" ? "Terangkan sebarang butiran penting tentang produk..." : "Describe any important details about the product..."}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2"><T en="Product Images" bm="Gambar Produk" /></label>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 bg-white p-4 rounded-xl border border-zinc-150 shadow-sm">
+                          {(product.image_urls || []).map((url, imgIdx) => (
+                            <div key={imgIdx} className="relative aspect-square bg-zinc-50 border border-zinc-100 rounded-lg overflow-hidden group">
+                              <img src={url} className="w-full h-full object-cover" />
+                              <button 
+                                type="button"
+                                onClick={() => removeProductImage(idx, imgIdx)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          
+                          <label className="aspect-square bg-zinc-50 hover:bg-zinc-100 border border-dashed border-zinc-200 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all">
+                            <UploadCloud className="w-5 h-5 text-zinc-400" />
+                            <span className="text-[8px] font-black uppercase tracking-wider text-zinc-400 mt-1"><T en="UPLOAD" bm="MUAT NAIK" /></span>
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept="image/*"
+                              multiple
+                              onChange={async (e) => {
+                                const files = e.target.files;
+                                if (files) {
+                                  for (let i = 0; i < files.length; i++) {
+                                    await handleProductImageUpload(idx, files[i]);
+                                  }
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              <button 
+                type="button"
+                onClick={addProduct}
+                className="w-full h-14 border-2 border-dashed border-zinc-200 hover:border-violet-300 rounded-[1.5rem] text-violet-600 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-violet-50 transition-all"
+              >
+                <span className="text-xl">+</span> <T en="Add Product" bm="Tambah Produk" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
            <div className="space-y-8 animate-fade-in">
-             <h2 className="text-2xl font-bold text-zinc-900">4. <T en="Brand & Visuals" bm="Jenama & Visual" /></h2>
+             <h2 className="text-2xl font-bold text-zinc-900">5. <T en="Brand & Visuals" bm="Jenama & Visual" /></h2>
              <p className="text-zinc-600 font-medium leading-relaxed"><T en="Let's define your website design. Provide details about your logo, color preferences, and the page structure (sitemap) you want." bm="Jom tentukan reka bentuk laman web anda. Berikan maklumat tentang logo, pilihan warna, dan susunan halaman (sitemap) yang anda inginkan." /></p>
              
              <div className="grid md:grid-cols-2 gap-8">
@@ -1173,9 +1490,9 @@ function CreateProjectForm({ lang }: { lang: string }) {
            </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
            <div className="space-y-8 animate-fade-in">
-              <h2 className="text-2xl font-bold text-zinc-900">5. <T en="Business Identity" bm="Identiti Perniagaan" /></h2>
+              <h2 className="text-2xl font-bold text-zinc-900">6. <T en="Business Identity" bm="Identiti Perniagaan" /></h2>
               <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide your official business details for the footer, contact page, and social links." bm="Berikan butiran perniagaan rasmi anda untuk footer, halaman kenalan dan pautan sosial." /></p>
               
               <div className="p-8 bg-zinc-50 border border-zinc-200/60 rounded-[2.5rem] shadow-sm">
@@ -1265,9 +1582,9 @@ function CreateProjectForm({ lang }: { lang: string }) {
            </div>
         )}
 
-        {step === 5 && (
+        {step === 6 && (
            <div className="space-y-8 animate-fade-in">
-             <h2 className="text-2xl font-bold text-zinc-900">6. <T en="Domain Request" bm="Permintaan Domain" /></h2>
+             <h2 className="text-2xl font-bold text-zinc-900">7. <T en="Domain Request" bm="Permintaan Domain" /></h2>
              <p className="text-zinc-600 font-medium leading-relaxed"><T en="Provide up to 3 choices for your website domain in order of preference. We will verify and register the best option." bm="Berikan sehingga 3 pilihan untuk domain laman web anda mengikut urutan pilihan. Kami akan mengesahkan dan mendaftarkan pilihan terbaik." /></p>
              
               <div className="space-y-6">
@@ -1306,13 +1623,13 @@ function CreateProjectForm({ lang }: { lang: string }) {
             </div>
          )}
 
-         {step === 6 && (
+         {step === 7 && (
             <div className="space-y-8 animate-fade-in">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 bg-violet-500/10 rounded-2xl flex items-center justify-center">
                         <CheckCircle2 className="w-6 h-6 text-violet-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-zinc-900">7. <T en="Project Vision" bm="Visi Projek" /></h2>
+                    <h2 className="text-2xl font-bold text-zinc-900">8. <T en="Project Vision" bm="Visi Projek" /></h2>
                 </div>
 
                 <div className="space-y-6">
@@ -1372,7 +1689,7 @@ function CreateProjectForm({ lang }: { lang: string }) {
             )}
           </div>
           
-          {step < 6 ? (
+          {step < 7 ? (
             <button 
               onClick={nextStep}
               disabled={step === 0 && !formData.selected_plan}

@@ -95,6 +95,7 @@ interface Requirements {
     operation_hours?: string;
     project_vision?: string;
     target_audience?: string;
+    products?: any[];
 }
 
 interface Project {
@@ -160,8 +161,90 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
         setPageMargin(48);
     };
 
-    const nextStep = () => setStep((p) => Math.min(p + 1, 6));
+    const nextStep = () => setStep((p) => Math.min(p + 1, 7));
     const prevStep = () => setStep((p) => Math.max(p - 1, 1));
+
+    const addProduct = () => {
+        const currentProducts = editData.requirements?.products || [];
+        const newProduct = { name: "", price: "", description: "", image_url: "", image_urls: [] };
+        setEditData({
+            ...editData,
+            requirements: {
+                ...editData.requirements,
+                products: [...currentProducts, newProduct]
+            }
+        });
+    };
+
+    const removeProduct = (idx: number) => {
+        const currentProducts = editData.requirements?.products || [];
+        const nextProducts = currentProducts.filter((_, i) => i !== idx);
+        setEditData({
+            ...editData,
+            requirements: {
+                ...editData.requirements,
+                products: nextProducts
+            }
+        });
+    };
+
+    const updateProduct = (idx: number, field: string, value: any) => {
+        const currentProducts = editData.requirements?.products || [];
+        const nextProducts = [...currentProducts];
+        nextProducts[idx] = { ...nextProducts[idx], [field]: value };
+        setEditData({
+            ...editData,
+            requirements: {
+                ...editData.requirements,
+                products: nextProducts
+            }
+        });
+    };
+
+    const handleProductImageUpload = async (idx: number, file: File) => {
+        try {
+            const url = await handleFileUpload(file);
+            const currentProducts = editData.requirements?.products || [];
+            const nextProducts = [...currentProducts];
+            const currentUrls = nextProducts[idx].image_urls || [];
+            const nextUrls = [...currentUrls, url];
+            nextProducts[idx] = { 
+                ...nextProducts[idx], 
+                image_url: nextProducts[idx].image_url || url,
+                image_urls: nextUrls 
+            };
+            setEditData({
+                ...editData,
+                requirements: {
+                    ...editData.requirements,
+                    products: nextProducts
+                }
+            });
+            toast.success(lang === "BM" ? "Gambar berjaya dimuat naik!" : "Image uploaded successfully!");
+        } catch (e: any) {
+            console.error(e);
+        }
+    };
+
+    const removeProductImage = (idx: number, imgIdx: number) => {
+        const currentProducts = editData.requirements?.products || [];
+        const nextProducts = [...currentProducts];
+        const currentUrls = nextProducts[idx].image_urls || [];
+        const nextUrls = currentUrls.filter((_, i) => i !== imgIdx);
+        const nextMainUrl = nextUrls[0] || "";
+        nextProducts[idx] = { 
+            ...nextProducts[idx], 
+            image_url: nextMainUrl,
+            image_urls: nextUrls 
+        };
+        setEditData({
+            ...editData,
+            requirements: {
+                ...editData.requirements,
+                products: nextProducts
+            }
+        });
+    };
 
     const handleFileUpload = async (file: File) => {
         if (file.size > 10 * 1024 * 1024) {
@@ -537,7 +620,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     </div>
                                     <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex flex-col items-center justify-center backdrop-blur-md">
                                         <span className="text-xl font-black text-white leading-none">{step}</span>
-                                        <span className="text-[8px] font-black text-white/40 uppercase">/6</span>
+                                        <span className="text-[8px] font-black text-white/40 uppercase">/7</span>
                                     </div>
                                 </div>
 
@@ -545,7 +628,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 <div className="bg-white/20 h-2.5 rounded-full p-0.5 overflow-hidden border border-white/10">
                                     <div 
                                         className="h-full bg-white rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(255,255,255,0.5)]" 
-                                        style={{ width: `${(step / 6) * 100}%` }}
+                                        style={{ width: `${(step / 7) * 100}%` }}
                                     />
                                 </div>
                             </div>
@@ -569,9 +652,9 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             </button>
                         </div>
 
-                        {/* Desktop Progress Bar (1-6) */}
+                        {/* Desktop Progress Bar (1-7) */}
                         <div className="flex gap-1.5">
-                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                                 <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-700 ${step >= i ? 'bg-zinc-900' : 'bg-zinc-100'}`} />
                             ))}
                         </div>
@@ -654,15 +737,14 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                     
                                     <div className="grid md:grid-cols-1 gap-4">
                                         {[
-                                            { title: "Commercial", items: ["Shopping Cart & Checkout", "Payment Gateway Sync", "Promo Code System", "Order Notifications"] },
-                                            { title: "Service & Bookings", items: ["Appointment Scheduler", "Service Catalog", "Location Mapping", "Staff Directory"] },
-                                            { title: "Engagement", items: ["Blog / News Engine", "FAQ Hub", "Floating Chat Support", "Lead Generation Forms"] }
+                                            { title: "Landing Page", titleBm: "Landing Page", items: ["1 Page", "WhatsApp Link", "Introduction Section", "Contact Form"] },
+                                            { title: "Blog/News", titleBm: "Blog/News", items: ["5 Pages", "WhatsApp Link", "Article Management", "Social Share"] },
+                                            { title: "Ecommerce", titleBm: "Ecommerce", items: ["5 Pages", "WhatsApp Link", "Sales System", "Payment Gateway"] },
+                                            { title: "Corporate", titleBm: "Corporate", items: ["5 Pages", "WhatsApp Link", "Company Profile", "Career Application"] }
                                         ].map((cat, idx) => (
                                             <div key={idx} className="bg-zinc-50 p-6 rounded-2xl border-2 border-zinc-100">
                                                 <h3 className="font-black uppercase tracking-widest text-[9px] text-zinc-400 mb-4 font-mono">
-                                                    {cat.title === "Commercial" ? <T en="Commercial" bm="Komersial" /> :
-                                                     cat.title === "Service & Bookings" ? <T en="Service & Bookings" bm="Perkhidmatan & Tempahan" /> :
-                                                     cat.title === "Engagement" ? <T en="Engagement" bm="Penglibatan" /> : cat.title}
+                                                    <T en={cat.title} bm={cat.titleBm} />
                                                 </h3>
                                                 <div className="grid md:grid-cols-2 gap-3">
                                                     {cat.items.map(item => (
@@ -675,7 +757,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                                                     const next = current.includes(item) ? current.filter(i => i !== item) : [...current, item];
                                                                     setEditData({ ...editData, requirements: { ...editData.requirements, features: next } });
                                                                 }}
-                                                                className="w-4 h-4 rounded-md border-zinc-300 text-zinc-900 focus:ring-0"
+                                                                className="w-4 h-4 rounded-md border-zinc-300 text-zinc-900 focus:ring-0 shrink-0"
                                                             />
                                                             <span className="text-[11px] font-bold uppercase tracking-tight">{item}</span>
                                                         </label>
@@ -700,7 +782,122 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             {step === 3 && (
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">3. <T en="Structural Identity" bm="Identiti Struktur" /></h2>
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">3. <T en="Product Catalog" bm="Senarai Produk" /></h2>
+                                        <p className="text-zinc-500 font-medium text-sm"><T en="Add details about your products (names, prices, descriptions, and pictures) to display on your website." bm="Masukkan maklumat produk anda (nama, harga, deskripsi, dan gambar) untuk dipaparkan di laman web anda." /></p>
+                                    </div>
+                                    
+                                    <div className="space-y-6">
+                                        {(editData.requirements?.products || []).map((product: any, idx: number) => (
+                                            <div key={idx} className="p-5 border-2 border-zinc-150 bg-zinc-50/50 rounded-2xl space-y-4 relative animate-in slide-in-from-bottom-2 duration-200">
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => removeProduct(idx)}
+                                                    className="absolute top-4 right-4 text-zinc-300 hover:text-red-500 transition-colors"
+                                                >
+                                                    ✕
+                                                </button>
+                                                
+                                                <h4 className="text-xs font-black uppercase tracking-widest text-indigo-600">
+                                                    <T en={`Product #${idx + 1}`} bm={`Produk #${idx + 1}`} />
+                                                </h4>
+                                                
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">
+                                                            <T en="Product Name" bm="Nama Produk" />
+                                                        </label>
+                                                        <input 
+                                                            type="text"
+                                                            className="w-full h-11 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 outline-none focus:border-zinc-900"
+                                                            value={product.name}
+                                                            onChange={(e) => updateProduct(idx, "name", e.target.value)}
+                                                            placeholder={lang === "BM" ? "cth. Baju Kurung Moden" : "e.g. Modern Dress"}
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">
+                                                            <T en="Price (RM)" bm="Harga (RM)" />
+                                                        </label>
+                                                        <input 
+                                                            type="text"
+                                                            className="w-full h-11 px-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 outline-none focus:border-zinc-900"
+                                                            value={product.price}
+                                                            onChange={(e) => updateProduct(idx, "price", e.target.value)}
+                                                            placeholder="e.g. 150"
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">
+                                                            <T en="Description" bm="Deskripsi" />
+                                                        </label>
+                                                        <textarea 
+                                                            className="w-full p-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 outline-none focus:border-zinc-900"
+                                                            rows={2}
+                                                            value={product.description}
+                                                            onChange={(e) => updateProduct(idx, "description", e.target.value)}
+                                                            placeholder={lang === "BM" ? "Terangkan sebarang butiran tentang produk..." : "Describe the details of your product..."}
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">
+                                                            <T en="Product Images" bm="Gambar Produk" />
+                                                        </label>
+                                                        <div className="grid grid-cols-4 gap-2 bg-white p-3 rounded-xl border border-zinc-200 shadow-sm">
+                                                            {(product.image_urls || []).map((url: string, imgIdx: number) => (
+                                                                <div key={imgIdx} className="relative aspect-square bg-zinc-50 border border-zinc-100 rounded-lg overflow-hidden group">
+                                                                    <img src={url} className="w-full h-full object-cover" />
+                                                                    <button 
+                                                                        type="button"
+                                                                        onClick={() => removeProductImage(idx, imgIdx)}
+                                                                        className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow"
+                                                                    >
+                                                                        ✕
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                            
+                                                            <label className="aspect-square bg-zinc-50 hover:bg-zinc-100 border border-dashed border-zinc-300 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all">
+                                                                <UploadCloud className="w-4 h-4 text-zinc-400" />
+                                                                <span className="text-[7px] font-black uppercase tracking-wider text-zinc-400 mt-1"><T en="UPLOAD" bm="MUAT NAIK" /></span>
+                                                                <input 
+                                                                    type="file" 
+                                                                    className="hidden" 
+                                                                    accept="image/*"
+                                                                    multiple
+                                                                    onChange={async (e) => {
+                                                                        const files = e.target.files;
+                                                                        if (files) {
+                                                                            for (let i = 0; i < files.length; i++) {
+                                                                                await handleProductImageUpload(idx, files[i]);
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        
+                                        <button 
+                                            type="button"
+                                            onClick={addProduct}
+                                            className="w-full h-12 border-2 border-dashed border-zinc-200 hover:border-indigo-300 rounded-2xl text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-indigo-50 transition-all"
+                                        >
+                                            <T en="+ Add Product" bm="+ Tambah Produk" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 4 && (
+                                <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">4. <T en="Structural Identity" bm="Identiti Struktur" /></h2>
                                         <p className="text-zinc-500 font-medium text-sm"><T en="Define the brand assets and site architecture." bm="Takrifkan aset jenama dan seni bina laman web." /></p>
                                     </div>
                                     
@@ -794,10 +991,10 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                             )}
 
-                            {step === 4 && (
+                            {step === 5 && (
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">4. <T en="Operations Sync" bm="Sinkronasi Operasi" /></h2>
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">5. <T en="Operations Sync" bm="Sinkronasi Operasi" /></h2>
                                         <p className="text-zinc-500 font-medium text-sm"><T en="Official contact data and social synchronization." bm="Data hubungan rasmi dan sinkronasi sosial." /></p>
                                     </div>
                                     
@@ -836,6 +1033,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                             <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Social Hooks" bm="Pautan Sosial" /></h3>
                                             <input type="text" placeholder={lang === "BM" ? "Pautan Facebook" : "Facebook Link"} value={editData.requirements?.social_media?.facebook || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, facebook: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
                                             <input type="text" placeholder={lang === "BM" ? "Pautan Instagram" : "Instagram Link"} value={editData.requirements?.social_media?.instagram || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, instagram: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
+                                            <input type="text" placeholder={lang === "BM" ? "Pautan Tiktok" : "Tiktok Link"} value={editData.requirements?.social_media?.tiktok || ""} onChange={(e) => setEditData({ ...editData, requirements: { ...editData.requirements, social_media: { ...editData.requirements?.social_media, tiktok: e.target.value } } })} className="w-full bg-white border-2 border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-bold focus:border-zinc-900 outline-none" />
                                         </div>
                                         <div className="space-y-4">
                                             <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 font-mono"><T en="Operations" bm="Operasi" /></h3>
@@ -851,10 +1049,10 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                             )}
 
-                            {step === 5 && (
+                            {step === 6 && (
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">5. <T en="Domain Strategy" bm="Strategi Domain" /></h2>
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">6. <T en="Domain Strategy" bm="Strategi Domain" /></h2>
                                         <p className="text-zinc-500 font-medium text-sm"><T en="Coordinate your platform's online identifier." bm="Penyelarasan pengenal dalam talian platform anda." /></p>
                                     </div>
                                     
@@ -883,10 +1081,10 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                             )}
 
-                            {step === 6 && (
+                            {step === 7 && (
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">6. <T en="Global Objective" bm="Objektif Global" /></h2>
+                                        <h2 className="text-2xl font-black text-zinc-900 uppercase">7. <T en="Global Objective" bm="Objektif Global" /></h2>
                                         <p className="text-zinc-500 font-medium text-sm"><T en="The core strategic vision driving this project." bm="Visi strategik teras yang memacu projek ini." /></p>
                                     </div>
                                     
@@ -930,7 +1128,7 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                         </div>
 
                         <div className="flex gap-3 md:gap-4 flex-1 md:flex-none order-1 md:order-2">
-                            {step < 6 ? (
+                            {step < 7 ? (
                                 <button 
                                     onClick={nextStep}
                                     className="w-full md:w-auto px-12 py-4 md:py-5 bg-indigo-600 text-white rounded-2xl md:rounded-[2rem] font-black uppercase text-[11px] tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/20 active:scale-95"
@@ -1573,6 +1771,47 @@ export default function ClientProjectDetailsPage({ params }: { params: Promise<{
                             </div>
                         </div>
                     </div>
+
+                    {/* Product Catalog / Store Details */}
+                    {req.products && req.products.length > 0 && (
+                        <div className="bg-white rounded-2xl p-7 shadow-sm border border-zinc-100/80 space-y-6">
+                            <div className="flex items-start gap-4 justify-between">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-11 h-11 rounded-[0.85rem] bg-violet-600 flex items-center justify-center shrink-0 shadow-sm">
+                                        <Box className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div className="pt-0.5">
+                                        <h2 className="text-[15px] font-bold text-zinc-900 leading-tight"><T en="Product Catalog / Store Details" bm="Senarai Produk / Butiran Kedai" /></h2>
+                                        <p className="text-[13px] font-medium text-zinc-400"><T en="Client store products list" bm="Senarai produk kedai klien" /></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid md:grid-cols-2 gap-6 pt-2">
+                                {req.products.map((product: any, idx: number) => (
+                                    <div key={idx} className="p-5 bg-[#F8FAFC] border border-zinc-200/60 rounded-2xl flex gap-5 hover:shadow-sm transition-all">
+                                        {product.image_urls && product.image_urls.length > 0 ? (
+                                            <div className="w-16 flex flex-col gap-2 shrink-0">
+                                                {product.image_urls.map((imgUrl: string, imgIdx: number) => (
+                                                    <div key={imgIdx} className="w-full aspect-square bg-white border border-zinc-100 rounded-xl overflow-hidden flex items-center justify-center p-1 cursor-pointer hover:border-indigo-500 transition-all" onClick={() => setActiveAsset(getAssetUrl(imgUrl))}>
+                                                        <img src={getAssetUrl(imgUrl)} alt={product.name} className="max-w-full max-h-full object-contain" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : product.image_url ? (
+                                            <div className="w-16 aspect-square bg-white border border-zinc-100 rounded-xl overflow-hidden flex items-center justify-center p-1 cursor-pointer shrink-0 hover:border-indigo-500 transition-all" onClick={() => setActiveAsset(getAssetUrl(product.image_url))}>
+                                                <img src={getAssetUrl(product.image_url)} alt={product.name} className="max-w-full max-h-full object-contain" />
+                                            </div>
+                                        ) : null}
+                                        <div className="flex-1 space-y-1.5">
+                                            <h4 className="font-bold text-xs text-zinc-900 uppercase tracking-tight">{product.name}</h4>
+                                            <p className="font-mono font-bold text-xs text-indigo-600">RM {product.price}</p>
+                                            <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3">{product.description || <span className="italic opacity-60"><T en="No description" bm="Tiada deskripsi" /></span>}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Sidebar (Right Col) */}

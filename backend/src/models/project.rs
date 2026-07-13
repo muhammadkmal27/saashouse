@@ -36,6 +36,15 @@ pub struct Project {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+pub struct ProductItem {
+    pub name: String,
+    pub price: String,
+    pub description: Option<String>,
+    pub image_url: Option<String>,
+    pub image_urls: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct RequirementsPayload {
     pub payment_setup: Option<serde_json::Value>, // Optional SSM detail or ToyyibPay keys
     #[serde(default)]
@@ -53,7 +62,9 @@ pub struct RequirementsPayload {
     pub business_address: Option<String>,
     pub operation_hours: Option<String>,
     pub project_vision: Option<String>,
+    pub products: Option<Vec<ProductItem>>,
 }
+
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct CreateProjectRequest {

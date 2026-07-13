@@ -73,6 +73,7 @@ interface Requirements {
    business_address?: string;
    operation_hours?: string;
    project_vision?: string;
+   products?: any[];
 }
 
 interface ProjectData {
@@ -681,6 +682,40 @@ export default function AdminProjectDetails() {
                         </div>
                     </div>
                 </div>
+
+                {/* Product Catalog / Store Details */}
+                {req.products && req.products.length > 0 && (
+                    <div className="bg-white border-2 border-zinc-200 rounded-3xl p-8 md:p-12 shadow-sm space-y-6">
+                        <div className="flex items-center gap-3 text-zinc-400">
+                            <Box className="w-5 h-5" />
+                            <span className="text-[11px] font-black uppercase tracking-widest"><T en="Product Catalog / Store Details" bm="Senarai Produk / Butiran Kedai" /></span>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {req.products.map((product: any, idx: number) => (
+                                <div key={idx} className="p-6 bg-zinc-50 border border-zinc-200/60 rounded-2xl flex gap-6 hover:shadow-md transition-all">
+                                    {product.image_urls && product.image_urls.length > 0 ? (
+                                        <div className="w-20 flex flex-col gap-2 shrink-0">
+                                            {product.image_urls.map((imgUrl: string, imgIdx: number) => (
+                                                <div key={imgIdx} className="w-full aspect-square bg-white border border-zinc-100 rounded-xl overflow-hidden flex items-center justify-center p-1 cursor-pointer hover:border-indigo-500 transition-all" onClick={() => setActiveAsset(getAssetUrl(imgUrl))}>
+                                                    <img src={getAssetUrl(imgUrl)} alt={product.name} className="max-w-full max-h-full object-contain" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : product.image_url ? (
+                                        <div className="w-20 aspect-square bg-white border border-zinc-100 rounded-xl overflow-hidden flex items-center justify-center p-1 cursor-pointer shrink-0 hover:border-indigo-500 transition-all" onClick={() => setActiveAsset(getAssetUrl(product.image_url))}>
+                                            <img src={getAssetUrl(product.image_url)} alt={product.name} className="max-w-full max-h-full object-contain" />
+                                        </div>
+                                    ) : null}
+                                    <div className="flex-1 space-y-2">
+                                        <h4 className="font-black text-sm text-zinc-900 uppercase tracking-tight">{product.name}</h4>
+                                        <p className="font-mono font-bold text-xs text-indigo-600">RM {product.price}</p>
+                                        <p className="text-xs text-zinc-500 leading-relaxed font-medium line-clamp-3">{product.description || <span className="italic opacity-60"><T en="No description" bm="Tiada deskripsi" /></span>}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* RIGHT COLUMN: Controls & Metadata */}

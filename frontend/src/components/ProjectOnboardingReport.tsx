@@ -270,6 +270,44 @@ const ProjectOnboardingReport: React.FC<ProjectOnboardingReportProps> = ({ proje
                 </div>
             </TechnicalSection>
 
+            {/* 08: PRODUCT CATALOG */}
+            {req.products && req.products.length > 0 && (
+                <TechnicalSection index="08" title="Product Catalog / Store Details" icon={Box}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '16px' }}>
+                        {req.products.map((product: any, idx: number) => (
+                            <div key={idx} style={{ padding: '20px', backgroundColor: '#f9fafb', borderRadius: '16px', border: '1px solid #e5e7eb', display: 'flex', gap: '20px' }}>
+                                {product.image_urls && product.image_urls.length > 0 ? (
+                                    <div style={{ width: '100px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {product.image_urls.map((imgUrl: string, imgIdx: number) => (
+                                            <div key={imgIdx} style={{ width: '100%', aspectRatio: '1/1', backgroundColor: '#ffffff', border: '1px solid #f3f4f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '4px' }}>
+                                                <img 
+                                                    src={getAssetUrl(imgUrl)} 
+                                                    alt={`Product ${idx + 1} Image ${imgIdx + 1}`} 
+                                                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : product.image_url ? (
+                                    <div style={{ width: '100px', aspectRatio: '1/1', backgroundColor: '#ffffff', border: '1px solid #f3f4f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '4px' }}>
+                                        <img 
+                                            src={getAssetUrl(product.image_url)} 
+                                            alt={`Product ${idx + 1} Main`} 
+                                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+                                        />
+                                    </div>
+                                ) : null}
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <h4 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', color: '#111827', margin: 0 }}>{product.name}</h4>
+                                    <div style={{ fontSize: '10px', fontWeight: 700, color: '#4f46e5', fontFamily: 'monospace' }}>RM {product.price}</div>
+                                    <p style={{ fontSize: '10px', color: '#4b5563', lineHeight: 1.5, margin: 0 }}>{product.description || "NO_DESCRIPTION_PROVIDED"}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </TechnicalSection>
+            )}
+
             {/* FOOTER */}
             <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.4 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

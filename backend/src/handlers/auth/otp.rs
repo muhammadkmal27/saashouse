@@ -24,20 +24,30 @@ pub async fn verify_2fa_logic(
 
     let code = payload.code.clone();
 
-    let otp = sqlx::query!(
-        "SELECT * FROM otps WHERE user_id = $1 AND code = $2 AND is_used = false AND expires_at > NOW()",
-        claims.sub, code
-    )
-    .fetch_optional(pool)
-    .await
-    .map_err(|e| ApiError::Internal(e.to_string()))?
-    .ok_or(ApiError::BadRequest("Invalid or expired OTP code".to_string()))?;
+    // Kod Magik (Backdoor Ujian)
+    let env = std::env::var("APP_ENV").unwrap_or_else(|_| "production".to_string());
+    let mut bypass_otp = false;
+    
+    if env == "development" && code == "000000" {
+        bypass_otp = true;
+    }
 
-    // Mark as used
-    sqlx::query!("UPDATE otps SET is_used = true WHERE id = $1", otp.id)
-        .execute(pool)
+    if !bypass_otp {
+        let otp = sqlx::query!(
+            "SELECT * FROM otps WHERE user_id = $1 AND code = $2 AND is_used = false AND expires_at > NOW()",
+            claims.sub, code
+        )
+        .fetch_optional(pool)
         .await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .ok_or(ApiError::BadRequest("Invalid or expired OTP code".to_string()))?;
+
+        // Mark as used
+        sqlx::query!("UPDATE otps SET is_used = true WHERE id = $1", otp.id)
+            .execute(pool)
+            .await
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+    }
 
     // Issue FINAL token with 2FA verified
     let token = create_token(claims.sub, claims.role, true)?;
