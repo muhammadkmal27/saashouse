@@ -73,10 +73,10 @@ export default function LandingPage() {
                 link: "https://chaoshou.online"
               },
               { 
-                title: "Fintech Core OS", 
-                type: "SaaS Application", 
+                title: "VOCABULARY", 
+                type: "Education Platform", 
                 img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
-                link: "/showcase"
+                link: "https://bijakenglish.imat.my/"
               }
             ].map((proj, idx) => (
               <div key={idx} className="group relative overflow-hidden rounded-[2rem] border border-zinc-800 aspect-video bg-zinc-900 shadow-2xl shadow-black/50">
