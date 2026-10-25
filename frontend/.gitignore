@@ -43,3 +43,6 @@ next-env.d.ts
 
 
 .agents/rules
+
+playwright-report/
+test-results/

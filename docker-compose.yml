@@ -54,6 +54,25 @@ services:
     volumes:
       - ./backend/uploads:/app/uploads
 
+  autopilot:
+    build:
+      context: ./autopilot
+      dockerfile: Dockerfile
+    container_name: saas_house_autopilot
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    env_file: .env
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgresql://saashouse:rootpassword@postgres:5432/saashouse
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    ports:
+      - "3001:3001"
+
   stripe:
     image: stripe/stripe-cli
     container_name: saas_house_stripe

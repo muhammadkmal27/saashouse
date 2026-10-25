@@ -83,6 +83,23 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/frontend:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/frontend:buildcache,mode=max
 
+      # ── Autopilot ─────────────────────────────────────────────────────────
+      - name: Extract metadata for Autopilot
+        id: meta-autopilot
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/autopilot
+
+      - name: Build and Push Autopilot
+        uses: docker/build-push-action@v5
+        with:
+          context: ./autopilot
+          push: true
+          tags: ${{ steps.meta-autopilot.outputs.tags }}
+          labels: ${{ steps.meta-autopilot.outputs.labels }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/autopilot:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/autopilot:buildcache,mode=max
+
   deploy:
     needs: build
     runs-on: self-hosted

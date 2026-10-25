@@ -29,6 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: lang === "EN" ? "Billing" : "Pengebilan", href: "/admin/billing", icon: CreditCard },
         { name: lang === "EN" ? "Tickets" : "Tiket", href: "/admin/tickets", icon: ClipboardList },
         { name: lang === "EN" ? "Settings" : "Tetapan", href: "/admin/settings", icon: Settings },
+        { name: lang === "EN" ? "AI Autopilot (24/7)" : "AI Autopilot (24 Jam)", href: "/admin/crypto-autopilot", icon: Sparkles },
     ];
 
     return (

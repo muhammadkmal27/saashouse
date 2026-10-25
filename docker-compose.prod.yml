@@ -38,6 +38,26 @@ services:
           memory: 256M
 
 
+  autopilot:
+    image: ghcr.io/muhammadkmal27/saashouse/autopilot:main
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    env_file: .env
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgresql://saashouse:${POSTGRES_PASSWORD}@postgres:5432/saashouse
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    ports:
+      - "3001:3001"
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
   nginx:
     image: nginx:alpine
     restart: always
@@ -48,6 +68,7 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - frontend
+      - autopilot
     deploy:
       resources:
         limits:

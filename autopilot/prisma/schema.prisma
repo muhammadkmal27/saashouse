@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(uuid())
+  name      String
+  email     String       @unique
+  password  String
+  role      String       @default("USER")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  strategies  Strategy[]
+  datasets    Dataset[]
+  paperTrades PaperTrade[]
+  backtests   Backtest[]
+}
+
+model Strategy {
+  id              String       @id @default(uuid())
+  userId          String
+  name            String
+  type            String       // AI_API, LOCAL_ML, MATH_ALGO
+  parameterConfig Json
+  status          String       @default("INACTIVE") // ACTIVE, INACTIVE
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id])
+  paperTrades PaperTrade[]
+  backtests   Backtest[]
+}
+
+model Dataset {
+  id          String   @id @default(uuid())
+  userId      String
+  patternName String
+  dataOhlcv   Json
+  status      String   @default("RAW") // RAW, TRAINED
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model PaperTrade {
+  id         String   @id @default(uuid())
+  userId     String
+  strategyId String
+  symbol     String
+  type       String   // BUY, SELL
+  entryPrice Float
+  exitPrice  Float?
+  status     String   @default("OPEN") // OPEN, CLOSED
+  pnl        Float?
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  strategy Strategy @relation(fields: [strategyId], references: [id])
+}
+
+model Backtest {
+  id             String   @id @default(uuid())
+  userId         String
+  strategyId     String
+  timeframe      String
+  initialCapital Float
+  finalBalance   Float?
+  winRate        Float?
+  totalTrades    Int?
+  tradeLogs      Json?
+  status         String   @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED
+  createdAt      DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  strategy Strategy @relation(fields: [strategyId], references: [id])
+}
