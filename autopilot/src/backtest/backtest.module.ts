@@ -10,7 +10,7 @@ import { MarketDataModule } from '../market-data/market-data.module';
   imports: [
     MarketDataModule,
     BullModule.forRoot({
-      connection: { host: 'localhost', port: 6379 },
+      connection: { host: process.env.REDIS_HOST || 'redis', port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT, 10) : 6379 },
     }),
     BullModule.registerQueue({ name: 'backtestQueue' }),
   ],

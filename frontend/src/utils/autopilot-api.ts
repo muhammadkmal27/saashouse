@@ -9,7 +9,9 @@ export async function getAutopilot<T>(endpoint: string, params?: Record<string, 
     credentials: 'include',
   });
   if (!res.ok) {
-    throw new Error('GET ' + endpoint + ' failed: ' + res.statusText);
+    const errorBody = await res.json().catch(() => null);
+    const message = errorBody?.message || res.statusText || ('Status ' + res.status);
+    throw new Error('GET ' + endpoint + ' failed: ' + message);
   }
   return res.json();
 }
@@ -23,7 +25,9 @@ export async function postAutopilot<T>(endpoint: string, data?: Record<string, a
     body: data ? JSON.stringify(data) : undefined,
   });
   if (!res.ok) {
-    throw new Error('POST ' + endpoint + ' failed: ' + res.statusText);
+    const errorBody = await res.json().catch(() => null);
+    const message = errorBody?.message || res.statusText || ('Status ' + res.status);
+    throw new Error('POST ' + endpoint + ' failed: ' + message);
   }
   return res.json();
 }
