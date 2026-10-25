@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, BadRequestException } from '@nestjs/common';
 import { CryptoAutopilotService } from './crypto-autopilot.service';
 import { CryptoMarketService } from './crypto-market.service';
 import { AiService } from './ai.service';
+import { DeepSeekClient } from './deepseek.client';
 
 @Controller('api/ai')
 export class AiController {
@@ -9,6 +10,7 @@ export class AiController {
     private readonly autopilotService: CryptoAutopilotService,
     private readonly marketService: CryptoMarketService,
     private readonly aiService: AiService,
+    private readonly deepSeek: DeepSeekClient,
   ) {}
 
   @Get('crypto/status')
@@ -26,6 +28,11 @@ export class AiController {
     return this.autopilotService.stop();
   }
 
+  @Post('crypto/reset')
+  resetAutopilot(@Body() body: { initialCapital?: number }) {
+    return this.autopilotService.reset(Number(body?.initialCapital) || 100);
+  }
+
   @Get('crypto/candles')
   async getCandles(
     @Query('symbol') symbol: string = 'XBTMYR',
@@ -35,31 +42,23 @@ export class AiController {
     return this.marketService.getCryptoCandles(symbol, interval, Number(limit) || 60);
   }
 
-  @Post('crypto/tick')
-  async processTick(@Body() body: { symbol?: string; price?: number }) {
-    const symbol = body?.symbol || 'XBTMYR';
-    let currentPrice = body?.price;
-
-    let candles: any[] = [];
-    if (!currentPrice || currentPrice <= 0) {
-      const market = await this.marketService.getCryptoCandles(symbol, '1m', 15);
-      currentPrice = market.currentPrice;
-      candles = market.candles;
-    }
-
-    return this.autopilotService.processPriceTick(currentPrice, candles);
-  }
-
-  @Post('crypto/optimize')
-  async triggerOptimize() {
-    await this.autopilotService.triggerAiOptimization();
-    return this.autopilotService.getStatus();
-  }
-
-  @Post('crypto/analyze')
-  async analyzeMarket(@Body() body: { symbol?: string; price?: number }) {
-    const symbol = body?.symbol || 'XBTMYR';
+  @Get('crypto/reasoning')
+  async getReasoning(@Query('symbol') symbol: string = 'XBTMYR') {
     const market = await this.marketService.getCryptoCandles(symbol, '1m', 15);
-    return this.aiService.analyzeMarketRegime(symbol, body?.price || market.currentPrice, market.candles);
+    return this.aiService.analyzeMarketRegime(symbol, market.currentPrice, market.candles);
+  }
+
+  @Get('crypto/config/apikey')
+  getApiKeyStatus() {
+    return this.deepSeek.getMaskedApiKey();
+  }
+
+  @Post('crypto/config/apikey')
+  updateApiKey(@Body() body: { apiKey: string }) {
+    if (!body?.apiKey) {
+      throw new BadRequestException('Sila masukkan Kunci API DeepSeek');
+    }
+    this.deepSeek.setApiKey(body.apiKey);
+    return { success: true, ...this.deepSeek.getMaskedApiKey() };
   }
 }

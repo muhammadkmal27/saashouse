@@ -3,6 +3,7 @@ import { AiController } from './ai.controller';
 import { CryptoAutopilotService } from './crypto-autopilot.service';
 import { CryptoMarketService } from './crypto-market.service';
 import { AiService } from './ai.service';
+import { DeepSeekClient } from './deepseek.client';
 
 describe('AiController', () => {
   let controller: AiController;
@@ -31,6 +32,13 @@ describe('AiController', () => {
           provide: AiService,
           useValue: {
             analyzeMarketRegime: jest.fn().mockResolvedValue({ regime: 'Bullish' }),
+          },
+        },
+        {
+          provide: DeepSeekClient,
+          useValue: {
+            getMaskedApiKey: jest.fn().mockReturnValue({ hasKey: true, maskedKey: 'sk-c5d...ae8' }),
+            setApiKey: jest.fn(),
           },
         },
       ],

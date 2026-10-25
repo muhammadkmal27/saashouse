@@ -125,6 +125,21 @@ export class CryptoAutopilotService {
     return this.getStatus();
   }
 
+  reset(capital: number = 100) {
+    this.initialCapital = capital > 0 ? capital : 100;
+    this.balance = this.initialCapital;
+    this.cryptoHoldings = 0;
+    this.openPosition = null;
+    this.trades = [];
+    this.parameters = { takeProfitPct: 2.2, stopLossPct: 1.5, rsiThreshold: 35, gridSpreadPct: 1.2 };
+    this.aiReflectionLogs.push({
+      timestamp: new Date().toISOString(),
+      note: `Autopilot diset semula ke modal RM ${this.initialCapital} dan parameter lalai.`,
+      parameters: { ...this.parameters },
+    });
+    return this.getStatus();
+  }
+
   async processPriceTick(currentPrice: number, candles: any[] = []): Promise<AutopilotStatus> {
     if (currentPrice <= 0) return this.getStatus();
     this.lastPrice = currentPrice;
