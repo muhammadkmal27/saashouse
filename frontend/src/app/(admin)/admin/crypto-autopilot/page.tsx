@@ -178,7 +178,7 @@ export default function AdminCryptoAutopilotPage() {
             <div className="relative flex-1 md:w-72">
               <input
                 type={showSecret ? "text" : "password"}
-                placeholder="sk-c5d213d08..."
+                placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 value={keyInput}
                 onChange={(e) => setKeyInput(e.target.value)}
                 className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 pr-8"

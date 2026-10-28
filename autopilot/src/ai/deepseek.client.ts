@@ -57,7 +57,7 @@ export class DeepSeekClient {
 
   private getApiKey(): string {
     if (this.customApiKey) return this.customApiKey;
-    const key = process.env.DEEPSEEK_API_KEY || 'sk-c5d213d08c9247b48b7c8fd8011f5ae8';
+    const key = process.env.DEEPSEEK_API_KEY || '';
     return key.trim();
   }
 

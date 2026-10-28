@@ -12,3 +12,4 @@ brain/
 *.log
 stripe.exe
 raw_safeguard_output.json
+*deepseek_config.json
